@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>班別設定</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統</p>
+                    <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./employee.html">員工資料</a></li>
+                    <li><a href="./closed_date.html">休診設定</a></li>
+                    <li class="active"><a href="./shift_setting.html">班別設定</a></li>
+                    <li><a href="./salary_attendance.html">薪資&考勤設定</a></li>
+                    <li><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li><a href="#">基本薪資</a></li>
+                    <li><a href="./shift.html">排班表</a></li>
+                    <li><a href="./shift_record.html">打卡明細</a></li>
+                    <li><a href="#">出勤明細</a></li>
+                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="#">每月薪資明細表</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addShiftSetting">新增班別</button>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">名稱</th>
+                                <th scope="col">第一診<br>上班時間</th>
+                                <th scope="col">第一診<br>下班時間</th>
+                                <th scope="col">工時(分)</th>
+                                <th scope="col">第二診<br>上班時間</th>
+                                <th scope="col">第二診<br>下班時間</th>
+                                <th scope="col">工時(分)</th>
+                                <th scope="col">第三診<br>上班時間</th>
+                                <th scope="col">第三診<br>下班時間</th>
+                                <th scope="col">工時(分)</th>
+                                <th scope="col">餐費補助</th>
+                                <th scope="col" colspan="2">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <tr v-for="(d, index) in data">
+                                    <th scope="row">{{index + 1}}</th>
+                                    <td>{{d.shift_name}}</td>
+                                    <td>{{d.on_1st}}</td>
+                                    <td>{{d.off_1st}}</td>
+                                    <td>{{d.time_1st}}</td>
+                                    <td>{{d.on_2nd}}</td>
+                                    <td>{{d.off_2nd}}</td>
+                                    <td>{{d.time_2nd}}</td>
+                                    <td>{{d.on_3rd}}</td>
+                                    <td>{{d.off_3rd}}</td>
+                                    <td>{{d.time_3rd}}</td>
+                                    <td>{{d.meal_times}}</td>                    
+                                    <td>
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#updateShiftSetting" @click="getUpdateShiftSettingData(index)">編輯</button> 
+                                        <button class="btn btn-primary" @click="deleteShiftSettingData(d.shift_id)">刪除</button> 
+                                    </td>
+                                </tr>
+                                <tr v-show="data == null || data.length < 1">
+                                    <td colspan="4" style="text-align: center;">無班別資料</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ADD SHIFT SETTING Modal -->
+        <div class="modal fade" id="addShiftSetting" tabindex="-1" role="dialog" aria-labelledby="addShiftSettingLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addShiftSettingLabel">新增班別</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="shift_name">名稱</label>
+                            <input type="text" class="form-control" id="shift_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="on_1st">第一診 上班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control" id="on_1st">
+                        </div>
+                        <div class="form-group">
+                            <label for="off_1st">第一診 下班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_1st">
+                        </div>
+                        <div class="form-group">
+                            <label for="on_2nd">第二診 上班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_2nd">
+                        </div>
+                        <div class="form-group">
+                            <label for="off_2nd">第二診 下班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_2nd">
+                        </div>
+                        <div class="form-group">
+                            <label for="on_3rd">第三診 上班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_3rd">
+                        </div>
+                        <div class="form-group">
+                            <label for="off_3rd">第三診 下班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_3rd">
+                        </div>
+                        <div class="form-group">
+                            <label for="meal_times">餐費補助</label>
+                            <input type="text" class="form-control" id="meal_times" value="0">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="addShiftSettingData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPDATE SHIFT SETTING Modal -->
+        <div class="modal fade" id="updateShiftSetting" tabindex="-1" role="dialog" aria-labelledby="updateShiftSettingLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateShiftSettingLabel">編輯班別</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="shift_name">名稱</label>
+                            <input type="text" class="form-control" id="update_shift_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="on_1st">第一診 上班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_1st">
+                        </div>
+                        <div class="form-group">
+                            <label for="off_1st">第一診 下班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_1st">
+                        </div>
+                        <div class="form-group">
+                            <label for="on_2nd">第二診 上班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_2nd">
+                        </div>
+                        <div class="form-group">
+                            <label for="off_2nd">第二診 下班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_2nd">
+                        </div>
+                        <div class="form-group">
+                            <label for="on_3rd">第三診 上班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_3rd">
+                        </div>
+                        <div class="form-group">
+                            <label for="off_3rd">第三診 下班時間</label>
+                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_3rd">
+                        </div>
+                        <div class="form-group">
+                            <label for="meal_times">餐費補助</label>
+                            <input type="text" class="form-control" id="update_meal_times">
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" class="form-control" id="update_shift_id">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="updateShiftSettingData()">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <script src="../assets/js/loading.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+        });
+
+        new Vue({
+            el: "#app",
+            data: {
+                data: []
+            },
+            created() {
+                get('/api_v1.1/clinic/shift/setting').then(res => {
+                        this.data = res.data
+                })
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.status === 200) {
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                addShiftSettingData() {
+                    const data = {
+                        'shift_name': $('#shift_name').val(),
+                        'on_1st': $('#on_1st').val(),
+                        'off_1st': $('#off_1st').val(),
+                        'on_2nd': $('#on_2nd').val(),
+                        'off_2nd': $('#off_2nd').val(),
+                        'on_3rd': $('#on_3rd').val(),
+                        'off_3rd': $('#off_3rd').val(),
+                        'meal_times': $('#meal_times').val()
+                    }
+                    post('/api_v1.1/clinic/shift/setting/add', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./shift_setting.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                getUpdateShiftSettingData(index) {
+                    $('#update_shift_name').val(this.data[index].shift_name)
+                    $('#update_on_1st').val(this.data[index].on_1st)
+                    $('#update_off_1st').val(this.data[index].off_1st)
+                    $('#update_on_2nd').val(this.data[index].oon_2nd)
+                    $('#update_off_2nd').val(this.data[index].off_2nd)
+                    $('#update_on_3rd').val(this.data[index].on_3rd)
+                    $('#update_off_3rd').val(this.data[index].off_3rd)
+                    $('#update_meal_times').val(this.data[index].meal_times)
+                    $('#update_shift_id').val(this.data[index].shift_id)
+                },
+                updateShiftSettingData() {
+                    const data = {
+                        'shift_name': $('#update_shift_name').val(),
+                        'on_1st': $('#update_on_1st').val(),
+                        'off_1st': $('#update_off_1st').val(),
+                        'on_2nd': $('#update_on_2nd').val(),
+                        'off_2nd': $('#update_off_2nd').val(),
+                        'on_3rd': $('#update_on_3rd').val(),
+                        'off_3rd': $('#update_off_3rd').val(),
+                        'meal_times': $('#update_meal_times').val(),
+                        'shift_id': $('#update_shift_id').val()
+                    }
+                    post('/api_v1.1/clinic/shift/setting/update', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./shift_setting.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                deleteShiftSettingData(shift_id) {
+                    if(confirm('是否要刪除?')) {
+                        const data = {
+                            'shift_id': shift_id
+                        }
+                        post('/api_v1.1/clinic/shift/setting/delete', data).then(res => {
+                            if (res.status === 201) {
+                                alert(res.message)
+                                window.location.reload('./shift_setting.html')
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>員工資料</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統</p>
+                    <li><a href="./assistant.html">診所管理</a></li>
+                    <li  class="active"><a href="./employee.html">員工資料</a></li>
+                    <li><a href="./closed_date.html">休診設定</a></li>
+                    <li><a href="./shift_setting.html">班別設定</a></li>
+                    <li><a href="./salary_attendance.html">薪資&考勤設定</a></li>
+                    <li><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li><a href="#">基本薪資</a></li>
+                    <li><a href="./shift.html">排班表</a></li>
+                    <li><a href="./shift_record.html">打卡明細</a></li>
+                    <li><a href="#">出勤明細</a></li>
+                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="#">每月薪資明細表</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="./employee_leave.html">離職名單</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <button type="reset" class="btn btn-primary"data-toggle="modal" data-target="#addEmployee" @click="add()">新增員工</button>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">工號</th>
+                                <th scope="col">員工姓名</th>
+                                <th scope="col">到職日</th>
+                                <th scope="col">職位</th>
+                                <th scope="col">職別</th>
+                                <th scope="col">生日</th>
+                                <th scope="col">性別</th>
+                                <th scope="col">電話</th>
+                                <th scope="col">手機</th>
+                                <th scope="col" colspan="4">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <tr v-for="(d, index) in data">
+                                    <th scope="row">{{index + 1}}</th>
+                                    <td><p>{{d.job_number}}</p></td>
+                                    <td><p>{{d.name}}</p></td>
+                                    <td><p>{{d.work_at}}</p></td>
+                                    <td><p>{{d.position}}</p></td>
+                                    <td><p v-if="d.level_of_position == 2">正職</p><p v-if="d.level_of_position == 1">兼職</p><p v-if="d.level_of_position == 0">試用</p></td>                         
+                                    <td><p>{{d.birthday}}</p></td>
+                                    <td><p v-if="d.gender == 1">男</p><p v-else>女</p></td>
+                                    <td><p>{{d.telephone}}</p></td>
+                                    <td><p>{{d.cellphone}}</p></td>
+                                    <td>
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#addEmployee" @click="getEmployeeData(index)">編輯</button> 
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#leave"@click="getLeaveData(index)">離職</button> 
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#family" @click="getFamilyData(d.employee_id)">眷屬</button> 
+                                        <button class="btn btn-primary"  data-toggle="modal" data-target="#addFamily" @click="addFamily(d.employee_id)">新增眷屬</button>
+                                    </td>
+                                </tr>
+                                <tr v-show="data == null || data.length < 1">
+                                    <td colspan="11" style="text-align: center;">無員工資料</td>
+                                </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD Modal -->
+        <div class="modal fade" id="addEmployee" tabindex="-1" role="dialog" aria-labelledby="addEmployeeLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addEmployeeLabel">員工管理</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="employeeForm">
+                            <div class="form-group">
+                                <label for="job_number">工號</label>
+                                <input class="form-control resetByAdd" type="text" id="job_number">
+                            </div>
+                            <div class="form-group">
+                                <label for="name">*姓名</label>
+                                <input class="form-control resetByAdd" type="text" id="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="work_at">*工作日</label>
+                                <input class="form-control resetByAdd" type="date" id="work_at">
+                            </div>
+                            <div class="form-group">
+                                <label for="position">*職稱</label>
+                                <input class="form-control resetByAdd" type="text" id="position">
+                            </div>
+                            <div class="form-group">
+                                <label for="level_of_position">*職別</label>
+                                <select class="form-control resetByAdd" name="level_of_position" id="level_of_position">
+                                    <option value="0">試用</option>
+                                    <option value="1">兼職</option>
+                                    <option value="2" selected>正職</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="birthday">生日</label>
+                                <input class="form-control resetByAdd" type="date" id="birthday">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">*性別</label>
+                                <select class="form-control resetByAdd" name="gender" id="gender">
+                                    <option value="0">男</option>
+                                    <option value="1">女</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">*狀態</label>
+                                <select class="form-control resetByAdd" name="status" id="status">
+                                    <option value="1">休假</option>
+                                    <option value="2" selected>在職</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="telephone">家電</label>
+                                <input class="form-control resetByAdd" type="text" id="telephone">
+                            </div>
+                            <div class="form-group">
+                                <label for="cellphone">*手機</label>
+                                <input class="form-control resetByAdd" type="text" id="cellphone">
+                            </div>
+                            <div class="form-group">
+                                <label for="id_card_number">*身份證字號</label>
+                                <input class="form-control resetByAdd" type="text" id="id_card_number">
+                            </div>
+                            <div class="form-group">
+                                <label for="blood_type">血型</label>
+                                <input class="form-control resetByAdd" type="text" id="blood_type">
+                            </div>
+                            <div class="form-group">
+                                <label for="resistence_phone">戶籍電話</label>
+                                <input class="form-control resetByAdd" type="text" id="resistence_phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="resistence_address">戶籍地址</label>
+                                <input class="form-control resetByAdd" type="text" id="resistence_address">
+                            </div>
+                            <div class="form-group">
+                                <label for="mailing_phone">聯絡電話</label>
+                                <input class="form-control resetByAdd" type="text" id="mailing_phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="mailing_address">聯絡地址</label>
+                                <input class="form-control resetByAdd" type="text" id="mailing_address">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">*email</label>
+                                <input class="form-control resetByAdd" type="text" id="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergency_contact">緊急聯絡人</label>
+                                <input class="form-control resetByAdd" type="text" id="emergency_contact">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergency_phone">緊急聯絡人電話</label>
+                                <input class="form-control resetByAdd" type="text" id="emergency_phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergency_relationship">緊急聯絡人關係</label>
+                                <input class="form-control resetByAdd" type="text" id="emergency_relationship">
+                            </div>
+                            <div class="form-group">
+                                <label for="assistant_number">助理人數</label>
+                                <input class="form-control resetByAdd" type="text" id="assistant_number">
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control resetByAdd" type="hidden" id="employee_id">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary btn-add" @click="addEmployeeData()">送出</button>
+                        <button type="button" class="btn btn-primary btn-update" @click="updateEmployeeData()">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEAVE Modal -->
+        <div class="modal fade" id="leave" tabindex="-1" role="dialog" aria-labelledby="leaveLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="leaveLabel">離職日期</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="leave_at">離開日</label>
+                            <input class="form-control resetByLeave" type="date" id="leave_at">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="hidden" id="stauts" value="0">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="hidden" id="leave_employee_id">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="leave()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD FAMILY Modal -->
+        <div class="modal fade" id="addFamily" tabindex="-1" role="dialog" aria-labelledby="addFamilyLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addFamilyLabel">員工眷屬</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name2">姓名</label>
+                            <input type="text" class="form-control resetByFamily" id="family_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthday2">生日</label>
+                            <input type="date" class="form-control resetByFamily" id="family_birthday">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_card_number2">身份證字號</label>
+                            <input type="text" class="form-control resetByFamily" id="family_id_card_number" >
+                        </div>
+                        <div class="form-group">
+                            <label for="relationship2">關係</label>
+                            <input type="text" class="form-control resetByFamily" id="family_relationship">
+                        </div>
+                        <div class="form-group">
+                            <label for="health_relief2">健保減免</label>
+                            <select name="health_relief2" id="family_health_relief" class="form-control resetByFamily">
+                                <option value="0.00">0</option>
+                                <option value="0.25">0.25</option>
+                                <option value="0.5">0.5</option>
+                                <option value="0.75">0.75</option>
+                                <option value="1.00">1</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" id="family_employee_id">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="addFamilyData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAMILY Modal -->
+        <div class="modal fade" id="family" tabindex="-1" role="dialog" aria-labelledby="familyLabel" aria-hidden="true">
+            <div class="modal-dialog  modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="familyLabel">眷屬管理</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">眷屬姓名</th>
+                                    <th scope="col">眷屬關係</th>
+                                    <th scope="col">眷屬生日</th>
+                                    <th scope="col">眷屬身分證字號</th>
+                                    <th scope="col">眷屬健保費減免</th>
+                                    <th scope="col">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(f, index) in family">
+                                    <th scope="row">{{ index+1 }}</th>
+                                    <td>{{ f.name }}</td>
+                                    <td>{{ f.relationship }}</td>
+                                    <td>{{ f.birthday }}</td>
+                                    <td>{{ f.id_card_number }}</td>
+                                    <td>{{ f.health_relief }}</td>
+                                    <td>
+                                        <button class="btn btn-primary" @click="getFamilyUpdateData(index)">編輯</button>
+                                        <button class="btn btn-primary" @click="deleteFamilyData(f.employee_id, f.family_id)">刪除</button>
+                                    </td>
+                                </tr>
+                                <tr v-show="family.length == 0">
+                                    <td colspan="6" style="text-align: center;">無眷屬資料</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div id="familyUpdate" style="display: none;">
+                            <div class="form-group">
+                                <label for="name2">姓名</label>
+                                <input type="text" class="form-control resetByFamily" id="update_family_name">
+                            </div>
+                            <div class="form-group">
+                                <label for="birthday2">生日</label>
+                                <input type="date" class="form-control resetByFamily" id="update_family_birthday">
+                            </div>
+                            <div class="form-group">
+                                <label for="id_card_number2">身份證字號</label>
+                                <input type="text" class="form-control resetByFamily" id="update_family_id_card_number" >
+                            </div>
+                            <div class="form-group">
+                                <label for="relationship2">關係</label>
+                                <input type="text" class="form-control resetByFamily" id="update_family_relationship">
+                            </div>
+                            <div class="form-group">
+                                <label for="health_relief2">健保減免</label>
+                                <select name="health_relief2" id="update_family_health_relief" class="form-control resetByFamily">
+                                    <option value="0.00">0</option>
+                                    <option value="0.25">0.25</option>
+                                    <option value="0.5">0.5</option>
+                                    <option value="0.75">0.75</option>
+                                    <option value="1.00">1</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <input type="hidden" id="update_family_employee_id">
+                            </div>
+                            <div class="form-group">
+                                <input type="hidden" id="update_family_family_id">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary btn-familyUpdate" @click="updateFamilyData()" disabled>更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    
+    <script src="../assets/js/loading.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+        });
+
+        new Vue({
+            el: "#app",
+            data: {
+                data: [],
+                family: []
+            },
+            created() {
+                get('/api_v1.1/clinic/employee').then(res => {
+                        this.data = res.data
+                })
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.status === 200) {
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                add() {
+                    $('.btn-update').css('display', 'none')
+                    $('.btn-add').css('display', 'block')
+                    $('.resetByAdd').val('')
+                },
+                addEmployeeData() {
+                    const data = {
+                        'job_number': $('#job_number').val(),
+                        'name': $('#name').val(),
+                        'work_at': $('#work_at').val(),
+                        'position': $('#position').val(),
+                        'level_of_position': $('#level_of_position').val(),
+                        'birthday': $('#birthday').val(),
+                        'gender':  $('#gender').val(),
+                        'status': $('#status').val(),
+                        'telephone': $('#telephone').val(),
+                        'cellphone': $('#cellphone').val(),
+                        'id_card_number': $('#id_card_number').val(),
+                        'blood_type': $('#blood_type').val(),
+                        'resistence_phone': $('#resistence_phone').val(),
+                        'resistence_address': $('#resistence_address').val(),
+                        'mailing_phone': $('#mailing_phone').val(),
+                        'mailing_address': $('#mailing_address').val(),
+                        'email': $('#email').val(),
+                        'emergency_contact': $('#emergency_contact').val(),
+                        'emergency_phone': $('#emergency_phone').val(),
+                        'emergency_relationship': $('#emergency_relationship').val(),
+                        'assistant_number':$('#assistant_number').val()
+                    }
+                    post('/api_v1.1/clinic/employee/add', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./employee.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                getEmployeeData(index) {
+                    $('.btn-update').css('display', 'block')
+                    $('.btn-add').css('display', 'none')
+                    $('#job_number').val(this.data[index].job_number)
+                    $('#name').val(this.data[index].name)
+                    $('#work_at').val(this.data[index].work_at)
+                    $('#position').val(this.data[index].position)
+                    $('#level_of_position').val(this.data[index].level_of_position)
+                    $('#birthday').val(this.data[index].birthday)
+                    $('#gender').val(this.data[index].gender)
+                    $('#status').val(this.data[index].status)
+                    $('#telephone').val(this.data[index].telephone)
+                    $('#cellphone').val(this.data[index].cellphone)
+                    $('#id_card_number').val(this.data[index].id_card_number)
+                    $('#blood_type').val(this.data[index].blood_type)
+                    $('#resistence_phone').val(this.data[index].resistence_phone)
+                    $('#resistence_address').val(this.data[index].resistence_address)
+                    $('#mailing_phone').val(this.data[index].mailing_phone)
+                    $('#mailing_address').val(this.data[index].mailing_address)
+                    $('#email').val(this.data[index].email)
+                    $('#emergency_contact').val(this.data[index].emergency_contact)
+                    $('#emergency_phone').val(this.data[index].emergency_phone)
+                    $('#emergency_relationship').val(this.data[index].emergency_relationship)
+                    $('#assistant_number').val(this.data[index].assistant_number)
+                    $('#employee_id').val(this.data[index].employee_id)
+                },
+                updateEmployeeData() {
+                    const data = {
+                        'job_number': $('#job_number').val(),
+                        'name': $('#name').val(),
+                        'work_at': $('#work_at').val(),
+                        'position': $('#position').val(),
+                        'level_of_position': $('#level_of_position').val(),
+                        'birthday': $('#birthday').val(),
+                        'gender':  $('#gender').val(),
+                        'status': $('#status').val(),
+                        'telephone': $('#telephone').val(),
+                        'cellphone': $('#cellphone').val(),
+                        'id_card_number': $('#id_card_number').val(),
+                        'blood_type': $('#blood_type').val(),
+                        'resistence_phone': $('#resistence_phone').val(),
+                        'resistence_address': $('#resistence_address').val(),
+                        'mailing_phone': $('#mailing_phone').val(),
+                        'mailing_address': $('#mailing_address').val(),
+                        'email': $('#email').val(),
+                        'emergency_contact': $('#emergency_contact').val(),
+                        'emergency_phone': $('#emergency_phone').val(),
+                        'emergency_relationship': $('#emergency_relationship').val(),
+                        'assistant_number':$('#assistant_number').val(),
+                        'employee_id':$('#employee_id').val()
+                    }
+                    post('/api_v1.1/clinic/employee/update', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./employee.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                getLeaveData(index) {
+                    $('.resetByLeave').val('')
+                    $('#leave_employee_id').attr("value",this.data[index].employee_id)
+                },
+                leave() {
+                    const data = {
+                        'leave_at': $('#leave_at').val(),
+                        'status': $('#status').val(),
+                        'employee_id': $('#leave_employee_id').val()
+                    }
+                    post('/api_v1.1/clinic/employee/delete/soft', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./employee.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                getFamilyData(employee_id) {
+                    $('#familyUpdate').css('display', 'none')
+                    get('/api_v1.1/clinic/employee/family?employee_id='+employee_id).then(res => {
+                        if (res.status === 200) {
+                            this.family = res.data
+                        }
+                    })
+                },
+                addFamily(employee_id) {
+                    $('#family_employee_id').val(employee_id)
+                },
+                addFamilyData() {
+                    const data = {
+                        'employee_id': $('#family_employee_id').val(),
+                        'name': $('#family_name').val(),
+                        'birthday': $('#family_birthday').val(),
+                        'id_card_number': $('#family_id_card_number').val(),
+                        'relationship': $('#family_relationship').val(),
+                        'health_relief': $('#family_health_relief').val()
+                    }
+                    post('/api_v1.1/clinic/employee/family/add', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./employee.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                getFamilyUpdateData(index) {
+                    $('#update_family_employee_id').val(this.family[index].employee_id)
+                    $('#update_family_name').val(this.family[index].name)
+                    $('#update_family_birthday').val(this.family[index].birthday)
+                    $('#update_family_id_card_number').val(this.family[index].id_card_number)
+                    $('#update_family_relationship').val(this.family[index].relationship)
+                    $('#update_family_health_relief').val(this.family[index].health_relief)
+                    $('#update_family_family_id').val(this.family[index].family_id)
+                    $('#familyUpdate').css('display', 'block')
+                    $('.btn-familyUpdate').attr('disabled', false);
+                },
+                updateFamilyData() {
+                    const data = {
+                        'employee_id': $('#update_family_employee_id').val(),
+                        'family_id': $('#update_family_family_id').val(),
+                        'name': $('#update_family_name').val(),
+                        'birthday': $('#update_family_birthday').val(),
+                        'id_card_number': $('#update_family_id_card_number').val(),
+                        'relationship': $('#update_family_relationship').val(),
+                        'health_relief': $('#update_family_health_relief').val()
+                    }
+                    post('/api_v1.1/clinic/employee/family/update', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./employee.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                deleteFamilyData(employee_id, family_id) {
+                    if(confirm('是否要刪除該位眷屬?')) {
+                            const data = {
+                            'employee_id': employee_id,
+                            'family_id': family_id
+                        }
+                        post('/api_v1.1/clinic/employee/family/delete', data).then(res => {
+                            if (res.status === 201) {
+                                alert(res.message)
+                                window.location.reload('./employee.html')
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>班別設定</title>
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/jquery-3.4.1.min.js"></script>
+    <script src="../assets/js/xlsx.full.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0 20px;
+            line-height: 1;
+        }
+        a {
+            text-decoration-line: none;
+        }
+        .title-wrapper {
+            margin-bottom: 10px;
+        }
+        .title-wrapper input {
+            width: 300px;
+        }
+        .content-wrapper textarea {
+            width: 300px;
+            height: 150px;
+        }
+        .modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  margin: 10% auto;
+  width: 60%;
+  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
+  animation-name: modalopen;
+  animation-duration: var(--modal-duration);
+}
+
+.modal-header h2,
+.modal-footer h3 {
+  margin: 0;
+}
+
+.modal-header {
+  background: var(--modal-color);
+  padding: 15px;
+  color: #fff;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.modal-body {
+  padding: 10px 20px;
+  background: #fff;
+}
+
+.modal-footer {
+  background: var(--modal-color);
+  padding: 10px;
+  color: #fff;
+  text-align: center;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.close {
+  color: #ccc;
+  float: right;
+  font-size: 30px;
+  color: #fff;
+}
+
+.close2 {
+  color: #ccc;
+  float: right;
+  font-size: 30px;
+  color: #fff;
+}
+
+.close3 {
+  color: #ccc;
+  float: right;
+  font-size: 30px;
+  color: #fff;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+.close2:hover,
+.close2:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.close3:hover,
+.close3:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#footer2 {
+    display: none;
+}
+@keyframes modalopen {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+    </style>
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id="btn">
+        <button id="btnLogout">登出</button>        
+    </div>
+   
+    <div id="navbar">
+        <ul>
+                <li><a href="../employee/admin.html">員工資料</a></li>
+                <li><a href="../closed_date/admin.html">休診設定</a></li>
+                <li>班別設定</li>
+                <li><a href="../attendance/admin.html">考勤設定</a></li>
+                <li><a href="../salary/admin.html">薪資設定</a></li>
+                <li><a href="../salary/item.html">薪項名稱設定</a></li>
+                <li>基本薪資</li>
+                <li><a href="../shift/index.html">排班表</a></li>
+                <li>打卡明細</li>
+                <li>出勤明細</li>
+                <li>出勤統計表</li>
+                <li>每月薪資明細表</li>
+            </ul>
+    </div>
+   
+
+    
+
+    <div id='table-container'>
+        <p>上傳打卡紀錄</p>
+        <input type="file" id="file1">
+        <button id="fileButton">上傳</button>
+        <hr>
+        <label for="date">輸入日期</label>
+        <input type="text" id="date"><br>
+        <button id="btnGET">提交</button>
+      
+        <p>返回資料</p>
+        <hr>
+        <div id="date-container">
+                <button onclick="modal_add()">新增</button>
+        </div>
+</div>
+<div id="my-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close">&times;</span>
+        <h2>編輯紀錄</h2>
+      </div>
+      <div class="modal-body">
+            <table id="record_table">
+                <tr>
+                    <th>員工名稱</th>
+                    <th>打卡時間</th>
+                    <th>上傳時間</th>
+                </tr>
+            </table>
+            <hr>
+            <div id="record_edit">
+                <tr>
+                    <td><input type="text" id="record_name" disabled></td>
+                    <td><input type="text" id="record_time"></td>
+                    <td><input type="text" id="upload_time" disabled></td>
+                    <input type="hidden" id="employee_id">
+                    <input type="hidden" id="old_record_time">
+                    <input type="hidden" id="old_upload_time">
+                </tr>
+            </div>
+            <div class="modal-footer" id="footer">
+                <button id="btnPOST" >更新</button>
+              </div>
+        </div>
+    </div>
+  </div>
+  <div id="my-modal2" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close">&times;</span>
+        <h2>新增紀錄</h2>
+      </div>
+      <div class="modal-body">
+            <table id="record_table">
+                <tr>
+                    <th>員工名稱</th>
+                    <th>打卡時間</th>
+                </tr>
+            </table>
+            <hr>
+            <div id="record_add">
+                <tr>
+                    <td>
+                        <select name="" id="add_employee_id">
+                        </select>
+                    </td>
+                    <td><input type="text" id="add_record_time" placeholder="2019-12-25 19:00:03"></td>
+                </tr>
+            </div>
+            <div class="modal-footer" id="footer">
+                <button id="btnPOST2" >新增</button>
+              </div>
+        </div>
+    </div>
+  </div>
+   
+    <script>
+        //get
+        function get(url) {
+            return $.get(url)
+        }
+
+        //post
+        function post(url, data = {}) {
+            return $.ajax({
+                type: 'post',
+                url,
+                data: JSON.stringify(data),
+                contentType: "application/json",
+            })
+        }
+
+        const tableContainer = $('#table-container')
+
+        
+         //get
+         function get(url) {
+            return $.get(url)
+        }
+
+        //post
+        function post(url, data = {}) {
+            return $.ajax({
+                type: 'post',
+                url,
+                data: JSON.stringify(data),
+                contentType: "application/json",
+            })
+        }
+
+        //獲取今天日期
+        function getTodayDate() {
+            const fullDate = new Date();
+            const yyyy = fullDate.getFullYear();
+            const MM = (fullDate.getMonth() + 1) >= 10 ? (fullDate.getMonth() + 1) : ("0" + (fullDate.getMonth() + 1));
+            const today = yyyy + "-" + MM;
+            return today;
+        }
+
+        $('#date').val(getTodayDate())
+
+        get('/api_v1.0_dev/shift/get_record').then(res => {
+            if (res.errno !== 0 && res.message === 'login not yet') {
+                location.href = '../login.html'
+                return
+            }
+            //此人user
+            if (res.message === 'Permission denied') {
+                location.href = './index.html'
+                return
+            }else {
+
+                const data = res.data || []
+                data.forEach(item => {
+                    // let name = item.name ? ` => ${item.name}` : ''
+                    $('#date-container').append($(`
+                        <p>${item.date}-${item.employee_id}-${item.upload_time}-${item.name}--    <button onclick="modal_record('${item.date}', ${item.employee_id}, '${item.upload_time}', '${item.name}')">編輯</button>
+    <button onclick="delete_record('${item.date}', ${item.employee_id}, '${item.upload_time}', '${item.name}')">刪除</button>
+</p>
+                    `))
+                })
+            }
+        })
+        get('/api_v1.0_dev/employee/index').then(res => {
+            if (res.errno !== 0 && res.message === 'login not yet') {
+                location.href = '../login.html'
+                return
+            }
+            //此人user
+            if (res.message === 'Permission denied') {
+                location.href = './index.html'
+                return
+            }else {
+
+                const data = res.data || []
+                data.forEach(item => {
+                    // let name = item.name ? ` => ${item.name}` : ''
+                    $('#add_employee_id').append($(`
+                    <option value="${item.employee_id}">${item.name}</option>`))
+                })
+            }
+        })
+
+        //logout out
+        $('#btnLogout').click(() => {
+            const url = '/api_v1.0_dev/login/logout'
+            get(url).then(res => {
+                if (res.errno === 0) {                    
+                    alert('logout success')
+                    location.href = '../login.html'
+                    return
+                }
+                else {
+                    alert(res.message)
+                }
+            })
+        })
+
+        $('#btnGET').click(() => {
+            const url = '/api_v1.0_dev/shift/get_record/date/' + $('#date').val()
+    
+            get(url).then(res => {
+                if (res.errno === 0) {
+                    $('#date-container').empty()
+                    res.data.forEach(item => {
+                        // let name = item.name ? ` => ${item.name}` : ''
+                        $('#date-container').append($(`
+                            <p>${item.date}-${item.employee_id}-${item.upload_time}-${item.name}</p>
+                        `))
+                    })
+                    
+                    return
+                }
+                else {
+                    alert(res.message)
+                    console.log(res.message)
+                }
+            })
+        })
+
+        //獲取client端文件位置
+        var fileURL
+        function getObjectURL(file) {  
+            var url = null;  
+            if (window.createObjcectURL != undefined) {  
+                url = window.createOjcectURL(file);  
+            } else if (window.URL != undefined) {  
+                url = window.URL.createObjectURL(file);  
+            } else if (window.webkitURL != undefined) {  
+                url = window.webkitURL.createObjectURL(file);  
+            }  
+            return url;  
+        }
+        //當file的值更動，就會調用getObjectURL，把位置存在url變數中
+        $("#file1").change(function(){
+            var file = this.files[0];
+            fileURL = getObjectURL(file);
+           
+        });
+
+        
+        //當上傳按下，把excel轉成json，post到後端
+        $('#fileButton').click(function(){
+                console.log(fileURL)
+                var oReq = new XMLHttpRequest();
+                oReq.open("GET", fileURL, true);
+                oReq.responseType = "arraybuffer";
+
+                oReq.onload = function(e) {
+                var arraybuffer = oReq.response;
+
+                /* convert data to binary string */
+                var data = new Uint8Array(arraybuffer);
+                var arr = new Array();
+                for(var i = 0; i != data.length; ++i) arr[i] = String.fromCharCode(data[i]);
+                var bstr = arr.join("");
+
+                /* Call XLSX */
+                var workbook = XLSX.read(bstr, {type:"binary", cellDates:true});
+
+                /* DO SOMETHING WITH workbook HERE */
+                var first_sheet_name = workbook.SheetNames[0];
+                /* Get worksheet */
+                var worksheet = workbook.Sheets[first_sheet_name];
+                console.log(XLSX.utils.sheet_to_json(worksheet,{raw:true, date_format:"YYYY-MM-DD HH:ii:ss"}));
+
+                //POST到後端
+                const url = '/api_v1.0_dev/shift/upload_record/'
+                post(url, XLSX.utils.sheet_to_json(worksheet,{raw:true, date_format:"YYYY-MM-DD HH:ii:ss"})).then(res => {
+                    if (res.errno === 0) {
+                        // console.log(res.data)
+                        alert('upload success')
+                        window.location.reload('./admin.html')
+                        return
+                    }
+                    else {
+                        alert(res.message)
+                        console.log(res.message)
+                        console.log(res.data)
+                    }
+                })
+            }
+
+            oReq.send();
+        })
+
+        $('.close').click(() => {
+            $('#my-modal').css('display','none')
+            $('#my-modal2').css('display','none')
+        })
+
+        function modal_record(date, employee_id, upload_time, name) {
+            $('#record_name').val(name)
+            $('#record_time').val(date)
+            $('#upload_time').val(upload_time)
+            $('#employee_id').val(employee_id)
+            $('#old_record_time').val(date)
+            $('#old_upload_time').val(upload_time)
+            $('#my-modal').css('display','block'); 
+        }
+
+        function modal_add() {
+            $('#my-modal2').css('display','block'); 
+        }
+
+
+
+        $('#btnPOST').click(() => {
+            const url = '/api_v1.0_dev/shift/edit_record/'
+            const date =$('#record_time').val()
+            const employee_id  =$('#employee_id').val()
+            const old_record_time =$('#old_record_time').val()
+            const old_upload_time =$('#old_upload_time').val()
+            data = {
+                date,
+                employee_id,
+                old_record_time,
+                old_upload_time
+            }
+                post(url, data).then(res => {
+                    if (res.errno === 0) {
+                        // console.log(res.data)
+                        alert('update success')
+                        window.location.reload('./admin.html')
+                        return
+                    }
+                    else {
+                        alert(res.message)
+                        console.log(res.message)
+                        console.log(res.data)
+                    }
+                })
+        })
+
+        function delete_record(date, employee_id, upload_time) {
+            const url = '/api_v1.0_dev/shift/del_record/'
+            data = {
+                date,
+                employee_id,
+                upload_time
+            }
+            if(!confirm('確定要刪除嘛？')) { return }
+                post(url, data).then(res => {
+                    if (res.errno === 0) {
+                        // console.log(res.data)
+                        alert('delete success')
+                        window.location.reload('./admin.html')
+                        return
+                    }
+                    else {
+                        alert(res.message)
+                        console.log(res.message)
+                        console.log(res.data)
+                    }
+                })
+        }
+
+        $('#btnPOST2').click(() => {
+            const url = '/api_v1.0_dev/shift/upload_record/'
+            const date =$('#add_record_time').val()
+            const employee_id  =$('#add_employee_id').val()
+            data = {
+                date,
+                employee_id
+            }
+                post(url, data).then(res => {
+                    if (res.errno === 0) {
+                        // console.log(res.data)
+                        alert('add success')
+                        window.location.reload('./admin.html')
+                        return
+                    }
+                    else {
+                        alert(res.message)
+                        console.log(res.message)
+                        console.log(res.data)
+                    }
+                })
+        })
+
+
+    </script>
+
+</body>
+</html>

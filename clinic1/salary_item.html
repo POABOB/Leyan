@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>薪項名稱設定</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統</p>
+                    <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./employee.html">員工資料</a></li>
+                    <li><a href="./closed_date.html">休診設定</a></li>
+                    <li><a href="./shift_setting.html">班別設定</a></li>
+                    <li><a href="./salary_attendance.html">薪資&考勤設定</a></li>
+                    <li class="active"><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li><a href="#">基本薪資</a></li>
+                    <li><a href="./shift.html">排班表</a></li>
+                    <li><a href="./shift_record.html">打卡明細</a></li>
+                    <li><a href="#">出勤明細</a></li>
+                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="#">每月薪資明細表</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addSalaryItem">新增薪項名稱</button>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">狀態</th>
+                                <th scope="col">薪項名稱</th>
+                                <th scope="col">是否固定薪</th>
+                                <th scope="col">加/減項</th>
+                                <th scope="col">支付方式</th>
+                                <th scope="col">是否日薪計算基準</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(d, index) in data">
+                                <th scope="row">{{index+1}}</th>
+                                <td><p v-if="d.status == 1">啟用</p><p v-if="d.status == 2">停用</p></td>
+                                <td>{{d.salary_name}}</td>
+                                <td><p v-if="d.is_fixed == 1">是</p><p v-if="d.is_fixed == 0">否</p></td>
+                                <td><p v-if="d.addORminus == 1">加項</p><p v-if="d.addORminus == 0">減項</p></td>
+                                <td><p v-if="d.paid_way == 1">現金</p><p v-if="d.paid_way == 0">轉帳</p></td>
+                                <td><p v-if="d.is_daily_salary == 1">是</p><p v-if="d.is_daily_salary == 0">否</p></td>
+                                <td>
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#updateSalaryItem" @click="getUpdateSalaryItemData(index)">編輯</button> 
+                                    <button class="btn btn-primary" @click="deleteSalaryItemData(d.salary_item_id)">刪除</button> 
+                                </td>
+                            </tr>
+                            <tr v-show="data == null || data.length < 1">
+                                <td colspan="11" style="text-align: center;">無薪項名稱資料</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD SALARY ITEM Modal -->
+        <div class="modal fade" id="addSalaryItem" tabindex="-1" role="dialog" aria-labelledby="addSalaryItemLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addSalaryItemLabel">新增薪項名稱</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="salary_name">薪項名稱</label>
+                            <input type="text" class="form-control" id="salary_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="is_fixed">是否固定薪</label>
+                            <select id="is_fixed" class="form-control">
+                                <option value="0">否</option>
+                                <option value="1">是</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">狀態</label>
+                            <select id="status" class="form-control">
+                                <option value="1">啟用</option>
+                                <option value="2">停用</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="addORminus">加/減項</label>
+                            <select id="addORminus" class="form-control">
+                                <option value="1">加項</option>
+                                <option value="0">減項</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paid_way">付薪方式</label>
+                            <select id="paid_way" class="form-control">
+                                <option value="0">轉帳</option>
+                                <option value="1">現金</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="is_daily_salary">是否日薪計算基準</label>
+                            <input type="checkbox"  class="form-control" id="is_daily_salary">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="addSalaryItemData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPDATE SALARY ITEM Modal -->
+        <div class="modal fade" id="updateSalaryItem" tabindex="-1" role="dialog" aria-labelledby="updateSalaryItemLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateSalaryItemLabel">編輯薪項名稱</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="update_salary_name">薪項名稱</label>
+                            <input type="text" class="form-control" id="update_salary_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="update_is_fixed">是否固定薪</label>
+                            <select id="update_is_fixed" class="form-control">
+                                <option value="0">否</option>
+                                <option value="1">是</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="update_status">狀態</label>
+                            <select id="update_status" class="form-control">
+                                <option value="1">啟用</option>
+                                <option value="2">停用</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="update_addORminus">加/減項</label>
+                            <select id="update_addORminus" class="form-control">
+                                <option value="1">加項</option>
+                                <option value="0">減項</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="update_paid_way">付薪方式</label>
+                            <select id="update_paid_way" class="form-control">
+                                <option value="0">轉帳</option>
+                                <option value="1">現金</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="update_is_daily_salary">是否日薪計算基準</label>
+                            <input type="checkbox"  class="form-control" id="update_is_daily_salary">
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden"  class="form-control" id="update_salary_item_id">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="updateSalaryItemData()">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <script src="../assets/js/loading.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+        });
+
+        new Vue({
+            el: "#app",
+            data: {
+                data: []
+            },
+            created() {
+                get('/api_v1.1/clinic/salary/item/setting').then(res => {
+                        this.data = res.data
+                })
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.status === 200) {
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                addSalaryItemData() {
+                    const data = {
+                        is_fixed : $('#is_fixed').val(),
+                        status  : $('#status').val(),
+                        salary_name : $('#salary_name').val(),
+                        addORminus : $('#addORminus').val(),
+                        paid_way : $('#paid_way').val(),
+                        is_daily_salary : $('#is_daily_salary').prop("checked") ? 1: 0
+                    }
+                    post('/api_v1.1/clinic/salary/item/setting/add', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./shift_setting.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                getUpdateSalaryItemData(index) {
+                    $('#update_is_fixed').val(this.data[index].is_fixed)
+                    $('#update_status').val(this.data[index].status)
+                    $('#update_salary_name').val(this.data[index].salary_name)
+                    $('#update_addORminus').val(this.data[index].addORminus)
+                    $('#update_paid_way').val(this.data[index].paid_way)
+                    if(this.data[index].is_daily_salary !== '0') {
+                        $('#update_is_daily_salary').prop('checked',true)
+                    }else {
+                        $('update_is_daily_salary').prop('checked',true)
+                    }
+                    $('#update_salary_item_id').val(this.data[index].salary_item_id)
+                },
+                updateSalaryItemData() {
+                    const data = {
+                        is_fixed : $('#update_is_fixed').val(),
+                        status  : $('#update_status').val(),
+                        salary_name : $('#update_salary_name').val(),
+                        addORminus : $('#update_addORminus').val(),
+                        paid_way : $('#update_paid_way').val(),
+                        is_daily_salary : $('#update_is_daily_salary').prop("checked") ? 1: 0,
+                        salary_item_id : $('#update_salary_item_id').val()
+                    }
+                    post('/api_v1.1/clinic/salary/item/setting/update', data).then(res => {
+                        if (res.status === 201) {
+                            alert(res.message)
+                            window.location.reload('./shift_setting.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                deleteSalaryItemData(salary_item_id) {
+                    if(confirm('是否要刪除?')) {
+                        const data = {
+                            salary_item_id : salary_item_id
+                        }
+                        post('/api_v1.1/clinic/salary/item/setting/delete', data).then(res => {
+                            if (res.status === 201) {
+                                alert(res.message)
+                                window.location.reload('./shift_setting.html')
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>
