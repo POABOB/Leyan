@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打卡拍照系統</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+    <div id="results"></div>
+    <div id="time">
+        <h1  id="datetime"></h1>
+    </div>
+    <div id="my_camera"></div>
+    <input type="hidden" id="img">
+    <div id="app">
+        <table >
+            <thead>
+                <tr>
+                    <th v-for="(d, index) in employee">{{d.name}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td v-for="(d, index) in employee">
+                        <p v-for="t in Record(d.employee_id)">{{t.datetime.slice(-8)}}</p>
+                        <div v-show="Record(d.employee_id).length < 6">
+                            <input type=button value="打卡" @click="takeSnapshot(d.employee_id)">
+                        </div> 
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+	
+
+    <script src="./assets/js/webcam.min.js"></script>
+    <script src="./assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="./assets/js/q.js"></script>
+    <script src="./assets/js/moment.min.js"></script>
+    <script src="./assets/js/vue.min.js"></script>
+	
+	<script>
+        //時間更新
+        const update = function() {
+        document.getElementById("datetime")
+        . innerHTML = moment().format('YYYY-MM-DD HH:mm:ss');
+        }
+        setInterval(update, 1000);
+        // VUE 處理拍照
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    clinicId: 33,
+                    date: moment().format('YYYY-MM-DD'),
+                    employee: [],
+                    record: [],
+                    postData: {
+                        employee_id: null,
+                        datetime: null,
+                        clinic_id: 33,
+                        img: null
+                    }
+                }
+            },
+            created() {
+                //建立webcam配置
+                Webcam.set({
+                    width: 400,
+                    height: 300,
+                    image_format: 'jpeg',
+                    jpeg_quality: 90
+                });
+                Webcam.attach( '#my_camera' );
+
+                //利用token獲取診所人員紀錄
+                this.getShiftRecord()
+            },
+            methods: {
+                getShiftRecord() {
+                    //獲取該診所所有員工當日打卡紀錄
+                    // get(`http://34.80.179.232/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    get(`http://localhost/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    .then(res => {
+                        this.employee = res.data.employee
+                        this.record = res.data.record
+                    })
+                },
+                Record(id) {
+                    return this.record.filter(data => data.employee_id == id)
+                },
+                DataURIToBlob(dataURI) {
+                    //base64轉Blob
+                    const splitDataURI = dataURI.split(',')
+                    const byteString = splitDataURI[0].indexOf('base64') >= 0 ? atob(splitDataURI[1]) : decodeURI(splitDataURI[1])
+                    const mimeString = splitDataURI[0].split(':')[1].split(';')[0]
+
+                    const ia = new Uint8Array(byteString.length)
+                    for (let i = 0; i < byteString.length; i++)
+                        ia[i] = byteString.charCodeAt(i)
+
+                    return new Blob([ia], { type: mimeString })
+                },
+                save() {
+                    //上傳至local server
+                    const form = new FormData()
+                    form.append('webcam', this.DataURIToBlob($('#img').val()))
+                    form.append('operation', 'add')
+                    form.append('time',this.postData.datetime.replace(' ', '_'))
+                    postImg('photo.php', form)
+                    .then(RES1 => {
+                        const res1 = JSON.parse(RES1)
+                        if(res1.status === 200) {
+                            this.postData.img = res1.data
+                            this.saveRemote();
+                        } else {
+                            alert('上傳照片失敗')
+                        }
+                    });
+                },
+                saveRemote() {
+                    //插入遠端server
+                    // post(`http://34.80.179.232/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
+                    post(`http://localhost/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
+                    .then(res2 => {
+                        if(res2.status === 200) {
+                            alert('打卡成功!!!');
+                            this.getShiftRecord();
+                            this.$nextTick();
+                        } else {
+                            this.deleteLocal()
+                        }
+                    })
+                },
+                deleteLocal() {
+                    //打卡失敗，刪除已儲存照片
+                    const form = new FormData()
+                    form.append('operation', 'delete')
+                    form.append('img',this.postData.img)
+
+                    postImg('photo.php', form)
+                    .then(res3 => {
+                        alert('系統錯誤...');
+                    })
+                },
+                takeSnapshot(employee_id) {
+                    const time = moment().format('YYYY-MM-DD HH:mm:ss');
+                    Webcam.snap( function(dataUri) {
+                        $('#img').val(dataUri)
+                    });
+
+                    if(confirm('是否打卡?')) {
+                        //上傳至local server
+                        this.postData.employee_id = employee_id
+                        this.postData.datetime = time
+                        this.save()
+                    }
+                }
+            }
+        })
+	</script>
+</body>
+</html>
