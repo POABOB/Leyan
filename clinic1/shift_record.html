@@ -72,14 +72,15 @@
                                 <th scope="col">#</th>
                                 <th scope="col">日期</th>
                                 <th scope="col">員工名稱</th>
-                                <!-- <th scope="col">時段</th> -->
+                                <th scope="col">圖片路徑</th>
                             </tr>
                         </thead>
                         <tbody>
-                                <tr v-for="(d, index) in data">
+                                <tr v-for="(d, index) in employeeList">
                                     <th scope="row">{{index + 1}}</th>
-                                    <td><p v-for="t in d.datetime">{{t}}</p></td>
                                     <td>{{d.name}}</td>
+                                    <td><p v-for="r in getRecord(d.employee_id)">{{r.datetime}}</p></td>
+                                    <td><p v-for="i in getRecord(d.employee_id)">{{i.img}}</p></td>
                                     
                                 </tr>
                                 <tr v-show="data == null || data.length < 1">
@@ -114,10 +115,12 @@
             el: "#app",
             data: {
                 data: [],
+                employeeList: []
             },
             created() {
                 get('/api_v1.1/clinic/shift/record').then(res => {
                     this.data = res.data
+                    this.filterEmployee()
                 })
             },
             mounted() {
@@ -145,6 +148,14 @@
                     get('/api_v1.1/clinic/shift/record?start='+$('#startDate').val()+'&end='+$('#endDate').val()).then(res => {
                         this.data = res.data
                     })
+                },
+                filterEmployee() {
+                    const set = new Set();
+                    const result = this.data.filter(item => !set.has(item.name) ? set.add(item.name) : false);
+                    this.employeeList = result
+                },
+                getRecord(id) {
+                    return this.data.filter(data => data.employee_id == id)
                 }
             }
         })

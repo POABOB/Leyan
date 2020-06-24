@@ -6,7 +6,7 @@ if(empty($_POST['operation'])) {
 if($_POST['operation'] === 'add') {
     // POST操作為add的話儲存照片
     if(is_uploaded_file($_FILES['webcam']['tmp_name']) && isset($_POST['time'])){
-        $name = "record/" . $_POST['time'] . '.jpg';
+        $name = "record/" . $_POST['time'] . '_' . $_POST['clinic_id'] . '.jpg';
         move_uploaded_file($_FILES['webcam']['tmp_name'], $name);
         _json(200, $name, '照片儲存成功');
     }

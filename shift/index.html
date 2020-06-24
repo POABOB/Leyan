@@ -5,46 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>打卡拍照系統</title>
     <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/modal.css">
 </head>
 <body>
     <div id="results"></div>
-    <div id="time">
-        <h1  id="datetime"></h1>
-    </div>
-    <div id="my_camera"></div>
-    <input type="hidden" id="img">
     <div id="app">
-        <table >
-            <thead>
-                <tr>
-                    <th v-for="(d, index) in employee">{{d.name}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td v-for="(d, index) in employee">
-                        <p v-for="t in Record(d.employee_id)">{{t.datetime.slice(-8)}}</p>
-                        <div v-show="Record(d.employee_id).length < 6">
-                            <input type=button value="打卡" @click="takeSnapshot(d.employee_id)">
-                        </div> 
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <h1>診所ID: {{clinicId}}(已寫死)</h1>
+        <input type="hidden" id="img">
+        <button class="btn -blue" v-for="(d, index) in employee" @click="Cam(d.employee_id)">{{ d.name }}</button>
+
+        <my-modal :show.sync="showModal" title="員工打卡資料">
+            <div id="time">
+                <h1  id="datetime"></h1>
+            </div>
+            <div id="my_camera"></div>
+            <table >
+                <tbody>
+
+                    <tr>
+                        <th>員工名稱</th>
+                        <td>{{employeeData.name}}</td>
+                    </tr>
+                    <tr>
+                        <th>到職日</th>
+                        <td>{{employeeData.work_at}}</td>
+                    </tr>
+                    <tr>
+                        <th>離職日</th>
+                        <td>{{employeeData.leave_at }}</td>
+                    </tr>
+                    <tr>
+                        <th>職稱</th>
+                        <td>{{employeeData.position}}</td>
+                    </tr>
+                    <tr>
+                        <th>職別</th>
+                        <td>{{ levelOfPosition }}</td>
+                    </tr>
+                    <tr>
+                        <th>助理人數</th>
+                        <td>{{ employeeData.assistant_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>生日</th>
+                        <td>{{ employeeData.birthday  }}</td>
+                    </tr>
+                    <tr>
+                        <th>血型</th>
+                        <td>{{ employeeData.blood_type }}</td>
+                    </tr>
+                    <tr>
+                        <th>手機</th>
+                        <td>{{ employeeData.cellphone }}</td>
+                    </tr>
+                    <tr>
+                        <th>緊急聯絡人</th>
+                        <td>{{ employeeData.emergency_contact }}</td>
+                    </tr>
+                    <tr>
+                        <th>緊急聯絡人電話</th>
+                        <td>{{ employeeData.emergency_phone }}</td>
+                    </tr>
+                    <tr>
+                        <th>緊急聯絡人關係</th>
+                        <td>{{ employeeData.relationship }}</td>
+                    </tr>
+                    <tr>
+                        <th>性別</th>
+                        <td>{{ Gender }}</td>
+                    </tr>
+                    <tr>
+                        <th>身份證字號</th>
+                        <td>{{ employeeData.id_card_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>工號</th>
+                        <td>{{ employeeData.job_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>email</th>
+                        <td>{{ employeeData.email }}</td>
+                    </tr>
+                    
+                    <tr>
+                        <th>打卡紀錄</th>
+                        <td>
+                            <p v-for="t in Record(employeeData.employee_id)">{{t.datetime.slice(-8)}}</p>
+                            <div v-show="Record(employeeData.employee_id).length < 6">
+                                <input type=button value="打卡" @click="takeSnapshot(employeeData.employee_id)">
+                            </div> 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+          </my-modal>
     </div>
 	
 
     <script src="./assets/js/webcam.min.js"></script>
-    <script src="./assets/js/jquery-3.4.1.min.js" ></script>
-    <script src="./assets/js/q.js"></script>
-    <script src="./assets/js/moment.min.js"></script>
+    <script src="./assets/js/axios.min.js"></script>
+    <script src="./assets/js/date.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
     <script src="./assets/js/vue.min.js"></script>
+    <script src="./assets/js/modal.js"></script>
+    
 	
 	<script>
+        //全局變數
+        const _IMG = document.getElementById("img")
+
         //時間更新
         const update = function() {
         document.getElementById("datetime")
-        . innerHTML = moment().format('YYYY-MM-DD HH:mm:ss');
+        . innerHTML = new Date().Format("yyyy-MM-dd hh:mm:ss");
         }
         setInterval(update, 1000);
         // VUE 處理拍照
@@ -53,42 +126,76 @@
             data() {
                 return {
                     clinicId: 33,
-                    date: moment().format('YYYY-MM-DD'),
+                    date: new Date().Format("yyyy-MM-dd"),
                     employee: [],
                     record: [],
+                    showModal: false,
+                    employeeData: {
+                        assistant_number: 0,
+                        birthday: "",
+                        blood_type: "",
+                        cellphone: "",
+                        clinic_id: 0,
+                        email: "",
+                        emergency_contact: "",
+                        emergency_phone: "",
+                        emergency_relationship: "",
+                        employee_id: 0,
+                        gender: 0,
+                        id_card_number: "",
+                        job_number: "",
+                        leave_at: "",
+                        level_of_position: 0,
+                        mailing_address: "",
+                        mailing_phone: "",
+                        name: "",
+                        position: "",
+                        resistence_address: "",
+                        resistence_phone: "",
+                        status: 0,
+                        telephone: "",
+                        work_at: ""
+                    },
                     postData: {
                         employee_id: null,
                         datetime: null,
                         clinic_id: 33,
                         img: null
+                    },
+                    webcam: {
+                        width: 400,
+                        height: 300,
+                        image_format: 'jpeg',
+                        jpeg_quality: 90
                     }
                 }
             },
             created() {
-                //建立webcam配置
-                Webcam.set({
-                    width: 400,
-                    height: 300,
-                    image_format: 'jpeg',
-                    jpeg_quality: 90
-                });
-                Webcam.attach( '#my_camera' );
-
                 //利用token獲取診所人員紀錄
-                this.getShiftRecord()
+                this.getShiftRecord();
             },
             methods: {
+                Cam(id) {
+                    //建立webcam配置
+                    Webcam.set(this.webcam);
+                    Webcam.attach('#my_camera');
+                    this.showModal = true
+                    this.getEmployeeData(id)
+                },
                 getShiftRecord() {
                     //獲取該診所所有員工當日打卡紀錄
-                    // get(`http://34.80.179.232/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
-                    get(`http://localhost/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    axios.get(`http://34.80.179.232/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    // axios.get(`http://localhost/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
                     .then(res => {
-                        this.employee = res.data.employee
-                        this.record = res.data.record
+                        this.employee = res.data.data.employee
+                        this.record = res.data.data.record
                     })
                 },
                 Record(id) {
                     return this.record.filter(data => data.employee_id == id)
+                },
+                getEmployeeData(id) {
+                    this.employeeData = this.employee.find(data => data.employee_id == id)
                 },
                 DataURIToBlob(dataURI) {
                     //base64轉Blob
@@ -105,12 +212,13 @@
                 save() {
                     //上傳至local server
                     const form = new FormData()
-                    form.append('webcam', this.DataURIToBlob($('#img').val()))
+                    form.append('webcam', this.DataURIToBlob(_IMG.value))
                     form.append('operation', 'add')
                     form.append('time',this.postData.datetime.replace(' ', '_'))
-                    postImg('photo.php', form)
+                    form.append('clinic_id',this.clinicId)
+                    axios.post('photo.php', form)
                     .then(RES1 => {
-                        const res1 = JSON.parse(RES1)
+                        const res1 = RES1.data
                         if(res1.status === 200) {
                             this.postData.img = res1.data
                             this.saveRemote();
@@ -121,8 +229,8 @@
                 },
                 saveRemote() {
                     //插入遠端server
-                    // post(`http://34.80.179.232/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
-                    post(`http://localhost/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
+                    axios.post(`http://34.80.179.232/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
+                    // axios.post(`http://localhost/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
                     .then(res2 => {
                         if(res2.status === 200) {
                             alert('打卡成功!!!');
@@ -139,15 +247,13 @@
                     form.append('operation', 'delete')
                     form.append('img',this.postData.img)
 
-                    postImg('photo.php', form)
-                    .then(res3 => {
-                        alert('系統錯誤...');
-                    })
+                    axios.post('photo.php', form)
+                    .finally(() => { alert('系統錯誤...'); })
                 },
                 takeSnapshot(employee_id) {
-                    const time = moment().format('YYYY-MM-DD HH:mm:ss');
+                    const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
                     Webcam.snap( function(dataUri) {
-                        $('#img').val(dataUri)
+                        _IMG.value = dataUri
                     });
 
                     if(confirm('是否打卡?')) {
@@ -155,6 +261,35 @@
                         this.postData.employee_id = employee_id
                         this.postData.datetime = time
                         this.save()
+                    }
+                }
+            },
+            computed: {
+                levelOfPosition() {
+                    const data = parseInt(this.employeeData.level_of_position)
+                    if(data === 0) {
+                        return '試用'
+                    } else if(data === 1) {
+                        return '兼職'
+                    } else if(data === 2) {
+                        return '正職'
+                    }
+                },
+                Gender() {
+                    const data = parseInt(this.employeeData.gender)
+                    if(data === 0) {
+                        return '男'
+                    } else {
+                        return '女'
+                    }
+                }
+            },
+            watch: {
+                showModal: {
+                    handler: function() {
+                        if(this.showModal === false) {
+                            Webcam.reset();
+                        }
                     }
                 }
             }
