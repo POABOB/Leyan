@@ -32,7 +32,7 @@
                     </tr>
                     <tr>
                         <th>離職日</th>
-                        <td>{{employeeData.leave_at }}</td>
+                        <td>{{employeeData.leave_at == '9999-12-31' ? '' : employeeData.leave_at }}</td>
                     </tr>
                     <tr>
                         <th>職稱</th>
@@ -159,14 +159,18 @@
                     postData: {
                         employee_id: null,
                         datetime: null,
-                        clinic_id: 33,
-                        img: null
+                        clinic_id: 33
                     },
                     webcam: {
                         width: 400,
                         height: 300,
                         image_format: 'jpeg',
-                        jpeg_quality: 90
+                        jpeg_quality: 90,
+                        mandatory:{
+                            facingMode: {
+                                exact: 'environment'
+                            }
+                        }
                     }
                 }
             },
@@ -185,11 +189,13 @@
                 getShiftRecord() {
                     //獲取該診所所有員工當日打卡紀錄
                     axios.get(`http://34.80.179.232/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    // dev
                     // axios.get(`http://localhost/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
                     .then(res => {
                         this.employee = res.data.data.employee
                         this.record = res.data.data.record
                     })
+                    .catch((error) => { alert('系統錯誤，請重試一次') })
                 },
                 Record(id) {
                     return this.record.filter(data => data.employee_id == id)
@@ -209,46 +215,28 @@
 
                     return new Blob([ia], { type: mimeString })
                 },
-                save() {
-                    //上傳至local server
-                    const form = new FormData()
-                    form.append('webcam', this.DataURIToBlob(_IMG.value))
-                    form.append('operation', 'add')
-                    form.append('time',this.postData.datetime.replace(' ', '_'))
-                    form.append('clinic_id',this.clinicId)
-                    axios.post('photo.php', form)
-                    .then(RES1 => {
-                        const res1 = RES1.data
-                        if(res1.status === 200) {
-                            this.postData.img = res1.data
-                            this.saveRemote();
-                        } else {
-                            alert('上傳照片失敗')
-                        }
-                    });
-                },
                 saveRemote() {
+                    //上傳至local server
+                    let form = new FormData()
+                    form.append('img', this.DataURIToBlob(_IMG.value))
+                    form.append('data', JSON.stringify(this.postData))
+                    let config = {
+                        header : {'Content-Type' : 'multipart/form-data'}
+                    }
                     //插入遠端server
-                    axios.post(`http://34.80.179.232/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
-                    // axios.post(`http://localhost/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, this.postData)
+                    axios.post(`http://34.80.179.232/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, form, config)
+                    // dev
+                    // axios.post(`http://localhost/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, form, config)
                     .then(res2 => {
                         if(res2.status === 200) {
-                            alert('打卡成功!!!');
+                            alert('打卡成功!');
                             this.getShiftRecord();
                             this.$nextTick();
                         } else {
-                            this.deleteLocal()
+                            alert('打卡失敗!');
                         }
                     })
-                },
-                deleteLocal() {
-                    //打卡失敗，刪除已儲存照片
-                    const form = new FormData()
-                    form.append('operation', 'delete')
-                    form.append('img',this.postData.img)
-
-                    axios.post('photo.php', form)
-                    .finally(() => { alert('系統錯誤...'); })
+                    .catch((error) => { alert('系統錯誤，請重試一次') })
                 },
                 takeSnapshot(employee_id) {
                     const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
@@ -260,7 +248,7 @@
                         //上傳至local server
                         this.postData.employee_id = employee_id
                         this.postData.datetime = time
-                        this.save()
+                        this.saveRemote()
                     }
                 }
             },
