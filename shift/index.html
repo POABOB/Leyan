@@ -90,6 +90,10 @@
                     clinicId: 33,
                     clinicName: "",
                     date: new Date().Format("yyyy-MM-dd"),
+                    mode: {
+                        "prd": "34.80.179.232",
+                        "dev": "localhost"
+                    },
                     showModal: false,
                     //員工列
                     employee: [],
@@ -156,9 +160,7 @@
                 },
                 getShiftRecord() {
                     //獲取該診所所有員工當日打卡紀錄
-                    // axios.get(`http://34.80.179.232/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
-                    // dev
-                    axios.get(`http://localhost/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    axios.get(`http://${this.mode.prd}/api_v1.1/shift/record?id=${btoa(this.clinicId  + '.' + this.date)}`)
                     .then(res => {
                         this.record = res.data.data ?? []
                     })
@@ -166,9 +168,7 @@
                 },
                 getClinicName() {
                     //獲取該診所名稱
-                    // axios.get(`http://34.80.179.232/api_v1.1/shift/clinic/name?id=${btoa(this.clinicId  + '.' + this.date)}`)
-                    // dev
-                    axios.get(`http://localhost/api_v1.1/shift/clinic/name?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    axios.get(`http://${this.mode.prd}/api_v1.1/shift/clinic/name?id=${btoa(this.clinicId  + '.' + this.date)}`)
                     .then(res => {
                         this.clinicName = res.data.data.name
                     })
@@ -176,34 +176,31 @@
                 },
                 getEmployeeList() {
                     //獲取員工列表
-                    // axios.get(`http://34.80.179.232/api_v1.1/shift/employee/list?id=${btoa(this.clinicId  + '.' + this.date)}`)
-                    // dev
-                    axios.get(`http://localhost/api_v1.1/shift/employee/list?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    axios.get(`http://${this.mode.prd}/api_v1.1/shift/employee/list?id=${btoa(this.clinicId  + '.' + this.date)}`)
                     .then(res => {
-                        this.employee = res.data.data ?? []
                         //排序
-                        this.sortEmployeeList();
+                        this.employee = this.sortEmployeeList(res.data.data ?? []);
                     })
                     .catch((error) => { alert('系統錯誤，請重試一次2'+error) })
                 },
                 getShiftTable() {
                     //獲取排班表
-                    // axios.get(`http://34.80.179.232/api_v1.1/shift/table/list?id=${btoa(this.clinicId  + '.' + this.date)}`)
-                    // dev
-                    axios.get(`http://localhost/api_v1.1/shift/table/list?id=${btoa(this.clinicId  + '.' + this.date)}`)
+                    axios.get(`http://${this.mode.prd}/api_v1.1/shift/table/list?id=${btoa(this.clinicId  + '.' + this.date)}`)
                     .then(res => {
                         this.shift = res.data.data ?? []
                     })
                     .catch((error) => { alert('系統錯誤，請重試一次1') })
                 },
-                sortEmployeeList() {
+                sortEmployeeList(employee) {
                     // 長度不為0
-                    if(this.employee.length !== 0) {
+                    if(employee.length !== 0) {
                         const _shift = this.shift
-                        this.employee = this.employee.sort(data => 
+                        const value = employee.sort(data => 
                             _shift.find(data2 => data2.employee_id == data.employee_id)?-1:1
                         )
+                        return value
                     }
+                    return []
                 },
                 getEmployeeData(id) {
                     //員工資料
@@ -249,9 +246,7 @@
                         header : {'Content-Type' : 'multipart/form-data'}
                     }
                     //插入遠端server
-                    // axios.post(`http://34.80.179.232/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, form, config)
-                    // dev
-                    axios.post(`http://localhost/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, form, config)
+                    axios.post(`http://${this.mode.prd}/api_v1.1/shift/record/add?id=${btoa(this.clinicId  + '.' + this.date)}`, form, config)
                     .then(res => {
                         if(res.data.code === 200) {
                             alert('打卡成功!');
