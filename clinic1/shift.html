@@ -235,7 +235,7 @@
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             alert('success')
                             location.href = './index.html'
                             return
@@ -257,7 +257,7 @@
                         'employee_id': $('#employee_id').val()
                     }
                     post('/api_v1.1/clinic/shift/add', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./shift_setting.html')
                             return
@@ -282,7 +282,7 @@
                         'shift_table_id': $('#update_shift_table_id').val()
                     }
                     post('/api_v1.1/clinic/shift/update', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./shift_setting.html')
                             return
@@ -299,7 +299,7 @@
                             'shift_table_id': shift_table_id
                         }
                         post('/api_v1.1/clinic/shift/delete', data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./shift_setting.html')
                                 return

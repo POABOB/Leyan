@@ -135,7 +135,7 @@
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             alert('success')
                             location.href = './index.html'
                             return
@@ -152,7 +152,7 @@
                         }
                         console.log(employee_id)
                         post('/api_v1.1/clinic/employee/delete/back', data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./employee.html')
                                 return
@@ -170,7 +170,7 @@
                             'employee_id': employee_id
                         }
                         post('/api_v1.1/clinic/employee/delete/hard', data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./employee.html')
                                 return

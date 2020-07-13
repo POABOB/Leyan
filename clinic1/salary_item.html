@@ -241,7 +241,7 @@
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             alert('success')
                             location.href = './index.html'
                             return
@@ -261,7 +261,7 @@
                         is_daily_salary : $('#is_daily_salary').prop("checked") ? 1: 0
                     }
                     post('/api_v1.1/clinic/salary/item/setting/add', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./shift_setting.html')
                             return
@@ -295,7 +295,7 @@
                         salary_item_id : $('#update_salary_item_id').val()
                     }
                     post('/api_v1.1/clinic/salary/item/setting/update', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./shift_setting.html')
                             return
@@ -311,7 +311,7 @@
                             salary_item_id : salary_item_id
                         }
                         post('/api_v1.1/clinic/salary/item/setting/delete', data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./shift_setting.html')
                                 return

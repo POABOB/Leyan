@@ -162,7 +162,7 @@
             },
             created() {
                 get('/api_v1.1/clinic/closed_date').then(res => {
-                    if(res.status == 200) {
+                    if(res.code == 200) {
                         this.data = res.data[0]
                         this.detail = res.data[1]
                     } else {
@@ -182,7 +182,7 @@
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             alert('success')
                             location.href = './index.html'
                             return
@@ -209,7 +209,7 @@
                         })
 
                         post('/api_v1.1/clinic/closed_date/update', this.data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./assistant.html')
                                 return
@@ -225,7 +225,7 @@
                 },
                 getClosedDate() {
                     get('/api_v1.1/clinic/closed_date?date='+$('#closed_date').val()).then(res => {
-                        if(res.status == 200) {
+                        if(res.code == 200) {
                             this.data = res.data[0]
                             this.detail = res.data[1]
                             $('#date').val($('#closed_date').val())
@@ -238,7 +238,7 @@
                     if(confirm('是否要刪除?')) {
                         this.data.splice(index, 1);
                         post('/api_v1.1/clinic/closed_date/update', this.data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./assistant.html')
                                 return

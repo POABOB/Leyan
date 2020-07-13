@@ -196,7 +196,7 @@
     <script>
         //一進來就執行，判斷登入狀態
         get('/api_v1.1/login/check').then(res => {
-            if (res.status !== 200) {
+            if (res.code !== 200) {
                 location.href = './index.html'
             }
         })
@@ -217,7 +217,7 @@
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             alert('success')
                             location.href = './index.html'
                             return
@@ -244,7 +244,7 @@
                         'clinic_phone': $('#clinic_phone').val()
                     }
                     post('/api_v1.1/admin/clinic/add', data).then(res => {
-                        if (res.status == 201) {
+                        if (res.code == 201) {
                             alert(res.message)
                             window.location.reload('./clinic.html')
                             return
@@ -269,7 +269,7 @@
                         'clinic_phone': $('#update_clinic_phone').val()
                     }
                     post('/api_v1.1/admin/clinic/update', data).then(res => {
-                        if (res.status == 201) {
+                        if (res.code == 201) {
                             alert(res.message)
                             window.location.reload('./clinic.html')
                             return
@@ -284,7 +284,7 @@
                             'clinic_id': id
                         }
                         post('/api_v1.1/admin/clinic/delete', data).then(res => {
-                            if (res.status == 201) {
+                            if (res.code == 201) {
                                 alert(res.message)
                                 window.location.reload('./clinic.html')
                                 return
@@ -305,7 +305,7 @@
                         'clinic_id': $('#boss_clinic_id').val()
                     }
                     post('/api_v1.1/admin/clinic/boss/add', data).then(res => {
-                        if (res.status == 201) {
+                        if (res.code == 201) {
                             alert(res.message)
                             window.location.reload('./clinic.html')
                             return
@@ -328,7 +328,7 @@
                         'user_id': $('#update_user_id').val(),
                     }
                     post('/api_v1.1/admin/clinic/boss/update', data).then(res => {
-                        if (res.status == 201) {
+                        if (res.code == 201) {
                             alert(res.message)
                             window.location.reload('./clinic.html')
                             return
@@ -344,7 +344,7 @@
                             'user_id': user_id,
                         }
                         post('/api_v1.1/admin/clinic/boss/delete', data).then(res => {
-                            if (res.status == 201) {
+                            if (res.code == 201) {
                                 alert(res.message)
                                 window.location.reload('./clinic.html')
                                 return

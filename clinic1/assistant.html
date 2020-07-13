@@ -210,7 +210,7 @@
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             alert('success')
                             location.href = './index.html'
                             return
@@ -227,7 +227,7 @@
                         'passconf': $('#passconf').val()
                     }
                     post('/api_v1.1/clinic/assistant/add', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./assistant.html')
                             return
@@ -248,7 +248,7 @@
                         'account_number': $('#update_account_number').val()
                     }
                     post('/api_v1.1/clinic/assistant/update/email', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./assistant.html')
                             return
@@ -265,7 +265,7 @@
                             'user_id': user_id
                         }
                         post('/api_v1.1/clinic/assistant/delete', data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./assistant.html')
                                 return
@@ -283,7 +283,7 @@
                         'passconf': $('#update_passconf').val()
                     }
                     post('/api_v1.1/clinic/assistant/update/password', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./assistant.html')
                             return

@@ -36,3 +36,60 @@ width: 100%;
 th, td {
 padding: 15px;
 }
+
+.center {
+    text-align: center;
+}
+
+.center button {
+    margin: 5px 0;
+}
+
+.btn {
+    color: #000;
+}
+
+.btn.green {
+    background: #D5E7D4;
+    border: 1px solid #A1C690;
+}
+
+.btn.green:hover {
+    background: #A1C690;
+}
+
+.btn.red:hover {
+    background: #CC8481;
+}
+
+.btn.red {
+    background: #F6CFCC;
+    border: 1px solid #CC8481;
+}
+
+.btn.purple {
+    background: #E2D4E6;
+    border: 1px solid #B39ABF;
+}
+
+.btn.purple:hover {
+    background: #B39ABF;
+}
+
+
+.flex {
+    display: flex;
+}
+
+#my_camera {
+    width:40%;
+}
+#buttons {
+    width: 60%;
+    padding: 35px 10px 25px 10px;
+}
+#buttons button {
+    margin: 2px 0;
+    width: 49%;
+    height: 30%;
+}

@@ -423,7 +423,7 @@
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             alert('success')
                             location.href = './index.html'
                             return
@@ -463,7 +463,7 @@
                         'assistant_number':$('#assistant_number').val()
                     }
                     post('/api_v1.1/clinic/employee/add', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./employee.html')
                             return
@@ -526,7 +526,7 @@
                         'employee_id':$('#employee_id').val()
                     }
                     post('/api_v1.1/clinic/employee/update', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./employee.html')
                             return
@@ -548,7 +548,7 @@
                         'employee_id': $('#leave_employee_id').val()
                     }
                     post('/api_v1.1/clinic/employee/delete/soft', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./employee.html')
                             return
@@ -562,7 +562,7 @@
                 getFamilyData(employee_id) {
                     $('#familyUpdate').css('display', 'none')
                     get('/api_v1.1/clinic/employee/family?employee_id='+employee_id).then(res => {
-                        if (res.status === 200) {
+                        if (res.code === 200) {
                             this.family = res.data
                         }
                     })
@@ -580,7 +580,7 @@
                         'health_relief': $('#family_health_relief').val()
                     }
                     post('/api_v1.1/clinic/employee/family/add', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./employee.html')
                             return
@@ -613,7 +613,7 @@
                         'health_relief': $('#update_family_health_relief').val()
                     }
                     post('/api_v1.1/clinic/employee/family/update', data).then(res => {
-                        if (res.status === 201) {
+                        if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./employee.html')
                             return
@@ -631,7 +631,7 @@
                             'family_id': family_id
                         }
                         post('/api_v1.1/clinic/employee/family/delete', data).then(res => {
-                            if (res.status === 201) {
+                            if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./employee.html')
                                 return
