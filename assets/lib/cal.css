@@ -1,0 +1,27 @@
+.page{ min-height: 100vh; display: flex; flex-direction: column; }
+.page > nav:first-child{text-align: right; display: flex;
+    justify-content: space-between; align-items: center;padding: 1em;}
+.calendar {  flex-grow: 1; display: flex; flex-direction: column; min-width: 1200px;}
+.calendar> ol{list-style:none; margin:0; padding:0; }
+.calendar> ol.weekdays{display: flex; text-align: center; border-top: 1px solid #C7C7CC;}
+.calendar> ol.weekdays >li{width: 14.2857%; padding: .5em 1em; border-right: 1px solid #C7C7CC;}
+.calendar> ol.days{display: flex; flex-wrap: wrap; flex-grow: 1;}
+.calendar> ol.days>li{width: 14.2857%; border-right: 1px solid #C7C7CC; border-top: 1px solid #C7C7CC; height: 200px;
+    position: relative;
+}
+.calendar> ol.days>li:nth-child(7n){ border-right: none; }
+.calendar> ol.days>li> .dayLabel{
+    position: absolute; left: .6em;  top: .6em; white-space: nowrap; text-align: right;
+}
+.calendar .today .day{ background: red; width: 1.6em; display: inline-block; text-align: center; height: 1.6em;
+    line-height: 1.6em; border-radius: 50%; color: white;
+}
+/* .calendar .weekdays .weekend{ color: #B8B8B8; } */
+/* .calendar .days .weekend{ background: #F5F5F5; } */
+.calendar .days .previousMonth,
+.calendar .days .nextMonth{ color: #C3C3C3; }
+.calendar .days .previousMonth > .shift_content,
+.calendar .days .nextMonth > .shift_content { background-color: transparent }
+.calendar> ol.days>li> .shift{position: absolute; top: .6em; left: 3em; width: 70%; text-align: center;}
+.calendar> ol.days>li> .shift_content{position: absolute; top: 2.4em; left: 3em; width: 70%;  background-color: #eee; height: 75%;}
+.calendar> ol.days>li>.shift>.shift_type {width: 25%; padding:0 3%; margin: 0 6%; text-align: center;}

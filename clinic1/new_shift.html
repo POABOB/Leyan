@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>排班表</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/lib/cal.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統</p>
+                    <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./employee.html">員工資料</a></li>
+                    <li><a href="./closed_date.html">休診設定</a></li>
+                    <li><a href="./shift_setting.html">班別設定</a></li>
+                    <li><a href="./salary_attendance.html">薪資&考勤設定</a></li>
+                    <li><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li><a href="#">基本薪資</a></li>
+                    <li class="active"><a href="./new_shift.html">新排班表</a></li>
+                    <li><a href="./shift.html">排班表</a></li>
+                    <li><a href="./shift_record.html">打卡明細</a></li>
+                    <li><a href="#">出勤明細</a></li>
+                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="#">每月薪資明細表</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <!-- 控制月份  -->
+                    <div class="input-group mb-3">
+                        <input type="month" class="form-control" v-model="month.month" id="month">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @click="" >確認</button>
+                        </div>
+                    </div>
+                    
+                    <!--  -->
+                    <p>
+                        <button class="btn btn-primary" aria-expanded="false" data-toggle="collapse" data-target="#addShift">新增排班</button>
+                        <button class="btn btn-primary" aria-expanded="false" data-toggle="collapse" data-target="#editShift">編輯排班</button>
+                    </p>
+                    <div id="coll">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="collapse" id="addShift">
+                                <div class="card card-body">
+                                    <h5>{{month.startDay}} ~ {{month.endDay}}(第{{month.week}}週)<span><button class="btn btn-outline-secondary" id="previousWeek" @click="previousWeek">&lt;</button><button class="btn btn-outline-secondary" id="nextWeek" @click="nextWeek">&gt;</button></span></h5>
+                                    <div class="addForm">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr><th>員工</th><th v-for="d in form.data">{{d.date}} {{ d.day }}</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <select class="form-control" v-model="form.employee_id">
+                                                            <option value="0">請選擇</option>
+                                                            <option v-for="e in employee_not_in_shift" :value="e.employee_id">{{e.name}}</option>
+                                                        </select>
+                                                    </td>
+                                                    <td v-for="(d,index) in form.data">
+                                                        <select class="form-control" v-model="form.data[index].shift.shift_id" @change="changeShift(index)">
+                                                            <option value="0">休假</option>
+                                                            <option v-for="s in shift" :value="s.shift_id">{{s.shift_name}}</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="8">
+                                                        <span>本週已排時數: {{ form.time / 60 }} 小時</span>
+                                                        <button class="btn btn-primary" @click="addShiftData()">新增</button>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="collapse" id="editShift">
+                                <div class="card card-body">
+                                    <h5>{{month.startDay}} ~ {{month.endDay}}(第{{month.week}}週)<span><button class="btn btn-outline-secondary" id="previousWeek" @click="previousWeek">&lt;</button><button class="btn btn-outline-secondary" id="nextWeek" @click="nextWeek">&gt;</button></span></h5>
+                                    <div class="editForm">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr><th>員工</th><th v-for="d in form.data">{{d.date}} {{ d.day }}</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <select class="form-control" v-model="updateform.employee_id" @change="selectEditData()">
+                                                            <option value="0">請選擇</option>
+                                                            <option v-for="e in employee_in_shift" :value="e.employee_id">{{e.name}}</option>
+                                                        </select>
+                                                    </td>
+                                                    <td v-for="(d,index) in updateform.data">
+                                                        <select class="form-control" v-model="updateform.data[index].shift.shift_id" @change="changeEditShift(index)">
+                                                            <option value="0">休假</option>
+                                                            <option v-for="s in shift" :value="s.shift_id">{{s.shift_name}}</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="8">
+                                                        <span>本週已排時數: {{ updateform.time / 60 }} 小時</span>
+                                                        <button class="btn btn-primary" @click="updateShiftData()">更新</button>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+
+                    <!-- calendar -->
+                    <div class="page">
+                        <nav>
+                          <h1 class="date"></h1>
+                          <div class="controls">
+                            <button class="btn btn-outline-secondary" id="previousMonth" @click="previousMonth">&lt;</button>
+                            <button class="btn btn-outline-secondary" id="nextMonth" @click="nextMonth">&gt;</button>
+                          </div>
+                        </nav>
+                        <div class="calendar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <script src="../assets/js/loading.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+    <script src="../assets/js/week.js"></script>
+    <script src="../assets/js/moment.js"></script>
+    <script src="../assets/js/shift.js"></script>
+    <script src="../assets/lib/dom.js"></script>
+    <script src="../assets/lib/date.js"></script>
+    <script src="../assets/lib/cal.js"></script>
+
+    <script>
+        //周
+        // let w;
+        //日曆
+        // let calendar = 
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+            $("body").popover({
+                selector: "[data-toggle='popover']",
+                container: "body",
+                html: true
+            });
+        });
+
+        new Vue({
+            el: "#app",
+            data: {
+                employee: [],
+                shift: [],
+                month: {
+                    month: "",
+                    startDay: "",
+                    endDay: "",
+                    week: 0
+                },
+                form: {
+                    employee_id: 0,
+                    startDay: "",
+                    endDay: "",
+                    data:[],
+                    time: 0
+                },
+                updateform: {
+                    employee_id: 0,
+                    startDay: "",
+                    endDay: "",
+                    data:[],
+                    time: 0
+                },
+                shift_table: null,
+                employee_in_shift:[],
+                employee_not_in_shift: [],
+                calendar:{},
+                w:{},
+                s:{}
+            },
+            created() {
+                this.getEmployeeData()
+                this.getShiftSettingData()
+                //月份一更動(watch)，隨即調用排班 Cal Shift
+                this.month.month = new Date().Format('yyyy-MM')
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.code === 200) {
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                async getShiftTableData(month = "", week = "") {
+                    const res = await get('/api_v1.1/clinic/new/shift?month='+this.month.month)
+                    this.shift_table = res.data
+                    if(month == "") {
+                        this.getFirstWeekOfMonth()
+                    } else {
+                        this.getFirstWeekOfMonth(month)
+                    }
+                    if(week !== "") {
+                        for (let i = 1; i < week; i++) {
+                            this.nextWeek();
+                        }
+                    }
+                    this.shiftOnCalendar()
+                },
+                async getEmployeeData() {
+                    const res = await get('/api_v1.1/clinic/employee')
+                    this.employee = res.data
+                },
+                getShiftSettingData() {
+                    get('/api_v1.1/clinic/shift/setting').then(res => {
+                        //處理shift data
+                        let tmp = res.data
+                        tmp.forEach(item => {
+                            let time = 0
+                            for (let prop in item) {   
+                                if (item[prop] === null || item[prop] === "") {
+                                    delete item[prop];
+                                }
+                                if(prop === 'time_1st' || prop === 'time_2nd' || prop === 'time_3rd') {
+                                    time = time + parseInt(item[prop])
+                                    delete item[prop];
+                                }
+                            }
+                            item['time'] = time
+                        })
+                        this.shift = tmp
+                    })
+                },
+                //剛進頁面初始化數值為當月1日
+                getFirstWeekOfMonth(month = "") {
+                    if(month != "") {
+                        this.w = new Week(new Date(month).setDate(1))
+                        this.month.month = new Date(month).Format("yyyy-MM")
+                    } else {
+                        this.w = new Week(new Date().setDate(1))
+                        this.month.month = new Date().Format("yyyy-MM")
+                    }
+                    
+                    const current = this.w.getCurrentWeek();
+                    this.month.startDay = new Date(current[0].Date).Format("yyyy-MM-dd")
+                    this.month.endDay = new Date(current[6].Date).Format("yyyy-MM-dd")
+                    
+                    this.filterMonth(current);
+                    this.employeeShift()
+                    this.month.week = 1
+                },
+                // 下一週
+                nextWeek() {
+                    if(this.month.week >= 4) {
+                        const current = this.w.nextWeek();
+                        if(new Date(current[0].Date).Format("yyyy-MM") == this.month.month) {
+                            this.month.startDay = new Date(current[0].Date).Format("yyyy-MM-dd")
+                            this.month.endDay = new Date(current[6].Date).Format("yyyy-MM-dd")
+                            
+                            this.filterMonth(current);
+                            this.employeeShift()
+
+                            if(this.month.week < 6) {
+                                this.month.week = this.month.week+1
+                            }
+                        } else {
+                            this.w.previousWeek()
+                        }
+                    } else {
+                        const current = this.w.nextWeek();
+                        this.month.startDay = new Date(current[0].Date).Format("yyyy-MM-dd")
+                        this.month.endDay = new Date(current[6].Date).Format("yyyy-MM-dd")
+                        
+                        this.filterMonth(current);
+                        this.employeeShift()
+
+                        this.month.week = this.month.week+1
+                    }
+                },
+                // 上一週
+                previousWeek() {
+                    if(this.month.week > 1 ) {
+                        const current = this.w.previousWeek();
+                        this.month.startDay = new Date(current[0].Date).Format("yyyy-MM-dd")
+                        this.month.endDay = new Date(current[6].Date).Format("yyyy-MM-dd")
+                        
+                        this.filterMonth(current);
+                        this.employeeShift()
+
+                        this.month.week = this.month.week-1
+                    }
+                },
+                //下個月
+                nextMonth() {
+                    let m = new Date(this.month.month)
+                    let new_month = m.getMonth()+1
+                    if(new_month == 12) {
+                        let tmp = new Date().setFullYear(m.getFullYear() + 1,0, 1)
+                        this.month.month = new Date(tmp).Format("yyyy-MM")
+                    } else {
+                        let newM = m.setMonth(new_month, 1)
+                        this.month.month = new Date(newM).Format("yyyy-MM")
+                    }
+                },
+                //上個月
+                previousMonth() {
+                    let m = new Date(this.month.month)
+                    let new_month = m.getMonth()-1
+                    if(new_month == -1) {
+                        let tmp = new Date().setFullYear(m.getFullYear() - 1,11, 1)
+                        this.month.month = new Date(tmp).Format("yyyy-MM")
+                    } else {
+                        let newM = m.setMonth(new_month, 1)
+                        this.month.month = new Date(newM).Format("yyyy-MM")
+                    }
+                },
+                getDay() {
+                    if(month != "") {
+                        this.w = new Week(new Date(month).setDate(1))
+                        this.month.month = new Date(month).Format("yyyy-MM")
+                    } else {
+                        this.w = new Week(new Date().setDate(1))
+                        this.month.month = new Date().Format("yyyy-MM")
+                    }
+                    
+                    const current = this.w.getCurrentWeek();
+                    this.month.startDay = new Date(current[0].Date).Format("yyyy-MM-dd")
+                    this.month.endDay = new Date(current[6].Date).Format("yyyy-MM-dd")
+                    this.month.week = 1
+                },
+                filterMonth(current) {
+                    this.form.data = []
+                    this.updateform.data = []
+                    current.forEach(item => {
+                        const date = new Date(item.Date).Format("yyyy-MM-dd")
+                        if(this.month.month == date.slice(0, 7)) {
+                            this.form.data.push({
+                                date: date, 
+                                day: item.Day,
+                                shift: {
+                                    shift_id: 0,
+                                    shift_name: "休假",
+                                    time: 0
+                                }
+                            })
+                        }
+                    })
+                    this.form.time = 0
+                    this.form.startDay = this.form.data[0].date
+                    this.form.endDay = this.form.data[this.form.data.length - 1].date
+                    this.updateform = JSON.parse(JSON.stringify(this.form))
+                },
+                changeShift(index) {
+                    //依據shift_id更改shift的內容
+                    const shift_id = this.form.data[index].shift.shift_id
+                    if(shift_id == 0) {
+                        this.form.data[index].shift = {
+                            shift_id: 0,
+                            shift_name: "休假",
+                            time: 0
+                        }
+                    } else {
+                        const shift = this.shift.find(data => data.shift_id == shift_id)
+                        this.form.data[index].shift = JSON.parse(JSON.stringify(shift))
+                    }
+
+                    //獲取所有時數
+                    let total_time = 0
+                    this.form.data.forEach(data => {
+                        total_time = total_time + data.shift.time
+                    })
+                    this.form.time = total_time
+                },
+                employeeShift() {
+                    //該週已排班員工
+                    const startDay = this.form.startDay
+                    let _in = []
+                    let _not_in = []
+                    if(this.shift_table !== null) {
+                        const data = this.shift_table.filter(data => data.startDay === startDay)
+
+                        this.employee.forEach(item => {
+                            if(data.find(d => d.employee_id == item.employee_id)) {
+                                _in.push({employee_id: item.employee_id,name: item.name})
+                            } else {
+                                _not_in.push({employee_id: item.employee_id,name: item.name})
+                            }
+                        })
+                    } else {
+                        _not_in = JSON.parse(JSON.stringify(this.employee))
+                    }
+                    
+                    this.employee_not_in_shift = _not_in
+                    this.employee_in_shift = _in
+                },
+                selectEditData() {
+                    if(this.updateform.employee_id != 0) {
+                        const startDay = this.updateform.startDay
+                        const data = this.shift_table.find(data => 
+                            data.employee_id == this.updateform.employee_id
+                            && data.startDay == startDay    
+                        )
+                        this.updateform.data = data.data
+                        this.updateform.time = data.time
+                    }
+                },
+                changeEditShift(index) {
+                    //依據shift_id更改shift的內容
+                    const shift_id = this.updateform.data[index].shift.shift_id
+                    if(shift_id == 0) {
+                        this.updateform.data[index].shift = {
+                            shift_id: 0,
+                            shift_name: "休假",
+                            time: 0
+                        }
+                    } else {
+                        const shift = this.shift.find(data => data.shift_id == shift_id)
+                        this.updateform.data[index].shift = JSON.parse(JSON.stringify(shift))
+                    }
+
+                    //獲取所有時數
+                    let total_time = 0
+                    this.updateform.data.forEach(data => {
+                        total_time = total_time + data.shift.time
+                    })
+                    this.updateform.time = total_time
+                },
+                addShiftData() {
+                    if(this.form.employee_id === 0) {
+                        alert('請選擇員工!')
+                    } else {
+                        post('/api_v1.1/clinic/new/shift/add', this.form).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                // window.location.reload('./new_shift.html')
+                                this.getShiftTableData(this.month.month, this.month.week)
+                                this.form.employee_id = 0
+                                this.$nextTick();
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                            }
+                        })
+                    }
+                },
+                updateShiftData() {
+                    if(this.updateform.employee_id === 0) {
+                        alert('請選擇員工!')
+                    } else {
+                        post('/api_v1.1/clinic/new/shift/update', this.updateform).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                this.getShiftTableData(this.month.month, this.month.week)
+                                this.$nextTick();
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                            }
+                        })
+                    }
+                },
+                shiftOnCalendar() {
+                    if(this.shift_table !== null) {
+                        this.shift_table.forEach(item => {
+                            const data = this.employee.find(d => d.employee_id == item.employee_id)
+                            item['name'] = data.name
+                        })
+                        // 傳入Shift.js
+                        this.s = new Shift(this.shift_table)
+                    }
+                }
+            },
+            watch: {
+                //input與calendar同步
+                "month.month": {
+                    // immediate: true,
+                    handler: function() {
+                        this.getShiftTableData(this.month.month)
+                        this.calendar = new Calendar({
+                            element: document.querySelector('.calendar'),
+                            output: document.querySelector('.date'),
+                        },this.month.month);
+                        //顯示排班
+                        this.shiftOnCalendar()
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

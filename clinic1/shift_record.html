@@ -26,6 +26,7 @@
                     <li><a href="./salary_attendance.html">薪資&考勤設定</a></li>
                     <li><a href="./salary_item.html">薪項名稱設定</a></li>
                     <li><a href="#">基本薪資</a></li>
+<li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift.html">排班表</a></li>
                     <li  class="active"><a href="./shift_record.html">打卡明細</a></li>
                     <li><a href="#">出勤明細</a></li>
@@ -73,20 +74,22 @@
                                 <th scope="col">日期</th>
                                 <th scope="col">員工名稱</th>
                                 <th scope="col">圖片路徑</th>
+                                <th scope="col">打卡時段</th>
                             </tr>
                         </thead>
                         <tbody>
                                 <tr v-for="(d, index) in employeeList">
                                     <th scope="row">{{index + 1}}</th>
-                                    <td>{{d.name}}</td>
                                     <td><p v-for="r in getRecord(d.employee_id)">{{r.datetime}}</p></td>
+                                    <td>{{d.name}}</td>
                                     <td>
                                         <template v-for="i in getRecord(d.employee_id)">
                                             <div>
                                                 <img width="100" height="75"  :src="'/api_v1.1/clinic/shift/record/img/'+i.employee_id+'/'+i.datetime.substr(0,10)+'/'+i.datetime.substr(11,19)" alt=""><br>
                                             </div>
                                         </template>
-                                        </td>
+                                    </td>
+                                    <td><p v-for="t in getRecord(d.employee_id)">{{getType(t.type)}}</p></td>
                                 </tr>
                                 <tr v-show="data == null || data.length < 1">
                                     <td colspan="12" style="text-align: center;">無打卡資料</td>
@@ -120,7 +123,15 @@
             el: "#app",
             data: {
                 data: [],
-                employeeList: []
+                employeeList: [],
+                type: {
+                    "on_1st":  "早上上班",
+                    "off_1st": "早上下班",
+                    "on_2nd": "下午上班",
+                    "off_2nd": "下午下班",
+                    "on_3rd": "晚上上班",
+                    "off_3rd": "晚上下班"
+                }
             },
             created() {
                 get('/api_v1.1/clinic/shift/record').then(res => {
@@ -161,6 +172,9 @@
                 },
                 getRecord(id) {
                     return this.data.filter(data => data.employee_id == id)
+                },
+                getType(type) {
+                    return this.type[type]
                 }
             }
         })
