@@ -30,10 +30,10 @@
                             `
                                 <div class="employee${_class}">
                                     <div class="m">
-                                        <span>${item.name}</span>
+                                        <span>${item.nickname}</span>
                                     </div>    
                                     <div class="n">
-                                        <span>${item.name}</span>
+                                        <span>${item.nickname}</span>
                                     </div>
                                 </div>
                             `
@@ -42,7 +42,7 @@
                         $(`.days > .currentMonth:eq(${day}) > .shift_content`).append(
                             `
                                 <div class="employee${_class}">
-                                    <span>${item.name}</span>
+                                    <span>${item.nickname}</span>
                                 </div>    
                             `
                         )
