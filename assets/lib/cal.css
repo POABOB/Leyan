@@ -5,11 +5,19 @@
 .calendar> ol{list-style:none; margin:0; padding:0; }
 .calendar> ol.weekdays{display: flex; text-align: center; border-top: 1px solid #C7C7CC;}
 .calendar> ol.weekdays >li{width: 14.2857%; padding: .5em 1em; border-right: 1px solid #C7C7CC;}
+.calendar> ol.weekdays >li:nth-child(1){border-left: 1px solid #C7C7CC;}
 .calendar> ol.days{display: flex; flex-wrap: wrap; flex-grow: 1;}
-.calendar> ol.days>li{width: 14.2857%; border-right: 1px solid #C7C7CC; border-top: 1px solid #C7C7CC; height: 200px;
+.calendar> ol.days>li{width: 14.2857%; border-right: 1px solid #C7C7CC; border-top: 1px solid #C7C7CC; min-height: 200px;
     position: relative;
 }
-.calendar> ol.days>li:nth-child(7n){ border-right: none; }
+.calendar> ol.days>li:nth-child(7n + 1){ border-left: 1px solid #C7C7CC; }
+.calendar> ol.days>li:nth-last-child(1),
+.calendar> ol.days>li:nth-last-child(2),
+.calendar> ol.days>li:nth-last-child(3),
+.calendar> ol.days>li:nth-last-child(4),
+.calendar> ol.days>li:nth-last-child(5),
+.calendar> ol.days>li:nth-last-child(6),
+.calendar> ol.days>li:nth-last-child(7){ border-bottom: 1px solid #C7C7CC; }
 .calendar> ol.days>li> .dayLabel{
     position: absolute; left: .6em;  top: .6em; white-space: nowrap; text-align: right;
 }
@@ -23,5 +31,21 @@
 .calendar .days .previousMonth > .shift_content,
 .calendar .days .nextMonth > .shift_content { background-color: transparent }
 .calendar> ol.days>li> .shift{position: absolute; top: .6em; left: 3em; width: 70%; text-align: center;}
-.calendar> ol.days>li> .shift_content{position: absolute; top: 2.4em; left: 3em; width: 70%;  background-color: #eee; height: 75%;}
+.calendar> ol.days>li> .shift_n{overflow:hidden;white-space:nowrap; text-overflow:clip;position: absolute; top: 2.4em;left:.6em; width: 30%; height: 75%;}
+.calendar> ol.days>li> .shift_content{position: absolute; top: 2.4em; left: 3em; width: 70%; height: 75%; padding: 0 .5em;}
 .calendar> ol.days>li>.shift>.shift_type {width: 25%; padding:0 3%; margin: 0 6%; text-align: center;}
+.calendar> ol.days>li> .shift_content > .employee{background-color: #eee;overflow:hidden;white-space:nowrap; text-overflow:clip;margin: 0 0 .3em 0; text-align: center;}
+.calendar> ol.days>li> .shift_n > .shift_name{margin: 0 0 .3em 0;}
+.calendar> ol.days>li> .shift_content > .employee > span,
+.calendar> ol.days>li> .shift_content > .employee.morning.night > .m > span,
+.calendar> ol.days>li> .shift_content > .employee.morning.night > .n > span,
+.calendar> ol.days>li> .shift_n > .shift_name> span{font-size: .85em;}
+.calendar> ol.days>li> .shift_content > .employee.morning{width: 33.34%;}
+.calendar> ol.days>li> .shift_content > .employee.afternoon{width: 33.34%;margin-left: 33.34%;}
+.calendar> ol.days>li> .shift_content > .employee.night{ margin-left: 66.66%;width: 33.34%;}
+.calendar> ol.days>li> .shift_content > .employee.morning.afternoon{margin-left: 0;width: 66.67%;}
+.calendar> ol.days>li> .shift_content > .employee.afternoon.night{width: 66.67%; margin-left: 33.34%;}
+.calendar> ol.days>li> .shift_content > .employee.morning.night{background-color: transparent;margin-left: 0; width: 100%;}
+.calendar> ol.days>li> .shift_content > .employee.morning.night > .m{background-color: #eee;overflow:hidden;white-space:nowrap;margin-left: 0;width: 33.4%;display: inline-block;}
+.calendar> ol.days>li> .shift_content > .employee.morning.night > .n{background-color: #eee;overflow:hidden;white-space:nowrap;margin-left: 30%;width: 33.4%;display: inline-block;}
+.calendar> ol.days>li> .shift_content > .employee.morning.afternoon.night{margin-left: 0;width: 100%;}
