@@ -614,7 +614,7 @@
                     if(this.shift_table !== null) {
                         this.shift_table.forEach(item => {
                             const data = this.employee.find(d => d.employee_id == item.employee_id)
-                            item['name'] = data.name
+                            item['nickname'] = data.nickname
                         })
                         console.log(this.shift_table)
                         // 傳入Shift.js
