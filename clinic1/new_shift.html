@@ -318,16 +318,12 @@
                 }
             },
             created() {
-                if(res.code == 403) {
-                        location.href = './index.html'
-                } else {
-                    this.getPositionData()
-                    this.getEmployeeData()
-                    this.getShiftSettingData()
-                    //月份一更動(watch)，隨即調用排班 Cal Shift
-                    this.month.month = new Date().Format('yyyy-MM')
-                    this.copySelect()
-                }
+                this.getPositionData()
+                this.getEmployeeData()
+                this.getShiftSettingData()
+                //月份一更動(watch)，隨即調用排班 Cal Shift
+                this.month.month = new Date().Format('yyyy-MM')
+                this.copySelect()
             },
             methods: {
                 logout() {
@@ -383,7 +379,11 @@
                 },
                 getPositionData() {
                     get('/api_v1.1/clinic/position').then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else {
                             this.position = res.data
+                        }
                     })
                 },
                 //剛進頁面初始化數值為當月1日
@@ -631,7 +631,7 @@
                     }
                 },
                 checkEditPosition() {
-                    if(this.updateform.data.find(item => item.position.position_id == 0 && item.shift.shift_id == 0)) {
+                    if(this.updateform.data.find(item => item.position.position_id == 0 && item.shift.shift_id != 0)) {
                         return true
                     } else {
                         return false
