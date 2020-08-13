@@ -236,7 +236,11 @@
             },
             created() {
                 get('/api_v1.1/clinic/salary/item/setting').then(res => {
+                    if(res.code == 403) {
+                        location.href = './index.html'
+                    } else {
                         this.data = res.data
+                    }
                 })
             },
             methods: {

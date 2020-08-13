@@ -239,7 +239,11 @@
             },
             created() {
                 get('/api_v1.1/clinic/shift/setting').then(res => {
+                    if(res1.code == 403) {
+                        location.href = './index.html'
+                    } else {
                         this.data = res.data
+                    }
                 })
             },
             methods: {

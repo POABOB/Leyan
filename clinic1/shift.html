@@ -219,9 +219,13 @@
                 get('/api_v1.1/clinic/shift').then(res1 => {
                     get('/api_v1.1/clinic/employee').then(res2 => {
                         get('/api_v1.1/clinic/shift/setting').then(res3 => {
-                            this.data = res1.data
-                            this.employee = res2.data
-                            this.shift = res3.data
+                            if(res1.code == 403) {
+                                location.href = './index.html'
+                            } else {
+                                this.data = res1.data
+                                this.employee = res2.data
+                                this.shift = res3.data
+                            }
                         })
                     })
                 })

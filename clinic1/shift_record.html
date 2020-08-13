@@ -141,8 +141,12 @@
             },
             created() {
                 get('/api_v1.1/clinic/shift/record').then(res => {
-                    this.data = res.data
-                    this.filterEmployee()
+                    if(res.code == 403) {
+                        location.href = './index.html'
+                    } else {
+                        this.data = res.data
+                        this.filterEmployee()
+                    }
                 })
             },
             mounted() {

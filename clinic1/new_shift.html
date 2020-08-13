@@ -318,12 +318,16 @@
                 }
             },
             created() {
-                this.getPositionData()
-                this.getEmployeeData()
-                this.getShiftSettingData()
-                //月份一更動(watch)，隨即調用排班 Cal Shift
-                this.month.month = new Date().Format('yyyy-MM')
-                this.copySelect()
+                if(res.code == 403) {
+                        location.href = './index.html'
+                } else {
+                    this.getPositionData()
+                    this.getEmployeeData()
+                    this.getShiftSettingData()
+                    //月份一更動(watch)，隨即調用排班 Cal Shift
+                    this.month.month = new Date().Format('yyyy-MM')
+                    this.copySelect()
+                }
             },
             methods: {
                 logout() {
