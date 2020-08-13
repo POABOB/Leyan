@@ -48,4 +48,4 @@
 .calendar> ol.days>li> .shift_content > .employee.morning.night{background-color: transparent;margin-left: 0; width: 100%;}
 .calendar> ol.days>li> .shift_content > .employee.morning.night > .m{background-color: #eee;overflow:hidden;white-space:nowrap;margin-left: 0;width: 33.4%;display: inline-block;}
 .calendar> ol.days>li> .shift_content > .employee.morning.night > .n{background-color: #eee;overflow:hidden;white-space:nowrap;margin-left: 30%;width: 33.4%;display: inline-block;}
-.calendar> ol.days>li> .shift_content > .employee.morning.afternoon.night{margin-left: 0;width: 100%;}
+.calendar> ol.days>li> .shift_content > .employee.morning.afternoon.night{background-color: #eee;margin-left: 0;width: 100%;}

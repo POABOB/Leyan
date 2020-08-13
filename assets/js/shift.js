@@ -20,7 +20,7 @@
                     $(`.days > .currentMonth:eq(${day}) > .shift_n`).append(
                         `
                             <div class="shift_name">
-                                <span>${item2.shift.shift_name}</span>
+                                <span>${item2.position.name}</span>
                             </div>    
                         `
                     )

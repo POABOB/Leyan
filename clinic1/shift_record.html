@@ -78,18 +78,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                                <tr v-for="(d, index) in employeeList">
+                                <tr v-for="(d, index) in data">
                                     <th scope="row">{{index + 1}}</th>
-                                    <td><p v-for="r in getRecord(d.employee_id)">{{r.datetime}}</p></td>
+                                    <td>{{d.datetime}}</td>
                                     <td>{{d.name}}</td>
                                     <td>
-                                        <template v-for="i in getRecord(d.employee_id)">
-                                            <div>
-                                                <img width="100" height="75"  :src="'/api_v1.1/clinic/shift/record/img/'+i.employee_id+'/'+i.datetime.substr(0,10)+'/'+i.datetime.substr(11,19)" alt=""><br>
-                                            </div>
-                                        </template>
+                                        <div>
+                                            <img width="100" height="75"  :src="'/api_v1.1/clinic/shift/record/img/'+d.employee_id+'/'+d.datetime.substr(0,10)+'/'+d.datetime.substr(11,19)" alt=""><br>
+                                        </div>
                                     </td>
-                                    <td><p v-for="t in getRecord(d.employee_id)">{{getType(t.type)}}</p></td>
+                                    <td>{{getType(d.type)}}</td>
                                 </tr>
                                 <tr v-show="data == null || data.length < 1">
                                     <td colspan="12" style="text-align: center;">無打卡資料</td>

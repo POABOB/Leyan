@@ -99,6 +99,10 @@
                                                             <option value="0">休假</option>
                                                             <option v-for="s in shift" :value="s.shift_id">{{s.shift_name}}</option>
                                                         </select>
+                                                        <select class="form-control" v-model="form.data[index].position.position_id" @change="changePosition(index)">
+                                                            <option value="0">請選擇</option>
+                                                            <option v-for="p in position" :value="p.position_id">{{p.name}}</option>
+                                                        </select>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -136,6 +140,10 @@
                                                         <select class="form-control" v-model="updateform.data[index].shift.shift_id" @change="changeEditShift(index)">
                                                             <option value="0">休假</option>
                                                             <option v-for="s in shift" :value="s.shift_id">{{s.shift_name}}</option>
+                                                        </select>
+                                                        <select class="form-control" v-model="updateform.data[index].position.position_id" @change="changeEditPosition(index)">
+                                                            <option value="0">請選擇</option>
+                                                            <option v-for="p in position" :value="p.position_id">{{p.name}}</option>
                                                         </select>
                                                     </td>
                                                 </tr>
@@ -275,6 +283,7 @@
             data: {
                 employee: [],
                 shift: [],
+                position: [],
                 month: {
                     month: "",
                     startDay: "",
@@ -309,6 +318,7 @@
                 }
             },
             created() {
+                this.getPositionData()
                 this.getEmployeeData()
                 this.getShiftSettingData()
                 //月份一更動(watch)，隨即調用排班 Cal Shift
@@ -365,6 +375,11 @@
                             item['time'] = time
                         })
                         this.shift = tmp
+                    })
+                },
+                getPositionData() {
+                    get('/api_v1.1/clinic/position').then(res => {
+                            this.position = res.data
                     })
                 },
                 //剛進頁面初始化數值為當月1日
@@ -481,6 +496,10 @@
                                     shift_id: 0,
                                     shift_name: "休假",
                                     time: 0
+                                },
+                                position: {
+                                    position_id: 0,
+                                    name: "請選擇",
                                 }
                             })
                         }
@@ -499,6 +518,10 @@
                             shift_name: "休假",
                             time: 0
                         }
+                        this.form.data[index].position = {
+                            position_id: 0,
+                            name: "請選擇"
+                        }
                     } else {
                         const shift = this.shift.find(data => data.shift_id == shift_id)
                         this.form.data[index].shift = JSON.parse(JSON.stringify(shift))
@@ -510,6 +533,33 @@
                         total_time = total_time + data.shift.time
                     })
                     this.form.time = total_time
+                },
+                changePosition(index) {
+                    //依據position_id更改position的內容
+                    const position_id = this.form.data[index].position.position_id
+                    if(position_id == 0) {
+                        this.form.data[index].position = {
+                            position_id: 0,
+                            name: "請選擇"
+                        }
+                    } else {
+                        const position = this.position.find(data => data.position_id == position_id)
+                        this.form.data[index].position = JSON.parse(JSON.stringify(position))
+                    }
+                },
+                changeEditPosition(index) {
+                    //依據position_id更改position的內容
+                    const position_id = this.updateform.data[index].position.position_id
+                    if(position_id == 0) {
+                        this.updateform.data[index].position = {
+                            position_id: 0,
+                            name: "請選擇"
+                        }
+                    } else {
+                        const position = this.position.find(data => data.position_id == position_id)
+                        this.updateform.data[index].position = JSON.parse(JSON.stringify(position))
+                        console.log(position)
+                    }
                 },
                 employeeShift() {
                     //該週已排班員工
@@ -553,6 +603,10 @@
                             shift_name: "休假",
                             time: 0
                         }
+                        this.updateform.data[index].position = {
+                            position_id: 0,
+                            name: "請選擇"
+                        }
                     } else {
                         const shift = this.shift.find(data => data.shift_id == shift_id)
                         this.updateform.data[index].shift = JSON.parse(JSON.stringify(shift))
@@ -565,9 +619,25 @@
                     })
                     this.updateform.time = total_time
                 },
+                checkPosition() {
+                    if(this.form.data.find(item => item.position.position_id == 0 && item.shift.shift_id != 0)) {
+                        return true
+                    } else {
+                        return false
+                    }
+                },
+                checkEditPosition() {
+                    if(this.updateform.data.find(item => item.position.position_id == 0 && item.shift.shift_id == 0)) {
+                        return true
+                    } else {
+                        return false
+                    }
+                },
                 addShiftData() {
                     if(this.form.employee_id === 0) {
                         alert('請選擇員工!')
+                    } else if(this.checkPosition()) {
+                        alert('請選擇崗位!')
                     } else {
                         post('/api_v1.1/clinic/new/shift/add', this.form).then(res => {
                             if (res.code === 200) {
@@ -591,6 +661,8 @@
                 updateShiftData() {
                     if(this.updateform.employee_id === 0) {
                         alert('請選擇員工!')
+                    } else if(this.checkEditPosition()) {
+                        alert('請選擇崗位!')
                     } else {
                         post('/api_v1.1/clinic/new/shift/update', this.updateform).then(res => {
                             if (res.code === 200) {
