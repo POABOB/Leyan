@@ -60,13 +60,18 @@
                     </div>
                 </nav>
                 <div>
-                    <!-- 控制月份  -->
-                    <div class="input-group mb-3">
-                        <input type="month" class="form-control" v-model="month.month" id="month">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click="" >確認</button>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <!-- 控制月份  -->
+                            <div class="input-group mb-3">
+                                <input type="month" class="form-control" v-model="month.month" id="month">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" @click="" >確認</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    
                     
                     <!--  -->
                     <p>
@@ -690,7 +695,9 @@
                     if(this.shift_table !== null) {
                         this.shift_table.forEach(item => {
                             const data = this.employee.find(d => d.employee_id == item.employee_id)
-                            item['nickname'] = data.nickname
+                            if(data !== undefined) {
+                                item['nickname'] = data.nickname
+                            }
                         })
                         console.log(this.shift_table)
                         // 傳入Shift.js

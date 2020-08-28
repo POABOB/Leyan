@@ -24,6 +24,10 @@
 .calendar .today .day{ background: red; width: 1.6em; display: inline-block; text-align: center; height: 1.6em;
     line-height: 1.6em; border-radius: 50%; color: white;
 }
+.calendar> ol.days>li> .dayLabel > .day,
+.calendar> ol.days>li> .dayLabel > .unit {
+    font-weight: bold;
+}
 /* .calendar .weekdays .weekend{ color: #B8B8B8; } */
 /* .calendar .days .weekend{ background: #F5F5F5; } */
 .calendar .days .previousMonth,
