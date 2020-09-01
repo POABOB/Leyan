@@ -13,7 +13,7 @@
           dayTemplate: `
             <li>
               <span class="dayLabel">
-                <span class="day"></span><span class="unit">日</span>
+                <span class="day"></span><span class="unit"></span>
               </span>
               <div class="shift"><span class="shift_type">早</span><span class="shift_type">午</span><span class="shift_type">晚</span></div>
               <div class="shift_n"></div>

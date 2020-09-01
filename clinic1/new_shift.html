@@ -26,9 +26,8 @@
                     <li><a href="./position.html">崗位設定</a></li>
                     <li><a href="./shift_setting.html">班別設定</a></li>
                     <li><a href="./salary_item.html">薪項名稱設定</a></li>
-                    <li><a href="#">基本薪資</a></li>
+                    <li><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li class="active"><a href="./new_shift.html">新排班表</a></li>
-                    <li><a href="./shift.html">排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
                     <li><a href="#">出勤明細</a></li>
                     <li><a href="#">出勤統計表</a></li>
@@ -65,9 +64,9 @@
                             <!-- 控制月份  -->
                             <div class="input-group mb-3">
                                 <input type="month" class="form-control" v-model="month.month" id="month">
-                                <div class="input-group-append">
+                                <!-- <div class="input-group-append">
                                     <button class="btn btn-outline-secondary" type="button" @click="" >確認</button>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -94,10 +93,7 @@
                                             <tbody>
                                                 <tr>
                                                     <td>
-                                                        <select class="form-control" v-model="form.employee_id">
-                                                            <option value="0">請選擇</option>
-                                                            <option v-for="e in employee_not_in_shift" :value="e.employee_id">{{e.name}}</option>
-                                                        </select>
+                                                        <select class="form-control" v-m                        <button class="btn btn-primary" data-
                                                     </td>
                                                     <td v-for="(d,index) in form.data">
                                                         <select class="form-control" v-model="form.data[index].shift.shift_id" @change="changeShift(index)">
@@ -828,6 +824,8 @@
                             element: document.querySelector('.calendar'),
                             output: document.querySelector('.date'),
                         },this.month.month);
+                        this.weeks = []
+                        this.copySelect()
                         //顯示排班
                         // this.shiftOnCalendar()
                     }

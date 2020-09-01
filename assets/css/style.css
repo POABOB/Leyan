@@ -164,14 +164,14 @@ a.article, a.article:hover {
 #sidebarCollapse span {
     width: 80%;
     height: 2px;
-    margin: 0 auto;
+    margin: 5px auto;
     display: block;
     background: #555;
-    transition: all 0.8s cubic-bezier(0.810, -0.330, 0.345, 1.375);
-    transition-delay: 0.2s;
+    /* transition: all 0.8s cubic-bezier(0.810, -0.330, 0.345, 1.375);
+    transition-delay: 0.2s; */
 }
 
-#sidebarCollapse span:first-of-type {
+/* #sidebarCollapse span:first-of-type {
     transform: rotate(45deg) translate(2px, 2px);
 }
 #sidebarCollapse span:nth-of-type(2) {
@@ -179,11 +179,11 @@ a.article, a.article:hover {
 }
 #sidebarCollapse span:last-of-type {
     transform: rotate(-45deg) translate(1px, -1px);
-}
+} */
 
 
 #sidebarCollapse.active span {
-    transform: none;
+    /* transform: none; */
     opacity: 1;
     margin: 5px auto;
 }
@@ -208,7 +208,7 @@ a.article, a.article:hover {
         opacity: 1;
         margin: 5px auto;
     }
-    #sidebarCollapse.active span {
+    /* #sidebarCollapse.active span {
         margin: 0 auto;
     }
     #sidebarCollapse.active span:first-of-type {
@@ -219,6 +219,6 @@ a.article, a.article:hover {
     }
     #sidebarCollapse.active span:last-of-type {
         transform: rotate(-45deg) translate(1px, -1px);
-    }
+    } */
 
 }
