@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="../assets/css/loading.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+<style>
+    .active {
+        color: red;
+    }
+</style>
 <body>
     <div class="loading-wrapper">
         <svg class="loading"><rect></rect></svg>
@@ -59,70 +64,52 @@
                 </nav>
                 <div>
                     <p>本月總天數: <span>{{detail.total_days}}</span>天，時數: <span>{{detail.total_hours}}</span>小時，應工作天數: <span>{{detail.work_days}}</span>天，應工作時數: <span>{{detail.work_hours}}</span>小時</p>
-                    <div class="input-group mb-3">
-                        <input type="month" min="2013-01" class="form-control" id="closed_date">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click="getClosedDate()" >確認</button>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <div class="input-group mb-3">
+                                <input type="month" min="2013-01" class="form-control" id="closed_date" v-model="month">
+                                <!-- <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" @click="getClosedDate()" >確認</button>
+                                </div> -->
+                            </div>
                         </div>
                     </div>
                     <p v-text="status">{{calculateDays}}</p>
-                    <table class="table table-striped"><button class="btn btn-primary" data-toggle="modal" data-target="#addClosedDate">新增休診日</button>
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">月份</th>
-                                <th scope="col">日</th>
-                                <th scope="col">名稱</th>
-                                <th scope="col">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                                <tr v-for="(d, index) in data">
-                                    <th scope="row">{{index + 1}}</th>
-                                    <td><p>{{d.date}}</p></td>
-                                    <td><p>{{d.day}}</p></td>
-                                    <td><p>{{d.name}}</p></td>
-                                    <td>
-                                        <button class="btn btn-primary" @click="deleteClosedDateData(index)">刪除</button> 
+                    <!-- 日曆 -->
+                    <form name="udpateForm" id="udpateForm">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>星期日</th>
+                                    <th>星期一</th>
+                                    <th>星期二</th>
+                                    <th>星期三</th>
+                                    <th>星期四</th>
+                                    <th>星期五</th>
+                                    <th>星期六</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                    <tr v-for="(w, index) in weeks">
+                                        <td v-for="(d, index) in w">
+                                            <div v-if="checkMonth(d)" :class="{active: check(d)}">
+                                                {{getDay(d)}}  {{findName(d)}}
+                                                <br>
+                                                <input type="checkbox" :checked="check(d)" :name="'day'+getDay(d)" :value="getDay(d)">休診
+                                            </div>
+                                        </td>
+                                    </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7" style="text-align: center;">
+                                        <button type="button" class="btn btn-primary" @click="updateClosedDateData()">更新</button>
                                     </td>
                                 </tr>
-                                <tr v-show="data == null || data.length < 1">
-                                    <td colspan="11" style="text-align: center;">無休診資料</td>
-                                </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div class="modal fade" id="addClosedDate" tabindex="-1" role="dialog" aria-labelledby="addClosedDateLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h5 class="modal-title" id="addClosedDateLabel">新增休診日</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="date">月份</label>
-                            <input type="month" class="form-control" id="date">
-                        </div>
-                        <div class="form-group">
-                            <label for="day">日</label>
-                            <input type="number" max="31" min="1" class="form-control" id="day">
-                        </div>
-                        <div class="form-group">
-                            <label for="name">名稱</label>
-                            <input type="text" class="form-control" id="name">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" @click="addClosedDateData()">送出</button>
-                    </div>
+                            </tfoot>
+                        </table>
+                    </form>
                 </div>
             </div>
         </div>
@@ -137,6 +124,8 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+    <script src="../assets/js/week.js"></script>
+    <script src="../assets/js/moment.js"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -158,26 +147,15 @@
                     closed_days: 0,
                     closed_hours: 0
                 },
-                status: null
+                status: null,
+                month: "0000-00",
+                w: {},
+                weeks: [],
+                updateForm: {
+                }
             },
             created() {
-                get('/api_v1.1/clinic/closed_date').then(res => {
-                    if(res.code == 200) {
-                        this.data = res.data[0]
-                        this.detail = res.data[1]
-                    } else {
-                        location.href = './index.html'
-                    }
-                })
-            },
-            //因為create() DOM尚未被建立，所以使用mounted來賦值
-            mounted() {
-                const fullDate = new Date();
-                const yyyy = fullDate.getFullYear();
-                const MM = (fullDate.getMonth() + 1) >= 10 ? (fullDate.getMonth() + 1) : ("0" + (fullDate.getMonth() + 1));
-                const today = yyyy + "-" + MM;
-                $('#closed_date').val(today)
-                $('#date').val($('#closed_date').val())
+                this.month = new Date().Format('yyyy-MM')
             },
             methods: {
                 logout() {
@@ -192,62 +170,85 @@
                         }
                     })
                 },
-                addClosedDateData() {
-                    const same = this.data.find(function(item, index, array){
-                        return parseInt(item.day) == parseInt($('#day').val());           
-                        });
-                    if(same === undefined) {
-                        this.data.push(
-                            {
-                                date: $('#date').val(),
-                                day: $('#day').val(),
-                                name: $('#name').val() ? $('#name').val() : 'null'
-                            }
-                        )
-                        this.data.sort(function (a, b) {
-                            return a['day'] - b['day']
-                        })
-
-                        post('/api_v1.1/clinic/closed_date/update', this.data).then(res => {
-                            if (res.code === 200) {
-                                alert(res.message)
-                                window.location.reload('./assistant.html')
-                                return
-                            }
-                            else {
-                                alert(res.message)
-                                console.log(res.message)
-                            }
-                        })
-                    } else {
-                        alert('請勿重複新增日期!')
+                getAllWeeks() {
+                    this.weeks = []
+                    const w = new Week(new Date(this.month).setDate(1))
+                    let current = w.getCurrentWeek();
+                    for(let item of current) {
+                        item.Date = new Date(item.Date).Format("yyyy-MM-dd")
+                    }
+                    this.weeks.push(current)
+                    while(true) {
+                        current = w.nextWeek();
+                        if(new Date(current[0].Date).Format("yyyy-MM") == this.month) {
+                                for(let item of current) {
+                                    item.Date = new Date(item.Date).Format("yyyy-MM-dd")
+                                }
+                                this.weeks.push(current)
+                        } else {
+                            break;
+                        }
                     }
                 },
-                getClosedDate() {
-                    get('/api_v1.1/clinic/closed_date?date='+$('#closed_date').val()).then(res => {
-                        if(res.code == 200) {
-                            this.data = res.data[0]
-                            this.detail = res.data[1]
-                            $('#date').val($('#closed_date').val())
-                        } else {
+                checkMonth(d) {
+                    if(d.Date.slice(0,7) !== this.month) {
+                        return false
+                    }else {
+                        return true
+                    }
+                },
+                updateClosedDateData() {
+                    const form = $('form').serializeArray()
+                    const data = this.serializeToJson(form)
+
+                    post('/api_v1.1/clinic/closed_date/update', JSON.parse(data)).then(res => {
+                        if (res.code === 200) {
                             alert(res.message)
+                            window.location.reload('./assistant.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
                         }
                     })
                 },
-                deleteClosedDateData(index) {
-                    if(confirm('是否要刪除?')) {
-                        this.data.splice(index, 1);
-                        post('/api_v1.1/clinic/closed_date/update', this.data).then(res => {
-                            if (res.code === 200) {
-                                alert(res.message)
-                                window.location.reload('./assistant.html')
-                                return
-                            }
-                            else {
-                                alert(res.message)
-                                console.log(res.message)
-                            }
+                serializeToJson(data) {
+                    let values = []
+                    for(index in data) {
+                        values.push({
+                            date: this.month,
+                            day: data[index]['value'],
+                            name: 'null'
                         })
+                    }
+                    return JSON.stringify(values)
+                },
+                getClosedDate() {
+                    get('/api_v1.1/clinic/closed_date?date='+this.month).then(res => {
+                        if(res.code == 200) {
+                            this.data = res.data[0]
+                            this.detail = res.data[1]
+                        } else {
+                            location.href = './index.html'
+                        }
+                    })
+                },
+                getDay(d) {
+                    return parseInt(d.Date.slice(-2))
+                },
+                findName(d) {
+                    const data = this.data.find(item => item.day === parseInt(d.Date.slice(-2)))
+                    if(data !== undefined ) {
+                        return (data.name !== 'null') ? data.name : ""
+                    }
+                },
+                check(d) {
+                    const data = this.data.find(item => item.day === parseInt(d.Date.slice(-2)))
+                    if(data !== undefined ) {
+                        return true
+                    } else {
+                        return false
                     }
                 }
             },
@@ -263,6 +264,16 @@
                         this.status = '超過放假標準'
                     } else if(closed_days < this.detail.closed_days) {
                         this.status = '少於放假標準'
+                    }
+                }
+            },
+            watch: {
+                month: {
+                    handler: function() {
+                        //獲取資料
+                        this.getClosedDate()
+                        //整理本月的週
+                        this.getAllWeeks()
                     }
                 }
             }
