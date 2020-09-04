@@ -261,13 +261,7 @@
                 }
             },
             created() {
-                get('/api_v1.1/clinic/salary/basic_salary').then(res => {
-                    if(res.code == 403) {
-                        location.href = './index.html'
-                    } else {
-                        this.data = res.data
-                    }
-                })
+                this.getBasicSalaryData()
             },
             methods: {
                 logout() {
@@ -279,6 +273,15 @@
                         }
                         else {
                             alert(res.message)
+                        }
+                    })
+                },
+                getBasicSalaryData() {
+                    get('/api_v1.1/clinic/salary/basic_salary').then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else {
+                            this.data = res.data
                         }
                     })
                 },
@@ -295,7 +298,16 @@
                     })
                 },
                 updateBasicSalaryData() {
-
+                    post('/api_v1.1/clinic/salary/basic_salary/update', this.updateForm).then(res => {
+                        if (res.code === 200) {
+                            alert('更新基本薪資成功')
+                            this.getBasicSalaryData()
+                            $('#editBasicSalary').modal('hide')
+                            this.$nextTick();
+                        } else {
+                            alert(res.message)
+                        }
+                    })
                 },
                 labor_cal() {
                     this.updateForm.labor_insurance = 
