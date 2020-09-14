@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>打卡明細</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/loading.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/google.font.css">
+<link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <div class="loading-wrapper">
@@ -58,55 +59,101 @@
                     </div>
                 </nav>
                 <div>
-                    <div class="input-group mb-3">
-                        <input type="date" class="form-control" id="startDate">
-                        <input type="date" class="form-control" id="endDate">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @click="getShiftRecord()" >確認</button>
+                    
+                    <div class="col-12 col-lg-6">
+                        <div class="input-group mb-3">
+                            <input type="date" class="form-control" id="startDate">
+                            <input type="date" class="form-control" id="endDate">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" @click="getShiftRecord()" >確認</button>
+                            </div>
                         </div>
                     </div>
-                    <!-- <button class="btn btn-primary" data-toggle="modal" data-target="#addShift">新增排班</button> -->
                     <table class="table table-striped">
                         <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">日期</th>
-                                <th scope="col">員工名稱</th>
-                                <th scope="col">圖片路徑</th>
-                                <th scope="col">打卡時段</th>
+                            <tr v-if="date.length===0"><th style="text-align: center;">日期範圍內無打卡資料</th></tr>
+                            <tr v-else>
+                                <th></th>
+                                <th v-for="(d, index) in date">{{d.date}}({{d.day}})</th>
                             </tr>
                         </thead>
                         <tbody>
-                                <tr v-for="(d, index) in data">
-                                    <th scope="row">{{index + 1}}</th>
-                                    <td>{{d.datetime}}</td>
-                                    <td>{{d.name}}</td>
-                                    <td>
-                                        <div>
-                                            <img width="100" height="75"  :src="'/api_v1.1/clinic/shift/record/img/'+d.employee_id+'/'+d.datetime.substr(0,10)+'/'+d.datetime.substr(11,19)" alt=""><br>
-                                        </div>
-                                    </td>
-                                    <td>{{getType(d.type)}}</td>
-                                </tr>
-                                <tr v-show="data == null || data.length < 1">
-                                    <td colspan="12" style="text-align: center;">無打卡資料</td>
-                                </tr>
+                            <tr v-for="(d,index) in list">
+                                <td>
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.employee_id)">{{d.name}}</button>
+                                </td>
+                                <td v-for="(d2,index2) in d.record">
+                                    <p v-for="(d3,index3) in d2.data">{{d3.datetime.slice(-8)}}</p>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
+
+                    
+                    
+                    
+                </div>
+                
+            </div>
+        </div>
+        <div class="modal fade" id="showThisEmployee" tabindex="-1" role="dialog" aria-labelledby="showThisEmployeeLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="showThisEmployeeLabel">員工打卡紀錄</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">日期</th>
+                                    <th scope="col">員工名稱</th>
+                                    <th scope="col">圖片路徑</th>
+                                    <th scope="col">打卡時段</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    <tr v-for="(d, index) in employeeData">
+                                        <th scope="row">{{index + 1}}</th>
+                                        <td>{{d.datetime}}</td>
+                                        <td>{{d.name}}</td>
+                                        <td>
+                                            <div>
+                                                <img width="100" height="75"  :src="'/api_v1.1/clinic/shift/record/img/'+d.employee_id+'/'+d.datetime.substr(0,10)+'/'+d.datetime.substr(11,19)" alt=""><br>
+                                            </div>
+                                        </td>
+                                        <td>{{getType(d.type)}}</td>
+                                    </tr>
+                                    <tr v-show="data == null || data.length < 1">
+                                        <td colspan="12" style="text-align: center;">無打卡資料</td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    </div>
                 </div>
             </div>
         </div>
+
+
 
     </div>
 
 
 
     <script src="../assets/js/loading.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/jquery-3.4.1.min.js" ></script>
     <script src="../assets/js/q.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+    <script src="../assets/js/popper.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/moment.js"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -119,16 +166,15 @@
         new Vue({
             el: "#app",
             data: {
-                data: [
-                    {
+                data: [{
                         clinic_id: "",
                         datetime: "",
                         employee_id: "",
                         name: "",
                         type: ""
-                    }
-                ],
-                employeeList: [],
+                }],
+                date:[],
+                employee: [],
                 type: {
                     "on_1st":  "早上上班",
                     "off_1st": "早上下班",
@@ -136,25 +182,35 @@
                     "off_2nd": "下午下班",
                     "on_3rd": "晚上上班",
                     "off_3rd": "晚上下班"
-                }
+                },
+                day_list: ['日', '一', '二', '三', '四', '五', '六'],
+                list: [],
+                employeeData: [],
+                times:0
             },
             created() {
                 get('/api_v1.1/clinic/shift/record').then(res => {
                     if(res.code == 403) {
                         location.href = './index.html'
                     } else {
-                        this.data = res.data
-                        this.filterEmployee()
+                        let tmp = res.data[0]
+                        this.data = tmp.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+                        this.date = []
+                        res.data[1].forEach(item => {
+                            this.date.push({date: item[0], day: this.checkDay(item[0]), data: []})
+                        })
+                        //外層是object，轉成array
+                        this.employee = Object.values(res.data[2])
+                        this.showAllRecord()
                     }
                 })
             },
             mounted() {
-                var date = new Date(), y = date.getFullYear(), m = (date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : ("0" + (date.getMonth() + 1));
-                var lastDay = new Date(y, date.getMonth()+1, 0);
-                var s = y+'-'+m+'-01'
-                var e = y+'-'+m+'-'+lastDay.getDate()
-                $('#startDate').val(s)
-                $('#endDate').val(e)
+                let month = new Date().Format('yyyy-MM')
+                //月初
+                $('#startDate').val(new Date(month).Format('yyyy-MM-01'))
+                //月底
+                $('#endDate').val(new Date(month.slice(0,4), month.slice(-2), 0).Format('yyyy-MM-dd'))
             },
             methods: {
                 logout() {
@@ -171,20 +227,62 @@
                 },
                 getShiftRecord() {
                     get('/api_v1.1/clinic/shift/record?start='+$('#startDate').val()+'&end='+$('#endDate').val()).then(res => {
-                        this.data = res.data
-                        this.filterEmployee()
+                        let tmp = res.data[0]
+                        this.data = tmp.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+                        this.date = []
+                        res.data[1].forEach(item => {
+                            this.date.push({date: item[0], day: this.checkDay(item[0]), data: []})
+                        })
+                        //外層是object，轉成array
+                        this.employee = Object.values(res.data[2])
+                        this.showAllRecord()
+                        this.$nextTick()
                     })
                 },
-                filterEmployee() {
-                    const set = new Set();
-                    const result = this.data.filter(item => !set.has(item.name) ? set.add(item.name) : false);
-                    this.employeeList = result
+                showAllRecord() {
+                    this.list = []
+                    const format = {
+                        employee_id: 0,
+                        name: '',
+                        record: []
+                    }
+                    //建立list
+                    this.employee.forEach(item => {
+                        let tmp = JSON.parse(JSON.stringify(format))
+                        //員工不重複資料
+                        tmp.employee_id = item.employee_id
+                        tmp.name = item.name
+
+                        //日期不重複資料
+                        tmp.record = JSON.parse(JSON.stringify(this.date))
+
+                        //依據data來賦予該list資料
+                        let d = this.data.filter(d => d.employee_id == tmp.employee_id)                        
+                        d.forEach(item => {
+                            for(let item2 of tmp.record) {
+                                this.times+=1
+                                if (item2.date !== item.datetime.slice(0, 10)) {
+                                    continue;
+                                } else {
+                                    item2.data.push(item)
+                                }
+                            }
+                        })
+                        this.list.push(tmp)
+                    })
+                },
+                showThisEmployeeData(employee_id) {
+                    this.employeeData = this.data.filter(d => d.employee_id === employee_id)
                 },
                 getRecord(id) {
                     return this.data.filter(data => data.employee_id == id)
                 },
                 getType(type) {
                     return this.type[type]
+                },
+                checkDay(date) {
+                    //判斷星期幾
+                    return this.day_list[new Date(date).getDay()]
                 }
             }
         })

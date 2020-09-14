@@ -16,7 +16,7 @@
                     if(item2.shift.shift_name.indexOf("午") !== -1) {_class += " afternoon"}
                     if(item2.shift.shift_name.indexOf("晚") !== -1) {_class += " night"}
                     if(item2.shift.shift_name.indexOf("全天") !== -1) {_class = " morning afternoon night"}
-
+                    if(item2.shift.shift_name.indexOf("日常") !== -1) {_class += " morning  afternoon"}
                     $(`.days > .currentMonth:eq(${day}) > .shift_n`).append(
                         `
                             <div class="shift_name">

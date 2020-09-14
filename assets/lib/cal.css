@@ -35,7 +35,7 @@
 .calendar .days .previousMonth > .shift_content,
 .calendar .days .nextMonth > .shift_content { background-color: transparent }
 .calendar> ol.days>li> .shift{position: absolute; top: .6em; left: 3em; width: 70%; text-align: center;}
-.calendar> ol.days>li> .shift_n{overflow:hidden;white-space:nowrap; text-overflow:clip;position: absolute; top: 2.4em;left:.6em; width: 30%; height: 75%;}
+.calendar> ol.days>li> .shift_n{position: absolute; top: 2.4em;left:.6em; width: 30%; height: 75%;}
 .calendar> ol.days>li> .shift_content{position: absolute; top: 2.4em; left: 3em; width: 70%; height: 75%; padding: 0 .5em;}
 .calendar> ol.days>li>.shift>.shift_type {width: 25%; padding:0 3%; margin: 0 6%; text-align: center;}
 .calendar> ol.days>li> .shift_content > .employee{background-color: #eee;overflow:hidden;white-space:nowrap; text-overflow:clip;margin: 0 0 .3em 0; text-align: center;}
