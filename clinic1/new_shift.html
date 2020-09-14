@@ -361,7 +361,7 @@
                     this.shiftOnCalendar()
                 },
                 async getEmployeeData() {
-                    const res = await get('/api_v1.1/clinic/employee')
+                    const res = await get('/api_v1.1/clinic/new/shift/employee')
                     this.employee = res.data
                 },
                 getShiftSettingData() {
