@@ -426,6 +426,8 @@
                     this.filterMonth(current);
                     this.employeeShift()
                     this.month.week = 1
+                    //防止第一週沒有員工可新增和編輯
+                    this.$nextTick()
                 },
                 // 下一週
                 nextWeek() {
