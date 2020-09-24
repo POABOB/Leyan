@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>出勤明細</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/google.font.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統</p>
+                    <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./employee.html">員工資料</a></li>
+                    <li><a href="./closed_date.html">休診設定</a></li>
+                    <li><a href="./position.html">崗位設定</a></li>
+                    <li><a href="./shift_setting.html">班別設定</a></li>
+                    <li><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
+                    <li><a href="./new_shift.html">新排班表</a></li>
+                    <li  class="active"><a href="./shift_record.html">打卡明細</a></li>
+                    <li><a href="#">出勤明細</a></li>
+                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="#">每月薪資明細表</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <div class="col-12 col-lg-7">
+                        <div class="input-group mb-3">
+                            <input type="date" class="form-control" id="startDate" v-model="filter.startDate">
+                            <input type="date" class="form-control" id="endDate" v-model="filter.endDate">
+                            <select class="custom-select" v-model="filter.employee_id">
+                                <option selected value="0">全部</option>
+                                <option v-for="(d,index) in origin_data" :value="d.employee_id">{{d.name}}</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" @click="getAttendanceRecord()" >確認</button>
+                            </div>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#updateAttendance">匯入資料</button>
+                            <button class="btn btn-secondary" @click="printPDF()">列印</button>
+                        </div>
+                    </div>
+                    
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">姓名</th>
+                                <th scope="col">日期</th>
+                                <th scope="col">星期</th>
+                                <th scope="col">班別</th>
+                                <th scope="col">早上上班</th>
+                                <th scope="col">遲到</th>
+                                <th scope="col">早上下班</th>
+                                <th scope="col">早退</th>
+                                <th scope="col">下午上班</th>
+                                <th scope="col">遲到</th>
+                                <th scope="col">下午下班</th>
+                                <th scope="col">早退</th>
+                                <th scope="col">晚上上班</th>
+                                <th scope="col">遲到</th>
+                                <th scope="col">晚上下班</th>
+                                <th scope="col">早退</th>
+                                <th scope="col">出勤時數</th>
+                                <th scope="col">超時(分)</th>
+                                <th scope="col">忘打卡</th>
+                                <th scope="col">診數</th>
+                                <th scope="col">餐費次數</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(d, index) in data">
+                                <tr v-for="(d2, index2) in d.record_data" >
+                                        <th scope="row">{{(index * data.length) + (index2 + 1)}}</th>
+                                        <td>{{d.name}}</td>
+                                        <td>{{d2.date}}</td>
+                                        <td>{{d2.day}}</td>
+                                        <td>{{d2.shift_name}}</td>
+                                        <td>{{d2.data[0].slice(11,16)}}</td>
+                                        <td>{{d2.on_1st_l}}</td>
+                                        <td>{{d2.data[1].slice(11,16)}}</td>
+                                        <td>{{d2.off_1st_l}}</td>
+                                        <td>{{d2.data[2].slice(11,16)}}</td>
+                                        <td>{{d2.on_2nd_l}}</td>
+                                        <td>{{d2.data[3].slice(11,16)}}</td>
+                                        <td>{{d2.off_2nd_l}}</td>
+                                        <td>{{d2.data[4].slice(11,16)}}</td>
+                                        <td>{{d2.on_3rd_l}}</td>
+                                        <td>{{d2.data[5].slice(11,16)}}</td>
+                                        <td>{{d2.off_3rd_l}}</td>
+                                        <td>{{d2.total_time}}</td>
+                                        <td>{{d2.over_time}}</td>
+                                        <td>{{d2.no_record_times}}</td>
+                                        <td>{{d2.period}}</td>
+                                        <td>{{d2.meal_times}}</td>
+                                </div>
+                            </template>
+                            <tr v-show="data == null || data.length < 1">
+                                <td colspan="30" style="text-align: center;">無薪出勤資料</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                
+
+                    
+                    
+                    
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- UPDATE ATTENDANCE Modal -->
+        <div class="modal fade" id="updateAttendance" tabindex="-1" role="dialog" aria-labelledby="updateAttendanceLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateAttendanceLabel">打卡資料匯入</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="month">統整月份</label>
+                            <input type="month" class="form-control" id="month" v-model="month">
+                        </div>
+                        <p>若統整月份為當前月份，統整資料僅整理該月首日至當下前一日。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="updateAttendanceRecordData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+    <script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="../assets/js/popper.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/moment.js"></script>
+    <script src="../assets/js//jspdf.debug.js"></script>
+    <script src='../assets/js/jspdf.plugin.autotable.js'></script>
+    <script  src="../assets/js/微軟正黑體-1-normal.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+
+        });
+
+        new Vue({
+            el: "#app",
+            data: {
+                origin_data: [],
+                data: [],
+                month: '0000-00',
+                filter: {
+                    startDate: '0000-00-00',
+                    endDate: '0000-00-00',
+                    employee_id: 0,
+                }
+            },
+            created() {
+                //判斷這本月
+                this.month = new Date().Format('yyyy-MM')
+                //自動賦值，月初和月底
+                this.filter.startDate = new Date(this.month).Format('yyyy-MM-01')
+                this.filter.endDate = new Date(this.month.slice(0,4), this.month.slice(-2), 0).Format('yyyy-MM-dd')
+                this.getAttendanceRecordData()
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.code === 200) {
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                getAttendanceRecordData() {
+                    get(`/api_v1.1/clinic/attendance/record?start=${this.filter.startDate}`).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else {
+                            this.origin_data = JSON.parse(JSON.stringify(res.data))
+                            //filter employee_id
+                            let tmp = res.data
+                            if(parseInt(this.filter.employee_id) !== 0) {
+                                tmp = tmp.filter(d => d.employee_id == this.filter.employee_id)
+                            }
+
+                            //filter Date
+                            tmp.forEach(item => {
+                                item.record_data = item.record_data.filter(d => new Date(d.date) >= new Date(this.filter.startDate) && new Date(d.date) <= new Date(this.filter.endDate))
+                            })
+                            this.data = tmp
+                        }
+                    })
+                },
+                getAttendanceRecord() {
+                    if(this.origin_data.length === 0) {
+                        //call api
+                        this.getAttendanceRecordData()
+                    } else if(this.origin_data[0].date == this.month) {
+                        //判斷月份跟data的月份是否相同，相同不用call api
+                        //filter 日期 員工id(0為全部)
+                        let data = JSON.parse(JSON.stringify(this.origin_data))
+                        //filter employee_id
+                        let tmp = data
+                        if(parseInt(this.filter.employee_id) !== 0) {
+                            tmp = tmp.filter(d => d.employee_id == this.filter.employee_id)
+                        }
+
+                        //filter Date
+                        tmp.forEach(item => {
+                            item.record_data = item.record_data.filter(d => new Date(d.date) >= new Date(this.filter.startDate) && new Date(d.date) <= new Date(this.filter.endDate))
+                        })
+                        this.data = tmp
+                    } else {
+                        //call api
+                        this.getAttendanceRecordData()
+                    }
+                },
+                updateAttendanceRecordData() {
+                    post(`/api_v1.1/clinic/attendance/record/update?start=${this.month}`).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            alert('更新成功!')
+                            window.location.reload('./attendance_record.html')
+                        }
+                    })
+                },
+                printPDF() {
+                    //整理資料
+                    let data = []
+                    let nums = 0
+                    this.data.forEach(item => {
+                        item.record_data.forEach(item2 => {
+                            nums += 1
+                            data.push([nums, item.name, item2.date, item2.day, 
+                            item2.shift_name, item2.data[0].slice(11,16), item2.data[1].slice(11,16), 
+                            item2.data[2].slice(11,16), item2.data[3].slice(11,16), item2.data[4].slice(11,16), item2.data[5].slice(11,16)])
+                        })
+                        data.push(['', '', '', '', '', '', '', '', '', ''])
+                    })
+
+                    //列印
+                    const doc = new jsPDF()
+                    doc.setFont('微軟正黑體-1');
+                    doc.setProperties({
+                        title: this.month+"_出勤明細"
+                    });
+                    doc.autoTable({
+                        theme: 'striped',
+                        styles: {
+                            halign: 'center',
+                            cellPadding: 2.5,
+                            fontStyle:"normal",
+                            font: "微軟正黑體-1"
+                        },
+                        head: [['#','姓名','日期','星期','班別', '早上\n上班','早上\n下班','下午\n上班','下午\n下班','晚上\n上班','晚上\n下班']],
+                        body: data,
+                    })
+                    window.open(doc.output('bloburl'), '_blank');
+                }
+            },
+            watch: {
+                "filter.startDate": {
+                    handler: function() {
+                        //選取其他月分的話，要同步 start&end
+                        if(this.filter.startDate.slice(0,7) !== this.month) {
+                            this.month = this.filter.startDate.slice(0,7)
+                            this.filter.endDate = new Date(this.month.slice(0,4), this.month.slice(-2), 0).Format('yyyy-MM-dd')
+                            this.filter.employee_id = 0
+                        }
+                    }
+                },
+                "filter.endDate": {
+                    handler: function() {
+                        //選取其他月分的話，要同步 start&end
+                        if(this.filter.endDate.slice(0,7) !== this.month) {
+                            this.month = this.filter.endDate.slice(0,7)
+                            this.filter.startDate = new Date(this.month).Format('yyyy-MM-01')
+                            this.filter.employee_id = 0
+                        }
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>
