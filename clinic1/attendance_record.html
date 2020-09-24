@@ -298,7 +298,7 @@
 
                     //列印
                     const doc = new jsPDF()
-                    doc.setFont('微軟正黑體-1');
+                    doc.setFont('NotoSans');
                     doc.setProperties({
                         title: this.month+"_出勤明細"
                     });
@@ -308,7 +308,7 @@
                             halign: 'center',
                             cellPadding: 2.5,
                             fontStyle:"normal",
-                            font: "微軟正黑體-1"
+                            font: "NotoSans"
                         },
                         head: [['#','姓名','日期','星期','班別', '早上\n上班','早上\n下班','下午\n上班','下午\n下班','晚上\n上班','晚上\n下班']],
                         body: data,
