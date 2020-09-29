@@ -30,7 +30,7 @@
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li  class="active"><a href="./shift_record.html">打卡明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
-                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li><a href="#">每月薪資明細表</a></li>
                 </ul>
             </nav>
@@ -74,7 +74,7 @@
                             <tr v-if="date.length===0"><th style="text-align: center;">日期範圍內無打卡資料</th></tr>
                             <tr v-else>
                                 <th></th>
-                                <th v-for="(d, index) in date">{{d.date}}({{d.day}})</th>
+                                <th v-for="(d, index) in date">{{d.date.slice(-2)}}({{d.day}})</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,7 +83,7 @@
                                     <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.employee_id)">{{d.name}}</button>
                                 </td>
                                 <td v-for="(d2,index2) in d.record">
-                                    <p v-for="(d3,index3) in d2.data">{{d3.datetime.slice(-8)}}</p>
+                                    <p v-for="(d3,index3) in d2.data">{{d3.datetime.slice(11,16)}}</p>
                                 </td>
                             </tr>
                         </tbody>

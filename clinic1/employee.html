@@ -30,7 +30,7 @@
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
-                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li><a href="#">每月薪資明細表</a></li>
                 </ul>
             </nav>
@@ -63,6 +63,7 @@
                 </nav>
                 <div>
                     <button type="reset" class="btn btn-primary"data-toggle="modal" data-target="#addEmployee" @click="add()">新增員工</button>
+                    <button class="btn btn-primary"data-toggle="modal" data-target="#A">考勤設定</button>
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -96,7 +97,7 @@
                                         <button class="btn btn-primary" data-toggle="modal" data-target="#leave"@click="getLeaveData(index)">離職</button> 
                                         <button class="btn btn-primary" data-toggle="modal" data-target="#family" @click="getFamilyData(d.employee_id)">眷屬</button> 
                                         <button class="btn btn-primary"  data-toggle="modal" data-target="#addFamily" @click="addFamily(d.employee_id)">新增眷屬</button>
-                                        <button class="btn btn-primary"  data-toggle="modal" data-target="#S_A" @click="editS_A(index)">薪資與考勤</button>
+                                        <button class="btn btn-primary"  data-toggle="modal" data-target="#S_P" @click="editS_P(index)">薪資與崗位</button>
                                     </td>
                                 </tr>
                                 <tr v-show="data == null || data.length < 1">
@@ -397,47 +398,29 @@
             </div>
         </div>
 
-        <!-- Salary&Attendance Modal -->
-        <div class="modal fade" id="S_A" tabindex="-1" role="dialog" aria-labelledby="S_ALabel" aria-hidden="true">
+        <!-- Salary&Position Modal -->
+        <div class="modal fade" id="S_P" tabindex="-1" role="dialog" aria-labelledby="S_PLabel" aria-hidden="true">
             <div class="modal-dialog  modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="S_ALabel">薪資與考勤設定</h5>
+                        <h5 class="modal-title" id="S_PLabel">薪資與崗位設定</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <h2>考勤設定</h2>
-                        <ul class="list-group mb-2">
-                            <li class="list-group-item form-inline">
-                                <div class="form-group mx-sm-3 mb-1">
-                                    <input type="checkbox" id="is_overtime" v-model="S_AForm.is_overtime.onORoff"  :true-value="1" :false-value="0">是否計算加班，下班
-                                    <input type="text" class="form-control" size="1" id="is_overtime_1" v-model="S_AForm.is_overtime.param1">
-                                    分鐘後算加班，開始計算時間為下班時間加
-                                    <input type="text" class="form-control" size="1" id="is_overtime_2" v-model="S_AForm.is_overtime.param2">分鐘
-                                </div>
-                            </li>
-                            <li class="list-group-item form-inline">
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <input type="checkbox" id="is_delay"  v-model="S_AForm.is_delay.onORoff"  :true-value="1" :false-value="0">是否計算遲到時間，上班
-                                    <input type="text" class="form-control" size="1" id="is_delay_1"  v-model="S_AForm.is_delay.param1">分鐘後算遲到
-                                </div>
-                                
-                            </li>
-                        </ul>
                         <h2>薪資設定</h2>
                         <ul class="list-group mb-2">
                             <li class="list-group-item form-inline">
                                 <div class="form-group mx-sm-3 mb-2">
                                     <label for="meal_allowance">餐費補助: </label>
-                                    <input type="text" class="form-control ml-2" size="1" id="meal_allowance" v-model="S_AForm.salary_setting.meal_allowance">
+                                    <input type="text" class="form-control ml-2" size="1" id="meal_allowance" v-model="S_PForm.salary_setting.meal_allowance">
                                 </div>
                             </li>
                             <li class="list-group-item form-inline">
                                 <div class="form-group mx-sm-3 mb-2">
                                     <label for="pt_wage">兼職人員薪資: </label>
-                                    <select  id="pt_wage" class="form-control ml-2" v-model="S_AForm.salary_setting.pt_wage">
+                                    <select  id="pt_wage" class="form-control ml-2" v-model="S_PForm.salary_setting.pt_wage">
                                         <option value="1">依兼職時薪</option>
                                         <option value="2">依固定薪算出時薪</option>
                                     </select>
@@ -446,7 +429,7 @@
                             <li class="list-group-item form-inline"  v-show="salaryChange()">
                                 <div class="form-group mx-sm-3 mb-2">
                                     <label for="hourly_wage">時薪: </label>
-                                    <input type="text" class="form-control ml-2" size="1" id="hourly_wage" v-model="S_AForm.salary_setting.hourly_wage">
+                                    <input type="text" class="form-control ml-2" size="1" id="hourly_wage" v-model="S_PForm.salary_setting.hourly_wage">
                                 </div>
                             </li>
                         </ul>
@@ -454,7 +437,7 @@
                         <ul class="list-group mb-2">
                             <li class="list-group-item form-inline">
                                 <div class="form-group">
-                                    <select class="form-control" name="position_id" id="position_id" v-model="S_AForm.position_id">
+                                    <select class="form-control" name="position_id" id="position_id" v-model="S_PForm.position_id">
                                         <option value="0">請選擇</option>
                                         <option v-for="d in position" :value="d.position_id">{{d.name}}</option>
                                     </select>
@@ -464,7 +447,45 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @click="updateS_AData()">更新</button>
+                        <button type="button" class="btn btn-primary" @click="updateS_PData()">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Modal -->
+        <div class="modal fade" id="A" tabindex="-1" role="dialog" aria-labelledby="ALabel" aria-hidden="true">
+            <div class="modal-dialog  modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ALabel">考勤設定</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h2>考勤設定</h2>
+                        <ul class="list-group mb-2">
+                            <li class="list-group-item form-inline">
+                                <div class="form-group mx-sm-3 mb-1">
+                                    <input type="checkbox" id="is_overtime" v-model="AForm.is_overtime.onORoff"  :true-value="1" :false-value="0">是否計算加班，下班
+                                    <input type="text" class="form-control" size="1" id="is_overtime_1" v-model="AForm.is_overtime.param1">
+                                    分鐘後算加班，開始計算時間為下班時間加
+                                    <input type="text" class="form-control" size="1" id="is_overtime_2" v-model="AForm.is_overtime.param2">分鐘
+                                </div>
+                            </li>
+                            <li class="list-group-item form-inline">
+                                <div class="form-group mx-sm-3 mb-2">
+                                    <input type="checkbox" id="is_delay"  v-model="AForm.is_delay.onORoff"  :true-value="1" :false-value="0">是否計算遲到時間，上班
+                                    <input type="text" class="form-control" size="1" id="is_delay_1"  v-model="AForm.is_delay.param1">分鐘後算遲到
+                                </div>
+                                
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="updateAData()">更新</button>
                     </div>
                 </div>
             </div>
@@ -494,23 +515,25 @@
                 data: [],
                 family: [],
                 position:[],
-                S_AForm: {
+                S_PForm: {
                     employee_id: 0,
                     salary_setting: {
                         meal_allowance: 0,
                         pt_wage: 1,
                         hourly_wage: 0  
                     },
-                    is_overtime: {
-                        onORoff: 1,
-                        param1: 0,
-                        param2: 0
-                    },
-                    is_delay: {
-                        onORoff: 1, 
-                        param1: 0
-                    },
                     position_id: 0
+                },
+                AForm : {
+                    is_delay: {
+                        onORoff:1,
+                        param1:0
+                    },
+                    is_overtime: {
+                        onORoff:1,
+                        param1:0,
+                        param2:0
+                    }
                 }
             },
             created() {
@@ -520,6 +543,7 @@
                     } else {
                         this.data = res.data
                         this.getPositionData()
+                        this.getAttendanceData()
                     }
                 })
             },
@@ -749,22 +773,21 @@
                         })
                     }
                 },
-                editS_A(index) {
-                    this.S_AForm.employee_id = this.data[index].employee_id
-                    this.S_AForm.salary_setting =  JSON.parse(this.data[index].salary_setting)
-                    this.S_AForm.is_overtime =  JSON.parse(this.data[index].is_overtime)
-                    this.S_AForm.is_delay = JSON.parse(this.data[index].is_delay)
-                    this.S_AForm.position_id = this.data[index].position_id
+                editS_P(index) {
+                    this.S_PForm.employee_id = this.data[index].employee_id
+                    this.S_PForm.salary_setting =  JSON.parse(this.data[index].salary_setting)
+                    this.S_PForm.position_id = this.data[index].position_id
                 },
                 salaryChange() {
-                    if(parseInt(this.S_AForm.salary_setting.pt_wage) == 1) {
+                    if(parseInt(this.S_PForm.salary_setting.pt_wage) == 1) {
                         return true
-                    } else if(parseInt(this.S_AForm.salary_setting.pt_wage) == 2) {
+                    } else if(parseInt(this.S_PForm.salary_setting.pt_wage) == 2) {
                         return false
                     }
                 },
-                updateS_AData() {
-                    post('/api_v1.1/clinic/employee/S_A/update', this.S_AForm).then(res => {
+                //Salary&Position
+                updateS_PData() {
+                    post('/api_v1.1/clinic/employee/S_P/update', this.S_PForm).then(res => {
                         if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./employee.html')
@@ -780,6 +803,27 @@
                     get('/api_v1.1/clinic/position').then(res => {
                         if (res.code === 200) {
                             this.position = res.data
+                        }
+                    })
+                },
+                getAttendanceData() {
+                    get('/api_v1.1/clinic/attendance').then(res => {
+                        if (res.code === 200) {
+                            this.AForm = res.data
+                        }
+                    })
+                },
+                //Attendance
+                updateAData() {
+                    post('/api_v1.1/clinic/attendance/update', this.AForm).then(res => {
+                        if (res.code === 200) {
+                            alert(res.message)
+                            window.location.reload('./employee.html')
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
                         }
                     })
                 },

@@ -30,7 +30,7 @@
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
-                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li><a href="#">每月薪資明細表</a></li>
                 </ul>
             </nav>
@@ -67,12 +67,15 @@
                                 <th scope="col">名稱</th>
                                 <th scope="col">第一診<br>上班時間</th>
                                 <th scope="col">第一診<br>下班時間</th>
+                                <th scope="col">第一診<br>休息(分)</th>
                                 <th scope="col">工時(分)</th>
                                 <th scope="col">第二診<br>上班時間</th>
                                 <th scope="col">第二診<br>下班時間</th>
+                                <th scope="col">第二診<br>休息(分)</th>
                                 <th scope="col">工時(分)</th>
                                 <th scope="col">第三診<br>上班時間</th>
                                 <th scope="col">第三診<br>下班時間</th>
+                                <th scope="col">第三診<br>休息(分)</th>
                                 <th scope="col">工時(分)</th>
                                 <th scope="col">餐費補助</th>
                                 <th scope="col" colspan="2">操作</th>
@@ -84,12 +87,15 @@
                                     <td>{{d.shift_name}}</td>
                                     <td>{{d.on_1st}}</td>
                                     <td>{{d.off_1st}}</td>
+                                    <td>{{d.break_1st}}</td>
                                     <td>{{d.time_1st}}</td>
                                     <td>{{d.on_2nd}}</td>
                                     <td>{{d.off_2nd}}</td>
+                                    <td>{{d.break_2nd}}</td>
                                     <td>{{d.time_2nd}}</td>
                                     <td>{{d.on_3rd}}</td>
                                     <td>{{d.off_3rd}}</td>
+                                    <td>{{d.break_3rd}}</td>
                                     <td>{{d.time_3rd}}</td>
                                     <td>{{d.meal_times}}</td>                    
                                     <td>
@@ -118,38 +124,53 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="shift_name">名稱</label>
-                            <input type="text" class="form-control" id="shift_name">
-                        </div>
                         <p>格式:請以24小時制設定，ex: 08:00 , 16:00</p>
-                        <div class="form-group">
-                            <label for="on_1st">第一診 上班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control" id="on_1st">
-                        </div>
-                        <div class="form-group">
-                            <label for="off_1st">第一診 下班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_1st">
-                        </div>
-                        <div class="form-group">
-                            <label for="on_2nd">第二診 上班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_2nd">
-                        </div>
-                        <div class="form-group">
-                            <label for="off_2nd">第二診 下班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_2nd">
-                        </div>
-                        <div class="form-group">
-                            <label for="on_3rd">第三診 上班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_3rd">
-                        </div>
-                        <div class="form-group">
-                            <label for="off_3rd">第三診 下班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_3rd">
-                        </div>
-                        <div class="form-group">
-                            <label for="meal_times">餐費補助</label>
-                            <input type="text" class="form-control" id="meal_times" value="0">
+                        <div class="row">
+                            <div class="form-group col-12">
+                                <label for="shift_name">名稱</label>
+                                <input type="text" class="form-control" id="shift_name">
+                            </div>
+                            
+                            <div class="form-group col-4">
+                                <label for="on_1st">第一診 上班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control" id="on_1st">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="off_1st">第一診 下班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_1st">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="break_1st">第一診 休息時間</label>
+                                <input type="number"  min="0" max="1440" class="form-control" id="break_1st"  value="0">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="on_2nd">第二診 上班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_2nd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="off_2nd">第二診 下班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_2nd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="break_2nd">第二診 休息時間</label>
+                                <input type="number"  min="0" max="1440" class="form-control" id="break_2nd"  value="0">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="on_3rd">第三診 上班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_3rd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="off_3rd">第三診 下班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_3rd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="break_3rd">第三診 休息時間</label>
+                                <input type="number"  min="0" max="1440" class="form-control" id="break_3rd" value="0">
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="meal_times">餐費補助</label>
+                                <input type="text" class="form-control" id="meal_times" value="0">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -171,41 +192,55 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="shift_name">名稱</label>
-                            <input type="text" class="form-control" id="update_shift_name">
-                        </div>
-                        <p>格式:請以24小時制設定，ex: 08:00 , 16:00</p>
-                        <div class="form-group">
-                            <label for="on_1st">第一診 上班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_1st">
-                        </div>
-                        <div class="form-group">
-                            <label for="off_1st">第一診 下班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_1st">
-                        </div>
-                        <div class="form-group">
-                            <label for="on_2nd">第二診 上班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_2nd">
-                        </div>
-                        <div class="form-group">
-                            <label for="off_2nd">第二診 下班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_2nd">
-                        </div>
-                        <div class="form-group">
-                            <label for="on_3rd">第三診 上班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_3rd">
-                        </div>
-                        <div class="form-group">
-                            <label for="off_3rd">第三診 下班時間</label>
-                            <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_3rd">
-                        </div>
-                        <div class="form-group">
-                            <label for="meal_times">餐費補助</label>
-                            <input type="text" class="form-control" id="update_meal_times">
-                        </div>
-                        <div class="form-group">
-                            <input type="hidden" class="form-control" id="update_shift_id">
+                        <div class="row">
+                            <p>格式:請以24小時制設定，ex: 08:00 , 16:00</p>
+                            <div class="form-group col-12">
+                                <label for="shift_name">名稱</label>
+                                <input type="text" class="form-control" id="update_shift_name">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="on_1st col-4">第一診 上班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_1st">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="off_1st">第一診 下班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_1st">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="break_1st">第三診 休息時間</label>
+                                <input type="number"  min="0" max="1440" class="form-control" id="update_break_1st" value="0">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="on_2nd">第二診 上班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_2nd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="off_2nd">第二診 下班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_2nd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="break_2nd">第三診 休息時間</label>
+                                <input type="number"  min="0" max="1440" class="form-control" id="update_break_2nd" value="0">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="on_3rd">第三診 上班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_3rd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="off_3rd">第三診 下班時間</label>
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_3rd">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="break_3rd">第三診 休息時間</label>
+                                <input type="number"  min="0" max="1440" class="form-control" id="update_break_3rd" value="0">
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="meal_times">餐費補助</label>
+                                <input type="text" class="form-control" id="update_meal_times">
+                            </div>
+                            <div class="form-group">
+                                <input type="hidden" class="form-control" id="update_shift_id">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -266,10 +301,13 @@
                         'shift_name': $('#shift_name').val(),
                         'on_1st': $('#on_1st').val(),
                         'off_1st': $('#off_1st').val(),
+                        'break_1st': $('#break_1st').val(),
                         'on_2nd': $('#on_2nd').val(),
                         'off_2nd': $('#off_2nd').val(),
+                        'break_2nd': $('#break_2nd').val(),
                         'on_3rd': $('#on_3rd').val(),
                         'off_3rd': $('#off_3rd').val(),
+                        'break_3rd': $('#break_3rd').val(),
                         'meal_times': $('#meal_times').val()
                     }
                     post('/api_v1.1/clinic/shift/setting/add', data).then(res => {
@@ -288,10 +326,13 @@
                     $('#update_shift_name').val(this.data[index].shift_name)
                     $('#update_on_1st').val(this.data[index].on_1st)
                     $('#update_off_1st').val(this.data[index].off_1st)
+                    $('#update_break_1st').val(this.data[index].break_1st)
                     $('#update_on_2nd').val(this.data[index].on_2nd)
                     $('#update_off_2nd').val(this.data[index].off_2nd)
+                    $('#update_break_2nd').val(this.data[index].break_2nd)
                     $('#update_on_3rd').val(this.data[index].on_3rd)
                     $('#update_off_3rd').val(this.data[index].off_3rd)
+                    $('#update_break_3rd').val(this.data[index].break_3rd)
                     $('#update_meal_times').val(this.data[index].meal_times)
                     $('#update_shift_id').val(this.data[index].shift_id)
                 },
@@ -300,10 +341,13 @@
                         'shift_name': $('#update_shift_name').val(),
                         'on_1st': $('#update_on_1st').val(),
                         'off_1st': $('#update_off_1st').val(),
+                        'break_1st': $('#update_break_1st').val(),
                         'on_2nd': $('#update_on_2nd').val(),
                         'off_2nd': $('#update_off_2nd').val(),
+                        'break_2nd': $('#update_break_2nd').val(),
                         'on_3rd': $('#update_on_3rd').val(),
                         'off_3rd': $('#update_off_3rd').val(),
+                        'break_3rd': $('#update_break_3rd').val(),
                         'meal_times': $('#update_meal_times').val(),
                         'shift_id': $('#update_shift_id').val()
                     }
