@@ -64,7 +64,7 @@
                         <div class="input-group mb-3">
                             <input type="month" class="form-control" id="month" v-model="month">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" @click="getAttendanceStatisticData()" >確認</button>
+                                <button class="btn btn-outline-secondary" type="button" @click="getRecordOData" >確認</button>
                             </div>
                         </div>
                     </div>
@@ -241,7 +241,7 @@
                         if(res.code == 403) {
                             location.href = './index.html'
                         } else {
-                            this.data = res.data
+                            this.data = res.data ? res.data : [] 
                             let o = this.data.filter(
                                 d => d.type === "off_1st_o" || 
                                         d.type === "off_2nd_o" ||
