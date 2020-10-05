@@ -29,6 +29,7 @@
                     <li><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li  class="active"><a href="./shift_record.html">打卡明細</a></li>
+                    <li><a href="./attendance_overtime.html">加班明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li><a href="#">每月薪資明細表</a></li>
@@ -278,7 +279,14 @@
                     return this.data.filter(data => data.employee_id == id)
                 },
                 getType(type) {
-                    return this.type[type]
+                    if(type.length < 8) {
+                        //一般tag
+                        return this.type[type]
+                    } else {
+                        //帶o o2的tag
+                        return this.type[type.slice(0,7)]
+                    }
+                    
                 },
                 checkDay(date) {
                     //判斷星期幾

@@ -29,8 +29,9 @@
                     <li><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
+                    <li ><a href="./attendance_overtime.html">加班明細</a></li>
                     <li  class="active"><a href="./attendance_record.html">出勤明細</a></li>
-                    <li><a href="#">出勤統計表</a></li>
+                    <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li><a href="#">每月薪資明細表</a></li>
                 </ul>
             </nav>
@@ -70,7 +71,7 @@
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" @click="getAttendanceRecord()" >確認</button>
                             </div>
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#updateAttendance">匯入資料</button>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#updateAttendance">整理資料</button>
                             <button class="btn btn-secondary" @click="printPDF()">列印</button>
                         </div>
                     </div>
@@ -107,7 +108,7 @@
                                 <tr v-for="(d2, index2) in d.record_data" >
                                         <th scope="row">{{(index * data.length) + (index2 + 1)}}</th>
                                         <td>{{d.name}}</td>
-                                        <td>{{d2.date}}</td>
+                                        <td>{{d2.date.slice(-2)}}</td>
                                         <td>{{d2.day}}</td>
                                         <td>{{d2.shift_name}}</td>
                                         <td>{{d2.data[0].slice(11,16)}}</td>
@@ -150,7 +151,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="updateAttendanceLabel">打卡資料匯入</h5>
+                        <h5 class="modal-title" id="updateAttendanceLabel">打卡資料整理</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
@@ -185,7 +186,7 @@
     <script src="../assets/js/moment.js"></script>
     <script src="../assets/js//jspdf.debug.js"></script>
     <script src='../assets/js/jspdf.plugin.autotable.js'></script>
-    <script  src="../assets/js/NotoSans-normal.js"></script>
+    <script  src="../assets/js/TaipeiSans-normal.js"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -289,29 +290,50 @@
                     this.data.forEach(item => {
                         item.record_data.forEach(item2 => {
                             nums += 1
-                            data.push([nums, item.name, item2.date, item2.day, 
+                            data.push([nums, item.name, item2.date.slice(-2), item2.day, 
                             item2.shift_name, item2.data[0].slice(11,16), item2.data[1].slice(11,16), 
                             item2.data[2].slice(11,16), item2.data[3].slice(11,16), item2.data[4].slice(11,16), item2.data[5].slice(11,16)])
                         })
-                        data.push(['', '', '', '', '', '', '', '', '', ''])
+                        if(item.record_data.length !== 0) {
+                            data.push(['', '', '', '', '', '', '', '', '', '',])
+                        }
                     })
 
                     //列印
                     const doc = new jsPDF()
-                    doc.setFont('NotoSans');
-                    doc.setProperties({
-                        title: this.month+"_出勤明細"
-                    });
+                    doc.setFont('TaipeiSans');
+                    const options = {
+                        headStyles:{
+                            valign: 'middle',
+                            halign : 'center'
+                        }
+                    };
+
+                    if(this.filter.employee_id == 0) {
+                        doc.text(15, 15, `${this.month}出勤明細(全員)`)
+                        doc.setProperties({
+                            title: this.month+"出勤明細(全員)"
+                        });
+                    } else {
+                        const d = this.data.find(d => d.employee_id == this.filter.employee_id)
+                        doc.text(15, 15, `${this.month}出勤明細(${d.name})`)
+                        doc.setProperties({
+                            title: this.month+"出勤明細("+d.name+")"
+                        });
+                    }
+                    
                     doc.autoTable({
                         theme: 'striped',
+                        startY: 20,
                         styles: {
                             halign: 'center',
                             cellPadding: 2.5,
                             fontStyle:"normal",
-                            font: "NotoSans"
+                            font: "TaipeiSans"
                         },
-                        head: [['#','姓名','日期','星期','班別', '早上\n上班','早上\n下班','下午\n上班','下午\n下班','晚上\n上班','晚上\n下班']],
+                        head: [['#','姓名','日期','星期','班別', '1st\n上班','1st\n下班','2nd\n上班','2nd\n下班','3rd\n上班','3rd\n下班']],
                         body: data,
+                        options
                     })
                     window.open(doc.output('bloburl'), '_blank');
                 }
