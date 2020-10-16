@@ -152,7 +152,7 @@
                     </div>
                     <div class="modal-body">
                         <p>薪資月份：{{this.month}}　本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}} 天</p>
-                        <p>應工作總工時：{{detail.work_days * 2}} 小時　 應工作診數：{{detail.total_days * 2}} 診　 在職天數：{{updateForm.statistic_data.work_days}} 天</p>
+                        <p>應工作總工時：{{detail.work_hours}} 小時<!--　 應工作診數：{{detail.work_days * 2}} 診 -->　 在職天數：{{updateForm.statistic_data.work_days}} 天</p>
                         <table class="table" id="editTable">
                             <tbody>
                                 <tr>
@@ -290,9 +290,10 @@
                                     <th>早班</th>
                                     <th>午班</th>
                                     <th>晚班</th>
-                                    <th>超時</th>
                                     <th>忘刷卡</th>
-                                    <th>遲到</th>                            
+                                    <th>遲到</th>
+                                    <th>早退</th>    
+                                    <th>超時</th> 
                                 </tr>
                                 <tr v-for="(r, index) in updateForm.record_data">
                                     <td>{{r.date.slice(-5)}}</td>
@@ -300,9 +301,10 @@
                                     <td>{{r.data[0].slice(-8,-3)}} , {{r.data[1].slice(-8,-3)}}</td>
                                     <td>{{r.data[2].slice(-8,-3)}} , {{r.data[3].slice(-8,-3)}}</td>
                                     <td>{{r.data[4].slice(-8,-3)}} , {{r.data[5].slice(-8,-3)}}</td>
-                                    <td>{{r.over_time}}</td>
                                     <td>{{r.no_record_times}}</td> 
-                                    <td>{{computeLate(r.on_1st_l, r.on_2nd_l, r.on_3rd_l)}}</td>   
+                                    <td>{{computeLate(r.on_1st_l, r.on_2nd_l, r.on_3rd_l)}}</td>
+                                    <td>{{computeLate(r.off_1st_l, r.off_2nd_l, r.off_3rd_l)}}</td>
+                                    <td>{{r.over_time}}</td>
                                 </tr>
                             </tbody>
                         </table>

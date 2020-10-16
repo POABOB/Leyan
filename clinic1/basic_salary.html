@@ -72,6 +72,7 @@
                                 <th scope="col">到職日</th>
                                 <th scope="col">離職日</th>
                                 <th scope="col">底薪</th>
+                                <th scope="col" v-for="(d, index) in salary_item">{{d.salary_name}}</th>
                                 <th scope="col">投保薪資</th>
                                 <th scope="col">勞保減免</th>
                                 <th scope="col">勞保費</th>
@@ -88,7 +89,8 @@
                                     <td><p>{{d.name}}</p></td>
                                     <td><p>{{d.work_at}}</p></td>
                                     <td><p>{{(d.leave_at === "9999-12-31") ? "" : d.leave_at}}</p></td>
-                                    <td><p>{{d.basic_salary}}</p></td>           
+                                    <td><p>{{(parseInt(d.salary_setting.pt_wage) === 1) ? 0 : d.basic_salary}}</p></td>  
+                                    <td v-for="(d1, index) in salary_item"><p>{{getSalaryFixedItemValue(d.employee_id, d1.salary_item_id)}}</p></td>         
                                     <td><p>{{d.insurance_salary}}</p></td>
                                     <td><p>{{d.labor_relief}}</p></td>
                                     <td><p>{{d.labor_insurance}}</p></td>
@@ -134,9 +136,15 @@
                                 </tr>
                                 <tr>
                                     <th scope="row">底薪</th>
-                                    <td colspan="3"><input :disabled="pt_wage" class="form-control" type="number" min="0" v-model="updateForm.basic_salary"></td>
+                                    <td colspan="3"><input @change="get_fixed_salary()" :disabled="pt_wage" class="form-control" type="number" min="0" v-model="updateForm.basic_salary"></td>
                                     <th scope="row">固定薪</th>
-                                    <td colspan="3">{{updateForm.basic_salary}}</td>
+                                    <td colspan="3">{{fixed_salary}}</td>
+                                </tr>
+                                <tr v-for="(d, index) in salary_item">
+                                        <th scope="row" v-if="(index * 2)  < (salary_item.length)">{{salary_item[index * 2].salary_name}}</th>
+                                        <td colspan="3" v-if="(index * 2) < (salary_item.length)"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_fixed_item[index * 2].value"></td>
+                                        <th scope="row" v-if="(index * 2 + 1) < (salary_item.length)">{{salary_item[index * 2 + 1].salary_name}}</th>
+                                        <td colspan="3" v-if="(index * 2 + 1) < (salary_item.length)"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_fixed_item[index * 2 + 1].value"></td>
                                 </tr>
                                 <tr>
                                     <th scope="row">每診加診費</th>
@@ -228,6 +236,9 @@
             data: {
                 data: [],
                 family: [],
+                salary_item:[],
+                slaray_fixed_item:[],
+                fixed_salary:0,
                 updateForm: {
                     employee_id: 0,
                     name: null,
@@ -242,9 +253,18 @@
                     family_number: 0,
                     salary_setting: {
                         pt_wage: 1
-                    }
+                    },
+                    salary_fixed_item:[
+                        {
+                            value: 0,
+                            salary_item_id:0,
+                            employee_id: 0
+                        },
+                        
+                    ]
                 },
                 insurance: {
+                    //TODO 2021年要更改
                     // 2020勞健保費率和公式
                     rank: [11100,12540,13500,15840,16500,17280,17880,19047,20008,21009,22000,23100,23800,24000,25200,26400,27600,28800,30300,31800,33300,34800,36300,38200,40100,42000,43900,45800,48200,50600,53000,55400,57800,60800,63800,66800,69800,72800,76500,80200,83900,87600,92100,96600,101100,105600,110100,115500,120900,126300,131700,137100,142500,147900,150000,156400,162800,169200,175600,182000],
                     labor_lowest: 11100,
@@ -283,7 +303,18 @@
                         if(res.code == 403) {
                             location.href = './index.html'
                         } else {
-                            this.data = res.data
+                            this.data = res.data[0]
+                            this.salary_item = res.data[1]
+                            this.salary_fixed_item = res.data[2]
+                            this.updateForm.salary_fixed_item = []
+                            this.salary_item.forEach(item => {
+                                this.updateForm.salary_fixed_item.push({
+                                    salary_item_id: 0,
+                                    value: 0,
+                                    employee_id: 0,
+                                    addORminus: 1
+                                })
+                            })
                         }
                     })
                 },
@@ -291,7 +322,10 @@
                     this.family = []
                     //獲取該員工基本薪資
                     this.updateForm = this.data.find(d => d.employee_id == employee_id)
-                    
+                    this.editSalaryFixedItemValue(employee_id)
+                    if(parseInt(this.updateForm.salary_setting.pt_wage) === 1) {
+                        this.updateForm.basic_salary = 0
+                    }
                     //獲取該員工眷屬
                     get('/api_v1.1/clinic/employee/family?employee_id='+employee_id).then(res => {
                         if (res.code === 200) {
@@ -337,6 +371,42 @@
                         console.log(rate);
                         this.updateForm.health_insurance = parseInt((this.insurance.health_lowest * this.insurance.health_rate * 0.3 * rate).toFixed(0))
                     }
+                },
+                // 薪項固定薪處理
+                getSalaryFixedItemValue(employee_id, salary_item_id) {
+                    const data = this.salary_fixed_item.find(d => d.salary_item_id == salary_item_id && d.employee_id == employee_id)
+                    if(data === undefined) {
+                        return 0
+                    } else {
+                        return data.value
+                    }
+                },
+                editSalaryFixedItemValue(employee_id) {
+                    this.updateForm.salary_fixed_item = []
+                    this.salary_item.forEach(item => {
+                        let value = 0
+                        const data = this.salary_fixed_item.find(d => d.salary_item_id == item.salary_item_id && d.employee_id == employee_id)
+                        if(data !== undefined) {
+                            value = data.value
+                        }
+                        this.updateForm.salary_fixed_item.push({
+                            salary_item_id: item.salary_item_id,
+                            value: value,
+                            employee_id: employee_id,
+                            addORminus: item.addORminus
+                        })
+                    })
+                },
+                get_fixed_salary() {
+                    let sum = parseInt(this.updateForm.basic_salary)
+                    this.updateForm.salary_fixed_item.forEach(item => {
+                        let op = 1;
+                        if(parseInt(item.addORminus) === 0) {
+                            op = -1
+                        }
+                        sum += parseInt(item.value) * op
+                    })
+                    this.fixed_salary = sum
                 }
             },
             watch: {
@@ -360,7 +430,14 @@
                     handler: function() {
                         this.health_cal()
                     }
-                }
+                },
+                "updateForm.salary_fixed_item": {
+                    immediate: true,
+                    handler: function() {
+                        this.get_fixed_salary()
+                    }
+                },
+                
             },
             computed: {
                 pt_wage() {
