@@ -32,7 +32,7 @@
                     <li ><a href="./attendance_overtime.html">加班明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
-                    <li><a href="#">每月薪資明細表</a></li>
+                    <li><a href="./salary_calculation.html">每月薪資明細表</a></li>
                 </ul>
             </nav>
 
@@ -95,7 +95,7 @@
                                     <td><p>{{d.labor_relief}}</p></td>
                                     <td><p>{{d.labor_insurance}}</p></td>
                                     <td><p>{{d.health_relief}}</p></td>
-                                    <td><p>{{d.health_insurance}}</p></td>
+                                    <td><p>{{d.health_insurance_with_family}}</p></td>
                                     <td><p>{{d.family_number}}</p></td>
                                     <td>
                                         <button class="btn btn-primary" data-toggle="modal" data-target="#editBasicSalary" @click="editBasicSalaryData(d.employee_id)">編輯</button> 
@@ -161,7 +161,7 @@
                                 </tr>
                                 <tr>
                                     <th scope="row">表定勞保費</th>
-                                    <td>{{larbor}}</td>
+                                    <td>{{updateForm.labor_insurance}}</td>
                                     <th scope="row">勞保減免</th>
                                     <td>
                                         <select class="form-control" v-model="updateForm.labor_relief">
@@ -173,11 +173,11 @@
                                         </select>
                                     </td>
                                     <th scope="row">勞保費</th>
-                                    <td>{{ updateForm.labor_insurance }}</td>
+                                    <td>{{ larbor }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">表定健保費</th>
-                                    <td>{{health}}</td>
+                                    <td>{{updateForm.health_insurance}}</td>
                                     <th scope="row">健保減免</th>
                                     <td>
                                         <select class="form-control" v-model="updateForm.health_relief">
@@ -189,7 +189,7 @@
                                         </select>
                                     </td>
                                     <th scope="row">健保費</th>
-                                    <td>{{updateForm.health_insurance}}</td>
+                                    <td>{{updateForm.health_insurance_with_family}}</td>
                                     <th scope="row">眷口數</th>
                                     <td>{{updateForm.family_number}}</td>
                                 </tr>
@@ -250,6 +250,7 @@
                     health_salary: 0,
                     health_relief: 0,
                     health_insurance: 0,
+                    health_insurance_with_family: 0,
                     family_number: 0,
                     salary_setting: {
                         pt_wage: 1
@@ -347,10 +348,11 @@
                 },
                 labor_cal() {
                     this.updateForm.labor_insurance = 
-                        parseInt((this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2 * (1 - this.updateForm.labor_relief)).toFixed(0))
+                        parseInt((this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2).toFixed(0))
                 },
                 health_cal() {
                     if(this.updateForm.insurance_salary > this.insurance.health_lowest || this.updateForm.insurance_salary == 0) {
+                        this.updateForm.health_insurance = parseInt((this.updateForm.insurance_salary * this.insurance.health_rate * 0.3).toFixed(0))
                         let rate = parseFloat(1 - this.updateForm.health_relief)
                         let i = 0;
                         for (let item of this.family) {
@@ -358,9 +360,10 @@
                             rate += parseFloat(1 - item.health_relief)
                             i++
                         }
-                        this.updateForm.health_insurance = parseInt((this.updateForm.insurance_salary * this.insurance.health_rate * 0.3 * rate).toFixed(0))
+                        this.updateForm.health_insurance_with_family = parseInt((this.updateForm.insurance_salary * this.insurance.health_rate * 0.3 * rate).toFixed(0))
                         console.log(rate);
                     } else {
+                        this.updateForm.health_insurance = parseInt((this.insurance.health_lowest * this.insurance.health_rate * 0.3).toFixed(0))
                         let rate = parseFloat(1 - this.updateForm.health_relief)
                         let i = 0;
                         for (let item of this.family) {
@@ -369,7 +372,7 @@
                             i++
                         }
                         console.log(rate);
-                        this.updateForm.health_insurance = parseInt((this.insurance.health_lowest * this.insurance.health_rate * 0.3 * rate).toFixed(0))
+                        this.updateForm.health_insurance_with_family = parseInt((this.insurance.health_lowest * this.insurance.health_rate * 0.3 * rate).toFixed(0))
                     }
                 },
                 // 薪項固定薪處理
@@ -450,7 +453,7 @@
                 //勞保30天
                 larbor() {
                     //個人
-                    return parseInt((this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2).toFixed(0))
+                    return parseInt((this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2 * (1 - this.updateForm.labor_relief)).toFixed(0))
                     // //公司
                     // this.insurance_salary * 30 / 30 * ((larbor_normal_rate + larbor_rate) * 0.7 + larbor_damage_rate)
                 },

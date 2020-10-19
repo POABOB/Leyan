@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>每月薪資明細表</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/google.font.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統</p>
+                    <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./employee.html">員工資料</a></li>
+                    <li><a href="./closed_date.html">休診設定</a></li>
+                    <li><a href="./position.html">崗位設定</a></li>
+                    <li><a href="./shift_setting.html">班別設定</a></li>
+                    <li><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
+                    <li><a href="./new_shift.html">新排班表</a></li>
+                    <li><a href="./shift_record.html">打卡明細</a></li>
+                    <li ><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li><a href="./attendance_record.html">出勤明細</a></li>
+                    <li><a href="./attendance_statistic.html">出勤統計表</a></li>
+                    <li class="active"><a href="./salary_calculation.html">每月薪資明細表</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <div class="col-12 col-lg-7">
+                        <div class="input-group mb-3">
+                            <input type="month" class="form-control" id="month" v-model="month">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" @click="getAttendanceStatisticData()" >確認</button>
+                            </div>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#updateSalaryCalculation">資料統計</button>
+                        </div>
+                    </div>
+                    <p>本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}} 天　應工作總工時：{{detail.work_hours}} 小時</p>
+                    <h3>正職</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">姓名</th>
+                                <th scope="col">固定薪</th>
+                                <th scope="col">日薪</th>
+                                <th scope="col">時薪</th>
+                                <th scope="col">超時(加班)費</th>
+                                <th scope="col">伙食津貼</th>
+                                <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
+                                <th scope="col">勞保費</th>
+                                <th scope="col">健保費</th>
+                                <th scope="col">請假(扣全薪)</th>
+                                <th scope="col">請假(扣半薪)</th>
+                                <th scope="col">遲到</th>
+                                <th scope="col">早退</th>
+                                <th scope="col">應領金額</th>
+                                <th scope="col">扣項金額</th>
+                                <th scope="col">實領薪津</th>
+                                <th scope="col">轉帳</th>
+                                <th scope="col">現金</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(d, index) in data_2" >
+                                <th scope="row">{{index+1}}</th>
+                                <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
+                                <td>{{d.calculation_data.fixed_salary}}</td>
+                                <td>{{d.calculation_data.daily_wage.toFixed(2)}}</td>
+                                <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
+                                <td>{{d.calculation_data.over_time_fee}}</td>
+                                <td>{{d.calculation_data.meal_times_fee}}</td>
+                                <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
+                                <td>{{d.calculation_data.labor_fee}}</td>
+                                <td>{{d.calculation_data.health_total_fee}}</td>
+                                <td>{{d.calculation_data.leave_all_fee}}</td>
+                                <td>{{d.calculation_data.leave_half_fee}}</td>
+                                <td>{{d.calculation_data.late_fee}}</td>
+                                <td>{{d.calculation_data.early_fee}}</td>
+                                <td>{{d.calculation_data.add_item}}</td>
+                                <td>{{d.calculation_data.minus_item}}</td>
+                                <td>{{d.calculation_data.total_salary}}</td>
+                                <td>{{d.calculation_data.ATM}}</td>
+                                <td>{{d.calculation_data.cash}}</td>
+                            </tr>
+                            <tr v-show="data_2 == null || data_2.length < 1">
+                                <td colspan="30" style="text-align: center;">無月薪結算</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>兼職</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">姓名</th>
+                                <th scope="col">時薪</th>
+                                <th scope="col">超時(加班)費</th>
+                                <th scope="col">伙食津貼</th>
+                                <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
+                                <th scope="col">勞保費</th>
+                                <th scope="col">健保費</th>
+                                <th scope="col">請假(扣全薪)</th>
+                                <th scope="col">請假(扣半薪)</th>
+                                <th scope="col">遲到</th>
+                                <th scope="col">早退</th>
+                                <th scope="col">應領金額</th>
+                                <th scope="col">扣項金額</th>
+                                <th scope="col">實領薪津</th>
+                                <th scope="col">轉帳</th>
+                                <th scope="col">現金</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(d, index) in data_1" >
+                                <th scope="row">{{index+1}}</th>
+                                <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
+                                <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
+                                <td>{{d.calculation_data.over_time_fee}}</td>
+                                <td>{{d.calculation_data.meal_times_fee}}</td>
+                                <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
+                                <td>{{d.calculation_data.labor_fee}}</td>
+                                <td>{{d.calculation_data.health_total_fee}}</td>
+                                <td>{{d.calculation_data.leave_all_fee}}</td>
+                                <td>{{d.calculation_data.leave_half_fee}}</td>
+                                <td>{{d.calculation_data.late_fee}}</td>
+                                <td>{{d.calculation_data.early_fee}}</td>
+                                <td>{{d.calculation_data.add_item}}</td>
+                                <td>{{d.calculation_data.minus_item}}</td>
+                                <td>{{d.calculation_data.total_salary}}</td>
+                                <td>{{d.calculation_data.ATM}}</td>
+                                <td>{{d.calculation_data.cash}}</td>
+                            </tr>
+                            <tr v-show="data_1 == null || data_1.length < 1">
+                                <td colspan="30" style="text-align: center;">無月薪結算</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- UPDATE SalaryCalculation Modal -->
+        <div class="modal fade" id="updateSalaryCalculation" tabindex="-1" role="dialog" aria-labelledby="updateSalaryCalculationLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateSalaryCalculationLabel">資料統計</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="month">統整月份</label>
+                            <input type="month" class="form-control" id="month" v-model="month">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="updateSalaryCalculationData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EDIT ATTENDANCE Modal -->
+        <div class="modal fade" id="editEmployee" tabindex="-1" role="dialog" aria-labelledby="editEmployeeLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editEmployeeLabel">每月薪資明細</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>薪資月份：{{this.month}}　本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}}　天應工作總工時：{{detail.work_days * 2}} 小時　應工作診數：{{detail.total_days * 2}} 診　 在職天數：<span style="color: salmon;">{{updateForm.statistic_data.work_days}}</span> 天</p>
+                        <p></p>
+                        <table class="table" id="editTable" style="table-layout: fixed;">
+                            <tbody>
+                                <th colspan="10" style="background-color:#ffe9d6">員工資料</th>
+                                <tr>
+                                    <th scope="row">姓名</th>
+                                    <td>
+                                        {{updateForm.name}}
+                                    </td>
+                                    <th scope="row">到職日</th>
+                                    <td colspan="2">
+                                        {{updateForm.work_at}}
+                                    </td>
+                                    <th scope="row">離職日</th>
+                                    <td colspan="2">
+                                        {{updateForm.leave_at}}
+                                    </td>
+                                    <th scope="row">職務別</th>
+                                    <td><span style="color: cornflowerblue;">{{(updateForm.level_of_position == 1) ? '兼職' : '正職'}}</span></td>
+                                </tr>
+                                <th colspan="8" style="background-color:#ffe9d6">加項薪資</th>
+                                <th style="background-color:#ffe9d6">加項合計</th>
+                                <td style="background-color:#ffe9d6">{{updateForm.calculation_data.add_item}}</td>
+                                <tr align="right">
+                                    <th scope="row">固定薪</th>
+                                    <td>
+                                        {{updateForm.calculation_data.fixed_salary}}
+                                    </td>
+                                    <th scope="row">底薪</th>
+                                    <td>
+                                        <input @change="" type="number" class="form-control" v-model="updateForm.calculation_data.basic_salary">
+                                    </td>
+                                    <th scope="row">日薪</th>
+                                    <td>
+                                        {{updateForm.calculation_data.daily_wage.toFixed(2)}}
+                                    </td>
+                                    <th scope="row">時薪</th>
+                                    <td>
+                                        {{updateForm.calculation_data.hourly_wage.toFixed(2)}}
+                                    </td>
+                                </tr>
+                                <!-- 獎金 -->
+                                <tr align="right" v-for="(d, index) in updateForm.salary_item_data">
+                                    <th scope="row" v-if="(index * 4)  < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4].salary_name}}</th>
+                                    <td v-if="(index * 4) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4].addORminus == 1"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4].value"></td>
+                                    <th scope="row" v-if="(index * 4 + 1) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 1].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4 + 1].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 1].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 1].salary_name}}</th>
+                                    <td v-if="(index * 4 + 1) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 1].addORminus == 1"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 1].value"></td>
+                                    <th scope="row" v-if="(index * 4 + 2) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 2].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4 + 2].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 2].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 2].salary_name}}</th>
+                                    <td v-if="(index * 4 + 2) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 2].addORminus == 1"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 2].value"></td>
+                                    <th scope="row" v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4 + 3].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 3].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 3].salary_name}}</th>
+                                    <td v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 1"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 3].value"></td>
+                                </tr>
+                                <tr align="right">
+                                    <th scope="row">超時分鐘</th>
+                                    <td>
+                                        {{updateForm.statistic_data.over_time}}
+                                    </td>
+                                    <th scope="row">超時費</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.over_time_fee">
+                                    </td>
+                                    <th scope="row">加診診數</th>
+                                    <td>
+                                        {{updateForm.statistic_data.bonus_period}}
+                                    </td>
+                                    <th scope="row">加診費</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.bonus_period_fee">
+                                    </td>
+                                </tr>
+                                <tr align="right">
+                                    <th scope="row">餐點補助次數</th>
+                                    <td>
+                                        {{updateForm.statistic_data.meal_times}}
+                                    </td>
+                                    <th scope="row">伙食津貼</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.meal_times_fee">
+                                    </td>
+                                </tr>
+                                <th colspan="8" style="background-color:#ffe9d6">減項薪資</th>
+                                <th style="background-color:#ffe9d6">減項合計</th>
+                                <td style="background-color:#ffe9d6">{{updateForm.calculation_data.minus_item}}</td>
+                                <tr align="right">
+                                    <th scope="row">請假時數(扣全薪)</th>
+                                    <td>
+                                        {{updateForm.statistic_data.leave_all}}
+                                    </td>
+                                    <th scope="row">請假扣薪</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.leave_all_fee">
+                                    </td>
+                                    <th scope="row">請假時數(扣半薪)</th>
+                                    <td>
+                                        {{updateForm.statistic_data.leave_half}}
+                                    </td>
+                                    <th scope="row">請假扣薪</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.leave_half_fee">
+                                    </td>
+                                </tr>
+                                <tr align="right">
+                                    <th scope="row">遲到分鐘</th>
+                                    <td>
+                                        {{updateForm.statistic_data.late}}
+                                    </td>
+                                    <th scope="row">遲到扣薪</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.late_fee">
+                                    </td>
+                                    <th scope="row">早退分鐘</th>
+                                    <td>
+                                        {{updateForm.statistic_data.early}}
+                                    </td>
+                                    <th scope="row">早退扣薪</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.early_fee">
+                                    </td>
+                                </tr>
+                                <tr align="right">
+                                    <th scope="row">勞保費</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.labor_fee">
+                                    </td>
+                                    <th scope="row">健保費</th>
+                                    <td>
+                                        <input type="number" class="form-control" v-model="updateForm.calculation_data.health_fee">
+                                    </td>
+                                    <th scope="row">眷屬人數</th>
+                                    <td>
+                                        {{updateForm.calculation_data.health_nums}}
+                                    </td>
+                                    <th scope="row">健保合計</th>
+                                    <td>
+                                        {{updateForm.calculation_data.health_total_fee}}
+                                    </td>
+                                </tr>
+                                <!-- 獎金 -->
+                                <tr align="right" v-for="(d, index) in updateForm.salary_item_data">
+                                    <th scope="row" v-if="(index * 4)  < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4].salary_name}}</th>
+                                    <td v-if="(index * 4) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4].addORminus == 0"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4].value"></td>
+                                    <th scope="row" v-if="(index * 4 + 1) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 1].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4 + 1].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 1].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 1].salary_name}}</th>
+                                    <td v-if="(index * 4 + 1) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 1].addORminus == 0"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 1].value"></td>
+                                    <th scope="row" v-if="(index * 4 + 2) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 2].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4 + 2].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 2].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 2].salary_name}}</th>
+                                    <td v-if="(index * 4 + 2) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 2].addORminus == 0"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 2].value"></td>
+                                    <th scope="row" v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4 + 3].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 3].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 3].salary_name}}</th>
+                                    <td v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 0"><input @change="get_fixed_salary()" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 3].value"></td>
+                                </tr>
+                                <th colspan="8" style="background-color:#ffe9d6">薪資合計</th>
+                                <th style="background-color:#ffe9d6">實領</th>
+                                <td style="background-color:#ffe9d6">{{updateForm.calculation_data.total_salary}}</td>
+                                <tr>
+                                    <th scope="row" colspan="8"></th>
+                                    <th scope="row">轉帳</th>
+                                    <td >
+                                        {{updateForm.calculation_data.ATM}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" colspan="8"></th>
+                                    <th scope="row">現金</th>
+                                    <td >
+                                        {{updateForm.calculation_data.cash}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th colspan="10" style="text-align: right;">
+                                        <button type="button" class="btn btn-primary" @click="updateThisEmployeeData()">更新</button>
+                                    </th>
+                                </tr>
+                                <tr style="text-align: right;"><td  colspan="10">註：❋領現金、⊙日薪計算基準</td></tr>
+                                  
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+    <script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="../assets/js/popper.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/moment.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+
+        });
+
+        new Vue({
+            el: "#app",
+            data: {
+                data: [],
+                data_1: [],
+                data_2: [],
+                month: '0000-00',
+                updateForm: {
+                    salary_calculation_id: 0,
+                    name: "",
+                    work_at: "0000-00-00",
+                    leave_at: "0000-00-00",
+                    salary_item_data: [],
+                    statistic_data: {
+                        bonus_period: 0,
+                        early: 0,
+                        late: 0,
+                        leave_all: 0,
+                        leave_half: 0,
+                        leave_none: 0,
+                        meal_times: 0,
+                        no_record_times: 0,
+                        over_time: 0,
+                        period: 0,
+                        total_time: 0,
+                        work_days: 0
+                    },
+                    calculation_data: {
+                        fixed_salary: 0,
+                        daily_wage: 0,
+                        hourly_wage: 0,
+                        over_time_fee: 0,
+                        bonus_period_fee: 0,
+                        meal_times_fee: 0,
+                        //減項
+                        leave_all_fee: 0,
+                        leave_half_fee: 0,
+                        late_fee: 0,
+                        early_fee: 0,
+                        labor_fee: 0,
+                        health_fee: 0,
+                        health_nums: 0,
+                        health_total_fee: 0,
+                        //結果
+                        add_item: 0,
+                        minus_item: 0,
+                        total_salary: 0,
+                        ATM: 0,
+                        cash: 0
+                    }
+                },
+                detail: {
+                    total_days: 0,
+                    total_hours: 0,
+                    work_days: 0,
+                    work_hours: 0,
+                    closed_days: 0,
+                    closed_hours: 0
+                },
+                salary_item: []
+            },
+            created() {
+                //判斷這本月
+                this.month = new Date().Format('yyyy-MM')
+                //自動賦值，月初和月底
+                this.getSalaryCalculationData()
+                
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.code === 200) {
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                getClosedDate() {
+                    get('/api_v1.1/clinic/closed_date?date='+this.month).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else {
+                            this.detail = res.data[1]
+                        }
+                    })
+                },
+                getSalaryCalculationData() {
+                    get(`/api_v1.1/clinic/salary/calculation?start=${this.month}`).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else {
+                            this.data = res.data[0]
+                            this.data_1 = res.data[0].filter(d => parseInt(d.level_of_position) === 1)
+                            this.data_2 = res.data[0].filter(d => parseInt(d.level_of_position) === 2)
+                            this.work_status = res.data[1]
+                            this.salary_item = []
+                            res.data[0][0].salary_item_data.forEach(item => {
+                                this.salary_item.push(item.salary_name);
+                            })
+                            this.getClosedDate()
+                        }
+                    })
+                },
+                updateSalaryCalculationData() {
+                    post(`/api_v1.1/clinic/salary/calculation/update?start=${this.month}`).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            alert('更新成功!')
+                            window.location.reload('./salary_calculation.html')
+                        }
+                    })
+                },
+                showThisEmployeeData(salary_calculation_id) {
+                    const data = this.data.find(d => d.salary_calculation_id == salary_calculation_id)
+                    const work = this.work_status.find(d => d.employee_id == data.employee_id)
+                    this.updateForm.salary_calculation_id = data.salary_calculation_id
+                    this.updateForm.employee_id = data.employee_id
+                    this.updateForm.name = data.name
+                    this.updateForm.statistic_data = data.statistic_data
+                    this.updateForm.salary_item_data = data.salary_item_data
+                    this.updateForm.calculation_data = data.calculation_data
+                    this.updateForm.work_at = work.work_at
+                    this.updateForm.leave_at = work.leave_at
+                },
+                updateThisEmployeeData() {
+                    let form = {}
+                    form.salary_calculation_id = this.updateForm.salary_calculation_id
+                    form.statistic_data = this.updateForm.statistic_data
+                    post(`/api_v1.1/clinic/attendance/statistic/update/id`, form).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            alert('更新成功!')
+                            $('#editEmployee').modal('hide')
+                            this.$nextTick()
+                        }
+                    })
+                },
+                reComputeSalaryCalculation() {
+                    // 判斷正職兼職
+                    const employee = this.data.find(d => d.employee_id == this.updateForm.employee_id)
+                    if(employee.level_of_position == 2) {
+                        //正職
+
+                    } else {
+                        //兼職
+
+                    }
+                //     if($employee_basic_salary['salary_setting']->pt_wage == 2) {
+                //         //底薪 日薪 時薪初始狀況
+                //         $insert['basic_salary'] = $employee_basic_salary['basic_salary'];
+                //         $insert['fixed_salary'] += $insert['basic_salary'];
+                //         $insert['daily_wage'] = round(($insert['fixed_salary'] / 30), 2);
+                //         $insert['hourly_wage'] = round($insert['daily_wage'] / 8, 2);
+
+                //         //foreach每個薪項，看看有沒有is_fixed或是is_daily_salary，計算比較特別
+                //         $employee_salary_item = array();
+                //         foreach ($salary_item as $key_si => $value_si) {
+                //             $tmp_salary_item = array(
+                //                 'salary_item_id' => $value_si['salary_item_id'],
+                //                 'is_fixed' => $value_si['is_fixed'],
+                //                 'salary_name' => $value_si['salary_name'],
+                //                 'addORminus' => $value_si['addORminus'],
+                //                 'paid_way' => $value_si['paid_way'],
+                //                 'is_daily_salary' => $value_si['is_daily_salary'],
+                //                 'value' => 0,
+                //             );
+                            
+                //             if($tmp_salary_item['is_fixed'] == 1) {
+                //                 //有固定的值 加value到該新的salary_item 並且 加/減 fixed_salary
+                //                 $employee_salary_fixed_value = array_find(
+                //                     $salary_fixed_value,
+                //                     function($val) use ($value_s, $tmp_salary_item) {
+                //                         return $val['employee_id'] == $value_s['employee_id']
+                //                                     && $val['salary_item_id'] == $tmp_salary_item['salary_item_id'];
+                //                     }
+                //                 );
+                //                 $tmp_salary_item['value'] = $employee_salary_fixed_value['value'];
+                //                 $insert['fixed_salary'] += $tmp_salary_item['value'] * ($tmp_salary_item['addORminus'] == 0 ? (-1) : 1);
+                //             } 
+
+                //             if($tmp_salary_item['is_daily_salary'] == 1) {
+                //                 //(日薪 加/減 value) / 30
+                //                 $insert['daily_wage'] += round(($tmp_salary_item['value'] * ($tmp_salary_item['addORminus'] == 0 ? (-1) : 1)) / 30, 2);
+                //                 $insert['hourly_wage'] = round($insert['daily_wage'] / 8, 2);
+                //             }
+                //             array_push($employee_salary_item, $tmp_salary_item);
+                //         }
+
+
+
+                //         //判斷該員工就職天數
+                //         if($statistic[$key_s]['statistic_data']['work_days'] == intval(date("t",strtotime($Sdate)))) {
+                //             //如果滿一個月只要30天就好
+                //             $insert['add_item'] = $insert['daily_wage'] * 30; 
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = $employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']);
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_fee'] = $employee_basic_salary['health_insurance'];
+                //             $insert['health_total_fee'] = $employee_basic_salary['health_insurance_with_family'];
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         } else if(strtotime($employee_basic_salary['work_at']) <= strtotime($Sdate) && strtotime($Edate) > strtotime($employee_basic_salary['leave_at'])) {
+                //             //如果1日進來，未到月底，不用計算健保，勞保取該月天數
+                //             // ex. 25號取25天 28號取28天 不能超過30天
+                //             $insert['add_item'] = $insert['daily_wage'] * $statistic[$key_s]['statistic_data']['work_days']; 
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] +=round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = round($employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']) * $statistic[$key_s]['statistic_data']['work_days'] / 30);
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_total_fee'] = 0;
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         } else if(strtotime($employee_basic_salary['work_at']) > strtotime($Sdate) && strtotime($Edate) <= strtotime($employee_basic_salary['leave_at'])) {
+                //             //如果月中進來，做滿月底，勞保都要計算只是天數要減少，統一30 - 該天 + 1
+                //             //ex. 5號進來做滿月底 30 - 5 + 1(2月也是一樣)
+                //             //健保要保
+                //             $insert['add_item'] = $insert['daily_wage'] * $statistic[$key_s]['statistic_data']['work_days']; 
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] +=round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = round($employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']) * $statistic[$key_s]['statistic_data']['work_days'] / 30);
+                //             $insert['health_fee'] = $employee_basic_salary['health_insurance'];
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_total_fee'] = $employee_basic_salary['health_insurance_with_family'];
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         } else if(strtotime($employee_basic_salary['work_at']) > strtotime($Sdate) && strtotime($Edate) > strtotime($employee_basic_salary['leave_at'])) {
+                //             //如果月中進來，未到月底，不用計算健保，勞保取該月天數(最大30) - 月中 + 1
+                //             // ex. 5號進來 20號出去 20-5+1天，例外30號進來 31號出去 30 - 30 + 1
+                //             $insert['add_item'] = $insert['daily_wage'] * $statistic[$key_s]['statistic_data']['work_days']; 
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] +=round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = round($employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']) * $statistic[$key_s]['statistic_data']['work_days'] / 30);
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_total_fee'] = 0;
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         }
+
+                //         //加項
+                //         // 加診診數 * 每診加診費
+                //         $insert['bonus_period_fee'] = $statistic[$key_s]['statistic_data']['bonus_period'] * $employee_basic_salary['bonus_per_period'];
+                //         //加班時數 * 上面算的時薪
+                //         $insert['over_time_fee'] = round($statistic[$key_s]['statistic_data']['over_time'] / 60 * $insert['hourly_wage']);
+                //         //餐點次數 * 每餐餐費
+                //         $insert['meal_times_fee'] = $statistic[$key_s]['statistic_data']['meal_times'] * $employee_basic_salary['salary_setting']->meal_allowance;
+                //         $insert['add_item'] += $insert['bonus_period_fee'] + $insert['over_time_fee'] + $insert['meal_times_fee'];
+
+                //         //減項
+                //         //請假扣全薪
+                //         $insert['leave_all_fee'] = round($statistic[$key_s]['statistic_data']['leave_all'] / 60 * $insert['hourly_wage']);
+                //         //請假扣半薪
+                //         $insert['leave_half_fee'] = round($statistic[$key_s]['statistic_data']['leave_half'] / 60 * round($insert['hourly_wage'] / 2));
+                //         //遲到費
+                //         $insert['late_fee'] = round($statistic[$key_s]['statistic_data']['late'] / 60 * $insert['hourly_wage']);
+                //         // 早退費
+                //         $insert['early_fee'] = round($statistic[$key_s]['statistic_data']['early'] / 60 * $insert['hourly_wage']);
+                //         $insert['minus_item'] += $insert['leave_all_fee'] + $insert['leave_half_fee'] + $insert['late_fee'] + $insert['early_fee'];
+                        
+                //         //總計
+                //         $insert['cash'] = round($insert['cash']);
+                //         $insert['add_item'] = round($insert['add_item']);
+                //         $insert['minus_item'] = round($insert['minus_item']);
+                //         $insert['total_salary'] = $insert['add_item'] - $insert['minus_item'];
+                //         //轉帳
+                //         $insert['ATM'] = $insert['total_salary'] - $insert['cash'];
+
+                //         //插入salary_item_data和calculation_data
+                //         $database->update_salary_calculation(
+                //             array(
+                //                 'level_of_position' => 2,
+                //                 'salary_item_data' => json_encode($employee_salary_item, JSON_UNESCAPED_UNICODE),
+                //                 'calculation_data' => json_encode($insert, JSON_UNESCAPED_UNICODE)
+                //             ),
+                //             array(
+                //                 'employee_id' => $value_s['employee_id'],
+                //                 'clinic_id' => $_SESSION['user']['clinic_id'],
+                //                 'date' => substr($Sdate,0,7),
+                //             )
+                //         );
+                //     } else {
+                //         //兼職
+                //         //底薪 時薪初始狀況
+                //         $insert['fixed_salary'] += $employee_basic_salary['basic_salary'];
+                //         $insert['hourly_wage'] = $employee_basic_salary['salary_setting']->hourly_wage;
+
+                //         //foreach每個薪項，看看有沒有is_fixed或是is_daily_salary，計算比較特別
+                //         $employee_salary_item = array();
+                //         foreach ($salary_item as $key_si => $value_si) {
+                //             $tmp_salary_item = array(
+                //                 'salary_item_id' => $value_si['salary_item_id'],
+                //                 'is_fixed' => $value_si['is_fixed'],
+                //                 'salary_name' => $value_si['salary_name'],
+                //                 'addORminus' => $value_si['addORminus'],
+                //                 'paid_way' => $value_si['paid_way'],
+                //                 'is_daily_salary' => $value_si['is_daily_salary'],
+                //                 'value' => 0,
+                //             );
+                            
+                //             if($tmp_salary_item['is_fixed'] == 1) {
+                //                 //有固定的值 加value到該新的salary_item 並且 加/減 fixed_salary
+                //                 $employee_salary_fixed_value = array_find(
+                //                     $salary_fixed_value,
+                //                     function($val) use ($value_s, $tmp_salary_item) {
+                //                         return $val['employee_id'] == $value_s['employee_id']
+                //                                     && $val['salary_item_id'] == $tmp_salary_item['salary_item_id'];
+                //                     }
+                //                 );
+                //                 $tmp_salary_item['value'] = $employee_salary_fixed_value['value'];
+                //                 $insert['fixed_salary'] += $tmp_salary_item['value'] * ($tmp_salary_item['addORminus'] == 0 ? (-1) : 1);
+                //             } 
+
+                //             if($tmp_salary_item['is_daily_salary'] == 1) {
+                //                 //(日薪 加/減 value) / 30
+                //                 $insert['hourly_wage'] += round(($tmp_salary_item['value'] * ($tmp_salary_item['addORminus'] == 0 ? (-1) : 1)) / 30 / 8, 2);
+                //             }
+                //             array_push($employee_salary_item, $tmp_salary_item);
+                //         }
+
+                //         //判斷該員工就職天數
+                //         if($statistic[$key_s]['statistic_data']['work_days'] == intval(date("t",strtotime($Sdate)))) {
+                //             //如果滿一個月只要30天就好
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = $employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']);
+                //             $insert['health_fee'] = $employee_basic_salary['health_insurance'];
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_total_fee'] = $employee_basic_salary['health_insurance_with_family'];
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         } else if(strtotime($employee_basic_salary['work_at']) <= strtotime($Sdate) && strtotime($Edate) > strtotime($employee_basic_salary['leave_at'])) {
+                //             //如果1日進來，未到月底，不用計算健保，勞保取該月天數
+                //             // ex. 25號取25天 28號取28天 不能超過30天
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] +=round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = round($employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']) * $statistic[$key_s]['statistic_data']['work_days'] / 30);
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_total_fee'] = 0;
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         } else if(strtotime($employee_basic_salary['work_at']) > strtotime($Sdate) && strtotime($Edate) <= strtotime($employee_basic_salary['leave_at'])) {
+                //             //如果月中進來，做滿月底，勞保都要計算只是天數要減少，統一30 - 該天 + 1
+                //             //ex. 5號進來做滿月底 30 - 5 + 1(2月也是一樣)
+                //             //健保要保
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] +=round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = round($employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']) * $statistic[$key_s]['statistic_data']['work_days'] / 30);
+                //             $insert['health_fee'] = $employee_basic_salary['health_insurance'];
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_total_fee'] = $employee_basic_salary['health_insurance_with_family'];
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         } else if(strtotime($employee_basic_salary['work_at']) > strtotime($Sdate) && strtotime($Edate) > strtotime($employee_basic_salary['leave_at'])) {
+                //             //如果月中進來，未到月底，不用計算健保，勞保取該月天數(最大30) - 月中 + 1
+                //             // ex. 5號進來 20號出去 20-5+1天，例外30號進來 31號出去 30 - 30 + 1
+                //             $insert['add_item'] = $insert['daily_wage'] * $statistic[$key_s]['statistic_data']['work_days']; 
+                //             foreach ($employee_salary_item as $key_esi => $value_esi) {
+                //                 if($value_esi['is_daily_salary'] == 0) {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] += $value_esi['value'];
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += $value_esi['value'];
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= $value_esi['value'];
+                //                         }
+                //                     }
+                //                 } else {
+                //                     if($value_esi['addORminus'] == 1) {
+                //                         //加項
+                //                         $insert['add_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] +=round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     } else {
+                //                         //減項
+                //                         $insert['minus_item'] += round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         if($value_esi['paid_way'] == 1) {
+                //                             //現金
+                //                             $insert['cash'] -= round($value_esi['value'] / 30 * $statistic[$key_s]['statistic_data']['work_days'], 2);
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //             //勞健保
+                //             $insert['labor_fee'] = round($employee_basic_salary['labor_insurance'] * (1 - $employee_basic_salary['labor_relief']) * $statistic[$key_s]['statistic_data']['work_days'] / 30);
+                //             $insert['health_nums'] = $employee_basic_salary['family_number'];
+                //             $insert['health_total_fee'] = 0;
+                //             $insert['minus_item'] += $insert['labor_fee'] + $insert['health_total_fee'];
+                //         }
+
+                //         //加項
+                //         // 加診診數 * 每診加診費
+                //         $insert['add_item'] += $insert['hourly_wage'] * $statistic[$key_s]['statistic_data']['total_time'];
+                //         $insert['bonus_period_fee'] = $statistic[$key_s]['statistic_data']['bonus_period'] * $employee_basic_salary['bonus_per_period'];
+                //         //加班時數 * 上面算的時薪
+                //         $insert['over_time_fee'] = round($statistic[$key_s]['statistic_data']['over_time'] / 60 * $insert['hourly_wage']);
+                //         //餐點次數 * 每餐餐費
+                //         $insert['meal_times_fee'] = $statistic[$key_s]['statistic_data']['meal_times'] * $employee_basic_salary['salary_setting']->meal_allowance;
+                //         $insert['add_item'] += $insert['bonus_period_fee'] + $insert['over_time_fee'] + $insert['meal_times_fee'];
+
+                //         //減項
+                //         //請假扣全薪
+                //         $insert['leave_all_fee'] = round($statistic[$key_s]['statistic_data']['leave_all'] / 60 * $insert['hourly_wage']);
+                //         //請假扣半薪
+                //         $insert['leave_half_fee'] = round($statistic[$key_s]['statistic_data']['leave_half'] / 60 * round($insert['hourly_wage'] / 2));
+                //         //遲到費
+                //         $insert['late_fee'] = round($statistic[$key_s]['statistic_data']['late'] / 60 * $insert['hourly_wage']);
+                //         // 早退費
+                //         $insert['early_fee'] = round($statistic[$key_s]['statistic_data']['early'] / 60 * $insert['hourly_wage']);
+                //         $insert['minus_item'] += $insert['leave_all_fee'] + $insert['leave_half_fee'] + $insert['late_fee'] + $insert['early_fee'];
+                        
+                //         //總計
+                //         $insert['cash'] = round($insert['cash']);
+                //         $insert['add_item'] = round($insert['add_item']);
+                //         $insert['minus_item'] = round($insert['minus_item']);
+                //         $insert['total_salary'] = $insert['add_item'] - $insert['minus_item'];
+                //         //轉帳
+                //         $insert['ATM'] = $insert['total_salary'] - $insert['cash'];
+
+                //         //插入salary_item_data和calculation_data
+                //         $database->update_salary_calculation(
+                //             array(
+                //                 'level_of_position' => 1,
+                //                 'salary_item_data' => json_encode($employee_salary_item, JSON_UNESCAPED_UNICODE),
+                //                 'calculation_data' => json_encode($insert, JSON_UNESCAPED_UNICODE)
+                //             ),
+                //             array(
+                //                 'employee_id' => $value_s['employee_id'],
+                //                 'clinic_id' => $_SESSION['user']['clinic_id'],
+                //                 'date' => substr($Sdate,0,7),
+                //             )
+                //         );
+                //     }
+                }
+            }
+        })
+    </script>
+</body>
+</html>
