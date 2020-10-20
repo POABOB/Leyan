@@ -352,7 +352,7 @@
                 },
                 health_cal() {
                     if(this.updateForm.insurance_salary > this.insurance.health_lowest || this.updateForm.insurance_salary == 0) {
-                        this.updateForm.health_insurance = parseFloat((this.updateForm.insurance_salary * this.insurance.health_rate * 0.3).toFixed(2))
+                        this.updateForm.health_insurance = parseInt((this.updateForm.insurance_salary * this.insurance.health_rate * 0.3).toFixed(0))
                         let rate = parseFloat(1 - this.updateForm.health_relief)
                         let i = 0;
                         for (let item of this.family) {
@@ -361,9 +361,8 @@
                             i++
                         }
                         this.updateForm.health_insurance_with_family = parseInt((this.updateForm.health_insurance * rate).toFixed(0))
-                        this.updateForm.health_insurance = parseInt((this.updateForm.health_insurance).toFixed(0))
                     } else {
-                        this.updateForm.health_insurance = parseFloat((this.insurance.health_lowest * this.insurance.health_rate * 0.3).toFixed(2))
+                        this.updateForm.health_insurance = parseInt((this.insurance.health_lowest * this.insurance.health_rate * 0.3).toFixed(0))
                         let rate = parseFloat(1 - this.updateForm.health_relief)
                         let i = 0;
                         for (let item of this.family) {
@@ -372,7 +371,6 @@
                             i++
                         }
                         this.updateForm.health_insurance_with_family = parseInt((this.updateForm.health_insurance * rate).toFixed(0))
-                        this.updateForm.health_insurance = parseInt((this.updateForm.health_insurance).toFixed(0))
                     }
                 },
                 // 薪項固定薪處理

@@ -64,7 +64,7 @@
                         <div class="input-group mb-3">
                             <input type="month" class="form-control" id="month" v-model="month">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" @click="getAttendanceStatisticData()" >確認</button>
+                                <button class="btn btn-outline-secondary" type="button" @click="getSalaryCalculationData()" >確認</button>
                             </div>
                             <button class="btn btn-primary" data-toggle="modal" data-target="#updateSalaryCalculation">資料統計</button>
                         </div>
@@ -226,7 +226,7 @@
                                     </td>
                                     <th scope="row">離職日</th>
                                     <td colspan="2">
-                                        {{updateForm.leave_at}}
+                                        {{(updateForm.leave_at === '9999-12-31' ? '' : updateForm.leave_at)}}
                                     </td>
                                     <th scope="row">職務別</th>
                                     <td><span style="color: cornflowerblue;">{{(updateForm.level_of_position == 1) ? '兼職' : '正職'}}</span></td>
@@ -512,10 +512,13 @@
                             this.data_2 = res.data[0].filter(d => parseInt(d.level_of_position) === 2)
                             this.work_status = res.data[1]
                             this.salary_item = []
-                            res.data[0][0].salary_item_data.forEach(item => {
-                                this.salary_item.push(item.salary_name);
-                            })
+                            if(res.data[0].length > 0) {
+                                res.data[0][0].salary_item_data.forEach(item => {
+                                    this.salary_item.push(item.salary_name);
+                                })
+                            }
                             this.getClosedDate()
+                            
                         }
                     })
                 },
