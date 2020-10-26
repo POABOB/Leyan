@@ -79,6 +79,7 @@
                                 <th scope="col">第三班<br>休息(分)</th>
                                 <th scope="col">工時(分)</th>
                                 <th scope="col">餐費補助</th>
+                                <th scope="col">診數</th>
                                 <th scope="col" colspan="2">操作</th>
                             </tr>
                         </thead>
@@ -98,7 +99,8 @@
                                     <td>{{d.off_3rd}}</td>
                                     <td>{{d.break_3rd}}</td>
                                     <td>{{d.time_3rd}}</td>
-                                    <td>{{d.meal_times}}</td>                    
+                                    <td>{{d.meal_times}}</td>   
+                                    <td>{{d.period}}</td>                    
                                     <td>
                                         <button class="btn btn-primary" data-toggle="modal" data-target="#updateShiftSetting" @click="getUpdateShiftSettingData(index)">編輯</button> 
                                         <button class="btn btn-primary" @click="deleteShiftSettingData(d.shift_id)">刪除</button> 
@@ -172,6 +174,10 @@
                                 <label for="meal_times">餐費補助</label>
                                 <input type="text" class="form-control" id="meal_times" value="0">
                             </div>
+                            <div class="form-group col-12">
+                                <label for="period">診數</label>
+                                <input type="number" class="form-control" id="period" value="1" min="1" max="3">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -238,6 +244,10 @@
                             <div class="form-group col-12">
                                 <label for="meal_times">餐費補助</label>
                                 <input type="text" class="form-control" id="update_meal_times">
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="period">診數</label>
+                                <input type="number" class="form-control" id="update_period" value="1" min="1" max="3">
                             </div>
                             <div class="form-group">
                                 <input type="hidden" class="form-control" id="update_shift_id">
@@ -309,7 +319,8 @@
                         'on_3rd': $('#on_3rd').val(),
                         'off_3rd': $('#off_3rd').val(),
                         'break_3rd': $('#break_3rd').val(),
-                        'meal_times': $('#meal_times').val()
+                        'meal_times': $('#meal_times').val(),
+                        'period': $('#period').val()
                     }
                     post('/api_v1.1/clinic/shift/setting/add', data).then(res => {
                         if (res.code === 200) {
@@ -335,6 +346,7 @@
                     $('#update_off_3rd').val(this.data[index].off_3rd)
                     $('#update_break_3rd').val(this.data[index].break_3rd)
                     $('#update_meal_times').val(this.data[index].meal_times)
+                    $('#update_period').val(this.data[index].period)
                     $('#update_shift_id').val(this.data[index].shift_id)
                 },
                 updateShiftSettingData() {
@@ -350,6 +362,7 @@
                         'off_3rd': $('#update_off_3rd').val(),
                         'break_3rd': $('#update_break_3rd').val(),
                         'meal_times': $('#update_meal_times').val(),
+                        'period': $('#update_period').val(),
                         'shift_id': $('#update_shift_id').val()
                     }
                     post('/api_v1.1/clinic/shift/setting/update', data).then(res => {
