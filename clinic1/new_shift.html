@@ -553,7 +553,10 @@
                             name: "請選擇"
                         }
                     } else {
-                        const shift = this.shift.find(data => data.shift_id == shift_id)
+                        let shift = this.shift.find(data => data.shift_id == shift_id)
+                        delete shift["break_1st"]
+                        delete shift["break_2nd"]
+                        delete shift["break_3rd"]
                         this.form.data[index].shift = JSON.parse(JSON.stringify(shift))
                     }
 
@@ -562,6 +565,7 @@
                     this.form.data.forEach(data => {
                         total_time = total_time + data.shift.time
                     })
+                    // this.form.period = this.form.data[index].period
                     this.form.time = total_time
                 },
                 changePosition(index) {
@@ -658,6 +662,9 @@
                         }
                     } else {
                         const shift = this.shift.find(data => data.shift_id == shift_id)
+                        delete shift["break_1st"];
+                        delete shift["break_2nd"];
+                        delete shift["break_3rd"];
                         this.updateform.data[index].shift = JSON.parse(JSON.stringify(shift))
                     }
 
@@ -666,6 +673,7 @@
                     this.updateform.data.forEach(data => {
                         total_time = total_time + data.shift.time
                     })
+                    // this.updateform.period = this.updateform.data[index].period
                     this.updateform.time = total_time
                 },
                 checkPosition() {
