@@ -129,6 +129,8 @@
                                 <th scope="col">#</th>
                                 <th scope="col">姓名</th>
                                 <th scope="col">時薪</th>
+                                <th scope="col">總工時</th>
+                                <th scope="col">薪津</th>
                                 <th scope="col">超時(加班)費</th>
                                 <th scope="col">伙食津貼</th>
                                 <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
@@ -150,6 +152,8 @@
                                 <th scope="row">{{index+1}}</th>
                                 <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
                                 <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
+                                <td>{{(d.statistic_data.total_time).toFixed(2)}}</td>
+                                <td>{{(d.calculation_data.hourly_wage * d.statistic_data.total_time).toFixed(0)}}</td>
                                 <td>{{d.calculation_data.over_time_fee}}</td>
                                 <td>{{d.calculation_data.meal_times_fee}}</td>
                                 <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
@@ -239,17 +243,21 @@
                                     <td>
                                         {{updateForm.calculation_data.fixed_salary}}
                                     </td>
-                                    <th scope="row">底薪</th>
-                                    <td>
+                                    <th v-show="updateForm.level_of_position === '2'" scope="row">底薪</th>
+                                    <td v-show="updateForm.level_of_position === '2'">
                                         <input disabled type="number" class="form-control" v-model="updateForm.calculation_data.basic_salary">
                                     </td>
-                                    <th scope="row">日薪</th>
-                                    <td>
+                                    <th v-show="updateForm.level_of_position === '2'" scope="row">日薪</th>
+                                    <td  v-show="updateForm.level_of_position === '2'">
                                         {{updateForm.calculation_data.daily_wage.toFixed(2)}}
                                     </td>
                                     <th scope="row">時薪</th>
                                     <td>
                                         {{updateForm.calculation_data.hourly_wage.toFixed(2)}}
+                                    </td>
+                                    <th v-show="updateForm.level_of_position === '1'" scope="row">薪津</th>
+                                    <td v-show="updateForm.level_of_position === '1'">
+                                        {{(this.updateForm.calculation_data.hourly_wage * this.updateForm.statistic_data.total_time).toFixed(0)}}
                                     </td>
                                 </tr>
                                 <!-- 獎金 -->
@@ -424,6 +432,7 @@
                     name: "",
                     work_at: "0000-00-00",
                     leave_at: "0000-00-00",
+                    level_of_position: "2",
                     salary_item_data: [],
                     statistic_data: {
                         bonus_period: 0,
@@ -544,13 +553,16 @@
                     this.updateForm.calculation_data = data.calculation_data
                     this.updateForm.work_at = work.work_at
                     this.updateForm.leave_at = work.leave_at
+                    this.updateForm.level_of_position = data.level_of_position
+
                     this.setValue()
                 },
                 updateThisEmployeeData() {
                     let form = {}
                     form.salary_calculation_id = this.updateForm.salary_calculation_id
-                    form.statistic_data = this.updateForm.statistic_data
-                    post(`/api_v1.1/clinic/attendance/statistic/update/id`, form).then(res => {
+                    form.calculation_data = this.updateForm.calculation_data
+                    form.salary_item_data = this.updateForm.salary_item_data
+                    post(`/api_v1.1/clinic/salary/calculation/update/id`, form).then(res => {
                         if(res.code == 403) {
                             location.href = './index.html'
                         } else if(res.code == 200) {
@@ -561,25 +573,162 @@
                     })
                 },
                 reComputeTotal(dataType = null, calType = 'add', paidWay = 0, isFixed = 0, isDailySalary = 0) {
+                    //TODO 兼職全職方式不同
+                    //正職
                     if(dataType.slice(0,11) === "salary_item") {
                         //獎金部份計算方式不同
                         if(parseInt(isDailySalary) === 1) {
-                            //要重新計算日薪，並且重算有時數的加減項
+                            ///正職
+                            const difference = this.updateForm.salary_item_data[dataType.slice(-1)].value - this.oldUpdateForm.salary_item_data[dataType.slice(-1)].value
+                            if(this.updateForm.level_of_position === "2") {
+                                if(calType === 'add') {
+                                    //要重新計算日薪，並且重算有時數的加減項
+                                    this.updateForm.calculation_data.daily_wage = parseFloat(((this.updateForm.calculation_data.daily_wage * 30 + difference) /30).toFixed(2))
+                                    this.updateForm.calculation_data.hourly_wage = parseFloat((this.updateForm.calculation_data.daily_wage / 8).toFixed(2))
+                                } else {
+                                    this.updateForm.calculation_data.daily_wage = parseFloat(((this.updateForm.calculation_data.daily_wage * 30 - difference) /30).toFixed(2))
+                                    this.updateForm.calculation_data.hourly_wage = parseFloat((this.updateForm.calculation_data.daily_wage / 8).toFixed(2))
+                                }
+                                //加班
+                                this.updateForm.calculation_data.over_time_fee = parseFloat((((this.updateForm.statistic_data.over_time / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                //請假
+                                this.updateForm.calculation_data.leave_all_fee = parseFloat((((this.updateForm.statistic_data.leave_all / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                this.updateForm.calculation_data.leave_half_fee = parseFloat((((this.updateForm.statistic_data.leave_half / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                //早退
+                                this.updateForm.calculation_data.early_fee = parseFloat((((this.updateForm.statistic_data.early / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                //遲到
+                                this.updateForm.calculation_data.late_fee = parseFloat((((this.updateForm.statistic_data.late / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                
+                                //先計算日薪 * 天數
+                                this.updateForm.calculation_data.add_item = parseFloat(this.updateForm.calculation_data.daily_wage * ((this.updateForm.statistic_data.work_days > 30) ? 30 : this.updateForm.statistic_data.work_days))
+                                //foreach 薪項
+                                this.updateForm.calculation_data.cash = 0
+                                this.updateForm.calculation_data.minus_item = 0
+                                this.updateForm.salary_item_data.forEach(item => {
+                                    if(item.is_daily_salary === "0") {
+                                        if(item.addORminus === "1") {
+                                            //加項
+                                            this.updateForm.calculation_data.add_item += parseInt(item.value)
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash += parseInt(item.value)
+                                            }
+                                        } else {
+                                            //減項
+                                            this.updateForm.calculation_data.minus_item += parseInt(item.value)
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash -= parseInt(item.value)
+                                            }
+                                        }
+                                    } else {
+                                        //日薪計算基準 現金 * 天數 不大於30天
+                                        if(item.addORminus === "1") {
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash += parseFloat(((item.value / 30) * ((this.updateForm.statistic_data.work_days >= 30) ? 30 : this.updateForm.statistic_data.work_days)).toFixed(2))
+                                            }
+                                        } else {
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash -= parseFloat(((item.value / 30) * ((this.updateForm.statistic_data.work_days >= 30) ? 30 : this.updateForm.statistic_data.work_days)).toFixed(2))
+                                            }
+                                        }
+                                    }
+                                })
 
-                            //底薪 * 天數
+                                //加項
+                                this.updateForm.calculation_data.add_item += this.updateForm.calculation_data.bonus_period_fee + this.updateForm.calculation_data.over_time_fee + this.updateForm.calculation_data.meal_times_fee
 
-                            //加班
+                                //減項
+                                this.updateForm.calculation_data.minus_item += this.updateForm.calculation_data.leave_all_fee + this.updateForm.calculation_data.leave_half_fee + this.updateForm.calculation_data.late_fee + this.updateForm.calculation_data.early_fee + parseInt(this.updateForm.calculation_data.health_total_fee) + parseInt(this.updateForm.calculation_data.labor_fee)
+                                
+                                //總計
+                                this.updateForm.calculation_data.add_item = (Math.round(this.updateForm.calculation_data.add_item))
+                                this.updateForm.calculation_data.minus_item = (Math.round(this.updateForm.calculation_data.minus_item))
+                                this.updateForm.calculation_data.cash = (Math.round(this.updateForm.calculation_data.cash))
+                                this.updateForm.calculation_data.total_salary = this.updateForm.calculation_data.add_item - this.updateForm.calculation_data.minus_item
+                                this.updateForm.calculation_data.ATM = this.updateForm.calculation_data.total_salary - this.updateForm.calculation_data.cash
 
-                            //請假
+                                //isfixed
+                                if(parseInt(isFixed) === 1) {
+                                    this.updateForm.calculation_data.fixed_salary += difference
+                                }
+                            } else {
+                                //TODO兼職
+                                if(calType === 'add') {
+                                    // this.updateForm.calculation_data.daily_wage = parseFloat(((this.updateForm.calculation_data.daily_wage * 30 + ) /30).toFixed(2))
+                                    this.updateForm.calculation_data.hourly_wage = parseFloat(((this.updateForm.calculation_data.hourly_wage * 240 + difference) / 240).toFixed(2))
+                                } else {
+                                    // this.updateForm.calculation_data.daily_wage = parseFloat(((this.updateForm.calculation_data.daily_wage * 30 - difference) /30).toFixed(2))
+                                    this.updateForm.calculation_data.hourly_wage = parseFloat(((this.updateForm.calculation_data.hourly_wage * 240 - difference) / 240).toFixed(2))
+                                }
+                                //加班
+                                this.updateForm.calculation_data.over_time_fee = parseFloat((((this.updateForm.statistic_data.over_time / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                //請假
+                                this.updateForm.calculation_data.leave_all_fee = parseFloat((((this.updateForm.statistic_data.leave_all / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                this.updateForm.calculation_data.leave_half_fee = parseFloat((((this.updateForm.statistic_data.leave_half / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                //早退
+                                this.updateForm.calculation_data.early_fee = parseFloat((((this.updateForm.statistic_data.early / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                //遲到
+                                this.updateForm.calculation_data.late_fee = parseFloat((((this.updateForm.statistic_data.late / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                
+                                //先計算日薪 * 天數
+                                this.updateForm.calculation_data.add_item = parseFloat(this.updateForm.calculation_data.hourly_wage * this.updateForm.statistic_data.total_time)
+                                //foreach 薪項
+                                this.updateForm.calculation_data.cash = 0
+                                this.updateForm.calculation_data.minus_item = 0
+                                this.updateForm.salary_item_data.forEach(item => {
+                                    if(item.is_daily_salary === "0") {
+                                        if(item.addORminus === "1") {
+                                            //加項
+                                            this.updateForm.calculation_data.add_item += parseInt(item.value)
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash += parseInt(item.value)
+                                            }
+                                        } else {
+                                            //減項
+                                            this.updateForm.calculation_data.minus_item += parseInt(item.value)
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash -= parseInt(item.value)
+                                            }
+                                        }
+                                    } else {
+                                        //日薪計算基準 現金 * 天數 不大於30天
+                                        if(item.addORminus === "1") {
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash += parseFloat(((item.value / 240) * this.updateForm.statistic_data.total_time).toFixed(2))
+                                            }
+                                        } else {
+                                            if(item.paid_way === "1") {
+                                                //現金
+                                                this.updateForm.calculation_data.cash -= parseFloat(((item.value / 240) * this.updateForm.statistic_data.total_time).toFixed(2))
+                                            }
+                                        }
+                                    }
+                                })
 
-                            //早退
+                                //加項
+                                this.updateForm.calculation_data.add_item += this.updateForm.calculation_data.bonus_period_fee + this.updateForm.calculation_data.over_time_fee + this.updateForm.calculation_data.meal_times_fee
 
-                            //遲到
+                                //減項
+                                this.updateForm.calculation_data.minus_item += this.updateForm.calculation_data.leave_all_fee + this.updateForm.calculation_data.leave_half_fee + this.updateForm.calculation_data.late_fee + this.updateForm.calculation_data.early_fee + parseInt(this.updateForm.calculation_data.health_total_fee) + parseInt(this.updateForm.calculation_data.labor_fee)
+                                
+                                //總計
+                                this.updateForm.calculation_data.add_item = (Math.round(this.updateForm.calculation_data.add_item))
+                                this.updateForm.calculation_data.minus_item = (Math.round(this.updateForm.calculation_data.minus_item))
+                                this.updateForm.calculation_data.cash = (Math.round(this.updateForm.calculation_data.cash))
+                                this.updateForm.calculation_data.total_salary = this.updateForm.calculation_data.add_item - this.updateForm.calculation_data.minus_item
+                                this.updateForm.calculation_data.ATM = this.updateForm.calculation_data.total_salary - this.updateForm.calculation_data.cash
 
-                            //paidway
-
-                            //isfixed
-
+                                //isfixed
+                                if(parseInt(isFixed) === 1) {
+                                    this.updateForm.calculation_data.fixed_salary += difference
+                                }
+                            }                            
                         } else {
                             //跟一般的多fixed paidway
                             const difference = this.updateForm.salary_item_data[dataType.slice(-1)].value - this.oldUpdateForm.salary_item_data[dataType.slice(-1)].value
@@ -611,8 +760,7 @@
                                 }
                             }
                         }
-
-                        // console.log(dataType, calType, paidWay , isFixed, isDailySalary);
+                        console.log(dataType, calType, paidWay , isFixed, isDailySalary);
                     } else {
                         //該新值與舊值的差
                         const difference = this.updateForm.calculation_data[dataType] - this.oldUpdateForm.calculation_data[dataType]
@@ -623,7 +771,7 @@
                         } else {
                             //健保計算方式特別
                             if(dataType === 'health_fee') {
-                                const rate = parseFloat(this.oldUpdateForm.calculation_data.health_total_fee / this.oldUpdateForm.calculation_data.health_fee)
+                                const rate = (this.oldUpdateForm.calculation_data.health_total_fee) != 0 ? parseFloat(this.oldUpdateForm.calculation_data.health_total_fee / this.oldUpdateForm.calculation_data.health_fee) : 1
                                 this.updateForm.calculation_data.health_total_fee = parseInt(this.updateForm.calculation_data.health_total_fee) + parseInt((difference * rate).toFixed(0))
                                 this.updateForm.calculation_data.minus_item += parseInt((difference * rate).toFixed(0))
                                 this.updateForm.calculation_data.total_salary = this.updateForm.calculation_data.add_item - this.updateForm.calculation_data.minus_item
@@ -635,6 +783,7 @@
                             }
                         }
                     }
+                    //兼職
                     this.setValue()
                 },
                 setValue() {
