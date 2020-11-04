@@ -217,6 +217,7 @@
             created() {
                 get('/api_v1.1/info?token='+window.sessionStorage.getItem('token')).then(res => {
                     if(res.code == 403) {
+                        window.sessionStorage.removeItem('token')
                         location.href = './index.html'
                     } else {
                         this.user = res.data

@@ -35,11 +35,9 @@
 
     <script>
         //一進來就執行，判斷登入狀態
-        get('/api_v1.1/login/check').then(res => {
-            if (res.code === 200) {
-                location.href = './assistant.html'
-            }
-        })
+        if(window.sessionStorage.getItem('token')) {
+            location.href = './assistant.html'
+        }
 
         $('#btnLogin').click(() => {
             const account_number = $('#account_number').val()
