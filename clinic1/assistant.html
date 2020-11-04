@@ -257,6 +257,7 @@
                 logout() {
                     get('/api_v1.1/logout').then(res => {
                         if (res.code === 200) {
+                            window.sessionStorage.removeItem('token')
                             alert('success')
                             location.href = './index.html'
                             return
