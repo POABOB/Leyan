@@ -25,14 +25,14 @@
                     <li><a href="./closed_date.html">休診設定</a></li>
                     <li><a href="./position.html">崗位設定</a></li>
                     <li><a href="./shift_setting.html">班別設定</a></li>
-                    <li><a href="./salary_item.html">薪項名稱設定</a></li>
-                    <li><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
+                    <li v-show="user.right > 2"><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
                     <li ><a href="./attendance_overtime.html">加班明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li  class="active"><a href="./attendance_statistic.html">出勤統計表</a></li>
-                    <li><a href="./salary_calculation.html">每月薪資明細表</a></li>
+                    <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
                 </ul>
             </nav>
 
@@ -370,8 +370,21 @@
                     closed_days: 0,
                     closed_hours: 0
                 },
+                user: {
+                    user_id: 0,
+                    account_number: '',
+                    right: 0,
+                    clinic_id: 0
+                },
             },
             created() {
+                get('/api_v1.1/info?token='+window.sessionStorage.getItem('token')).then(res => {
+                    if(res.code == 403) {
+                        location.href = './index.html'
+                    } else {
+                        this.user = res.data
+                    }
+                })
                 //判斷這本月
                 this.month = new Date().Format('yyyy-MM')
                 //自動賦值，月初和月底

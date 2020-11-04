@@ -18,7 +18,7 @@
             <div class="form-group">
                 <label for="account_number">帳號</label>
                 <input type="email" class="form-control" id="account_number" aria-describedby="emailHelp">
-                <small id="emailHelp" class="form-text text-muted">請輸入email格式...</small>
+                <small id="emailHelp" class="form-text text-muted">請輸入帳號...</small>
             </div>
             <div class="form-group">
                 <label for="password">密碼</label>
@@ -52,6 +52,7 @@
             post(url, data).then(res => {
                 if (res.code === 200) {
                     alert('success')
+                    window.sessionStorage.setItem('token', res.data.token)
                     location.href = './assistant.html'
                     return
                 } else {

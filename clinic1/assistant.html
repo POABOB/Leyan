@@ -25,14 +25,14 @@
                     <li><a href="./closed_date.html">休診設定</a></li>
                     <li><a href="./position.html">崗位設定</a></li>
                     <li><a href="./shift_setting.html">班別設定</a></li>
-                    <li><a href="./salary_item.html">薪項名稱設定</a></li>
-                    <li><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
+                    <li v-show="user.right > 2"><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
-                    <li ><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li v-show="user.right > 2"><a href="./attendance_overtime.html">加班明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
-                    <li><a href="./salary_calculation.html">每月薪資明細表</a></li>
+                    <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
                 </ul>
             </nav>
 
@@ -63,7 +63,7 @@
                     </div>
                 </nav>
                 <div>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#addAssistant">新增助理</button>
+                    <button  v-show="user.right >2" class="btn btn-primary" data-toggle="modal" data-target="#addAssistant">新增助理</button>
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -77,10 +77,10 @@
                                 <tr v-for="(d, index) in data">
                                     <th scope="row">{{index + 1}}</th>
                                     <td><p>{{d.account_number}}</p></td>
-                                    <td><p v-show="d.right == 3">診所老闆</p><p v-show="d.right == 2">助理</p></td>                         
+                                    <td><p v-show="d.right == 4">診所老闆</p><p v-show="d.right == 3">管理員</p><p v-show="d.right == 2">助理</p></td>                         
                                     <td>
-                                        <button class="btn btn-primary" data-toggle="modal" data-target="#updateAssistant" @click="getUpdateAssistantData(d.account_number, d.user_id)">編輯</button> 
-                                        <button v-if="d.right < 3" class="btn btn-primary" @click="deleteAssistantData(d.user_id)">刪除</button> 
+                                        <button v-if="user.right >= d.right" class="btn btn-primary" data-toggle="modal" data-target="#updateAssistant" @click="getUpdateAssistantData(d.account_number, d.right, d.user_id)">編輯</button> 
+                                        <button v-if="user.right > d.right" class="btn btn-primary" @click="deleteAssistantData(d.user_id)">刪除</button> 
                                     </td>
                                 </tr>
                                 <tr v-show="data == null || data.length < 1">
@@ -106,15 +106,22 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="account_number">帳號</label>
-                            <input type="text" class="form-control" id="account_number">
+                            <input v-model="form.account_number" type="text" class="form-control" id="account_number">
                         </div>
                         <div class="form-group">
                             <label for="password">密碼</label>
-                            <input type="password" class="form-control" id="password">
+                            <input v-model="form.password" type="password" class="form-control" id="password">
                         </div>
                         <div class="form-group">
                             <label for="passconf">密碼確認</label>
-                            <input type="password" class="form-control" id="passconf" >
+                            <input v-model="form.passconf" type="password" class="form-control" id="passconf" >
+                        </div>
+                        <div class="form-group">
+                            <label for="right">權限</label>
+                            <select v-model="form.right" class="form-control" name="right" id="right">
+                                <option value="3">管理員</option>
+                                <option value="2">助理</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -138,7 +145,15 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="account_number">帳號</label>
-                            <input type="text" class="form-control" id="update_account_number">
+                            <input v-model="updateForm.account_number" type="text" class="form-control" id="update_account_number">
+                        </div>
+                        <div class="form-group">
+                            <label for="right">權限</label>
+                            <select v-model="updateForm.right" :disabled="updateForm.right == user.right" class="form-control" name="right" id="update_right">
+                                <option v-show="updateForm.right == 4" value="4">老闆</option>
+                                <option value="3">管理員</option>
+                                <option value="2">助理</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <input type="hidden" class="form-control" id="update_user_id">
@@ -202,7 +217,24 @@
             el: "#app",
             data: {
                 data: [],
-                family: []
+                family: [],
+                user: {
+                    user_id: 0,
+                    account_number: '',
+                    right: 0,
+                    clinic_id: 0
+                },
+                form: {
+                    account_number: '',
+                    password: '',
+                    passconf: '',
+                    right: '',
+                },
+                updateForm: {
+                    account_number: '',
+                    right: '',
+                    user_id: 0
+                },
             },
             created() {
                 get('/api_v1.1/clinic/assistant').then(res => {
@@ -210,6 +242,13 @@
                         location.href = './index.html'
                     } else {
                         this.data = res.data
+                        get('/api_v1.1/info?token='+window.sessionStorage.getItem('token')).then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else {
+                                this.user = res.data
+                            }
+                        })
                     }
                 })
             },
@@ -227,16 +266,10 @@
                     })
                 },
                 addAssistantData() {
-                    const data = {
-                        'account_number': $('#account_number').val(),
-                        'password': $('#password').val(),
-                        'passconf': $('#passconf').val()
-                    }
-                    post('/api_v1.1/clinic/assistant/add', data).then(res => {
+                    post('/api_v1.1/clinic/assistant/add', this.form).then(res => {
                         if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./assistant.html')
-                            return
                         }
                         else {
                             alert(res.message)
@@ -244,20 +277,16 @@
                         }
                     })
                 },
-                getUpdateAssistantData(account_number, user_id) {
-                    $('#update_account_number').val(account_number)
-                    $('#update_user_id').val(user_id)
+                getUpdateAssistantData(account_number, right, user_id) {
+                    this.updateForm.account_number = account_number
+                    this.updateForm.right = right
+                    this.updateForm.user_id = user_id
                 },
                 updateAssistantData() {
-                    const data = {
-                        'user_id': $('#update_user_id').val(),
-                        'account_number': $('#update_account_number').val()
-                    }
-                    post('/api_v1.1/clinic/assistant/update/email', data).then(res => {
+                    post('/api_v1.1/clinic/assistant/update/email', this.updateForm).then(res => {
                         if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./assistant.html')
-                            return
                         }
                         else {
                             alert(res.message)
@@ -274,7 +303,6 @@
                             if (res.code === 200) {
                                 alert(res.message)
                                 window.location.reload('./assistant.html')
-                                return
                             }
                             else {
                                 alert(res.message)
@@ -292,7 +320,6 @@
                         if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./assistant.html')
-                            return
                         }
                         else {
                             alert(res.message)
