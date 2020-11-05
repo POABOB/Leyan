@@ -35,7 +35,7 @@
 
     <script>
         //一進來就執行，判斷登入狀態
-        if(window.sessionStorage.getItem('token')) {
+        if(window.localStorage.getItem('token')) {
             location.href = './assistant.html'
         }
 
@@ -50,7 +50,7 @@
             post(url, data).then(res => {
                 if (res.code === 200) {
                     alert('success')
-                    window.sessionStorage.setItem('token', res.data.token)
+                    window.localStorage.setItem('token', res.data.token)
                     location.href = './assistant.html'
                     return
                 } else {

@@ -214,7 +214,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>薪資月份：{{this.month}}　本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}}　天應工作總工時：{{detail.work_days * 2}} 小時　應工作診數：{{detail.total_days * 2}} 診　 在職天數：<span style="color: salmon;">{{updateForm.statistic_data.work_days}}</span> 天</p>
+                        <p>薪資月份：{{this.month}}　本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}}天　應工作總工時：{{detail.work_days * 8}} 小時　應工作診數：{{detail.total_days * 2}} 診　 本月在職天數：<span style="color: salmon;">{{updateForm.statistic_data.work_days}}</span> 天</p>
                         <p></p>
                         <table class="table" id="editTable" style="table-layout: fixed;">
                             <tbody>
@@ -490,9 +490,9 @@
                 },
             },
             created() {
-                get('/api_v1.1/info?token='+window.sessionStorage.getItem('token')).then(res => {
+                get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
                     if(res.code == 403) {
-                        window.sessionStorage.removeItem('token')
+                        window.localStorage.removeItem('token')
                         location.href = './index.html'
                     } else {
                         this.user = res.data
@@ -508,7 +508,7 @@
                 logout() {
                     get('/api_v1.1/logout').then(res => {
                         if (res.code === 200) {
-                            window.sessionStorage.removeItem('token')
+                            window.localStorage.removeItem('token')
                             alert('success')
                             location.href = './index.html'
                             return
