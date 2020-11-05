@@ -96,7 +96,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(d, index) in data_2" >
+                            <tr v-for="(d, index) in data_2" v-show="alreadyLeave(d.employee_id)">
                                 <th scope="row">{{index+1}}</th>
                                 <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
                                 <td>{{d.calculation_data.fixed_salary}}</td>
@@ -148,7 +148,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(d, index) in data_1" >
+                            <tr v-for="(d, index) in data_1"  v-show="alreadyLeave(d.employee_id)">
                                 <th scope="row">{{index+1}}</th>
                                 <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
                                 <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
@@ -488,6 +488,7 @@
                     right: 0,
                     clinic_id: 0
                 },
+                work_status: []
             },
             created() {
                 get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
@@ -803,6 +804,14 @@
                 },
                 setValue() {
                     this.oldUpdateForm = JSON.parse(JSON.stringify(this.updateForm))
+                },
+                alreadyLeave(employee_id) {
+                    const work = this.work_status.find(d => d.employee_id == employee_id)
+                    if((Date.parse(new Date(this.month).Format('yyyy-MM-01'))).valueOf() <= (Date.parse(work.leave_at)).valueOf()) {
+                        return true
+                    } else {
+                        return false
+                    }
                 }
             }
         })
