@@ -296,9 +296,10 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
+                        this.getBasicSalaryData()
                     }
                 })
-                this.getBasicSalaryData()
+                
             },
             methods: {
                 logout() {

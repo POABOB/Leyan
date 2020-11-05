@@ -384,12 +384,13 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
+                        //判斷這本月
+                        this.month = new Date().Format('yyyy-MM')
+                        //自動賦值，月初和月底
+                        this.getAttendanceStatisticData()
                     }
                 })
-                //判斷這本月
-                this.month = new Date().Format('yyyy-MM')
-                //自動賦值，月初和月底
-                this.getAttendanceStatisticData()
+
                 
             },
             methods: {

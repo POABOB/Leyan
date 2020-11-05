@@ -237,21 +237,22 @@
                 },
             },
             created() {
-                get('/api_v1.1/clinic/assistant').then(res => {
+                get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
                     if(res.code == 403) {
+                        window.localStorage.removeItem('token')
                         location.href = './index.html'
                     } else {
-                        this.data = res.data
-                        get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
+                        this.user = res.data
+                        get('/api_v1.1/clinic/assistant').then(res => {
                             if(res.code == 403) {
-                                window.localStorage.removeItem('token')
                                 location.href = './index.html'
                             } else {
-                                this.user = res.data
+                                this.data = res.data
                             }
                         })
                     }
                 })
+                
             },
             methods: {
                 logout() {

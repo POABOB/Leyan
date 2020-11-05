@@ -337,15 +337,16 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
+                        this.getPositionData()
+                        this.getEmployeeData()
+                        this.getShiftSettingData()
+                        //月份一更動(watch)，隨即調用排班 Cal Shift
+                        this.month.month = new Date().Format('yyyy-MM')
+                        this.copySelect()
+                        // this.getClosedDateData()
                     }
                 })
-                this.getPositionData()
-                this.getEmployeeData()
-                this.getShiftSettingData()
-                //月份一更動(watch)，隨即調用排班 Cal Shift
-                this.month.month = new Date().Format('yyyy-MM')
-                this.copySelect()
-                // this.getClosedDateData()
+
             },
             methods: {
                 logout() {

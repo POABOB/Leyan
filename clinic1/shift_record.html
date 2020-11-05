@@ -202,23 +202,24 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
-                    }
-                })
-                get('/api_v1.1/clinic/shift/record').then(res => {
-                    if(res.code == 403) {
-                        location.href = './index.html'
-                    } else {
-                        let tmp = res.data[0]
-                        this.data = tmp.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
-                        this.date = []
-                        res.data[1].forEach(item => {
-                            this.date.push({date: item[0], day: this.checkDay(item[0]), data: []})
+                        get('/api_v1.1/clinic/shift/record').then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else {
+                                let tmp = res.data[0]
+                                this.data = tmp.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+                                this.date = []
+                                res.data[1].forEach(item => {
+                                    this.date.push({date: item[0], day: this.checkDay(item[0]), data: []})
+                                })
+                                //外層是object，轉成array
+                                this.employee = Object.values(res.data[2])
+                                this.showAllRecord()
+                            }
                         })
-                        //外層是object，轉成array
-                        this.employee = Object.values(res.data[2])
-                        this.showAllRecord()
                     }
                 })
+                
             },
             mounted() {
                 let month = new Date().Format('yyyy-MM')

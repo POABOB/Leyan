@@ -550,17 +550,18 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
+                        get('/api_v1.1/clinic/employee').then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else {
+                                this.data = res.data
+                                this.getPositionData()
+                                this.getAttendanceData()
+                            }
+                        })
                     }
                 })
-                get('/api_v1.1/clinic/employee').then(res => {
-                    if(res.code == 403) {
-                        location.href = './index.html'
-                    } else {
-                        this.data = res.data
-                        this.getPositionData()
-                        this.getAttendanceData()
-                    }
-                })
+                
             },
             methods: {
                 logout() {

@@ -230,12 +230,13 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
+                        //判斷這本月
+                        this.month = new Date().Format('yyyy-MM')
+                        //找加班的紀錄
+                        this.getRecordOData()
                     }
                 })
-                //判斷這本月
-                this.month = new Date().Format('yyyy-MM')
-                //找加班的紀錄
-                this.getRecordOData()
+                
             },
             methods: {
                 logout() {

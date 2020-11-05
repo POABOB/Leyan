@@ -221,14 +221,15 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
+                        //判斷這本月
+                        this.month = new Date().Format('yyyy-MM')
+                        //自動賦值，月初和月底
+                        this.filter.startDate = new Date(this.month).Format('yyyy-MM-01')
+                        this.filter.endDate = new Date(this.month.slice(0,4), this.month.slice(-2), 0).Format('yyyy-MM-dd')
+                        this.getAttendanceRecordData()
                     }
                 })
-                //判斷這本月
-                this.month = new Date().Format('yyyy-MM')
-                //自動賦值，月初和月底
-                this.filter.startDate = new Date(this.month).Format('yyyy-MM-01')
-                this.filter.endDate = new Date(this.month.slice(0,4), this.month.slice(-2), 0).Format('yyyy-MM-dd')
-                this.getAttendanceRecordData()
+                
             },
             methods: {
                 logout() {

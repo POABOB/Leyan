@@ -142,15 +142,16 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
+                        get('/api_v1.1/clinic/employee/delete').then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else {
+                                this.data = res.data
+                            }
+                        })
                     }
                 })
-                get('/api_v1.1/clinic/employee/delete').then(res => {
-                    if(res.code == 403) {
-                        location.href = './index.html'
-                    } else {
-                        this.data = res.data
-                    }
-                })
+                
             },
             methods: {
                 logout() {
