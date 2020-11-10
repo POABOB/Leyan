@@ -337,16 +337,16 @@
                 },
                 editBasicSalaryData(employee_id) {
                     this.family = []
-                    //獲取該員工基本薪資
-                    this.updateForm = this.data.find(d => d.employee_id == employee_id)
-                    this.editSalaryFixedItemValue(employee_id)
-                    if(parseInt(this.updateForm.salary_setting.pt_wage) === 1) {
-                        this.updateForm.basic_salary = 0
-                    }
                     //獲取該員工眷屬
                     get('/api_v1.1/clinic/employee/family?employee_id='+employee_id).then(res => {
                         if (res.code === 200) {
                             this.family = res.data
+                            //獲取該員工基本薪資
+                            this.updateForm = this.data.find(d => d.employee_id == employee_id)
+                            this.editSalaryFixedItemValue(employee_id)
+                            if(parseInt(this.updateForm.salary_setting.pt_wage) === 1) {
+                                this.updateForm.basic_salary = 0
+                            }
                         }
                     })
                 },
@@ -367,6 +367,7 @@
                         parseInt((this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2).toFixed(0))
                 },
                 health_cal() {
+
                     if(this.updateForm.insurance_salary > this.insurance.health_lowest || this.updateForm.insurance_salary == 0) {
                         this.updateForm.health_insurance = parseInt((this.updateForm.insurance_salary * this.insurance.health_rate * 0.3).toFixed(0))
                         let rate = parseFloat(1 - this.updateForm.health_relief)
