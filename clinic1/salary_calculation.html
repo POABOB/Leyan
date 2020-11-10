@@ -303,7 +303,7 @@
                                 <th style="background-color:#ffe9d6">減項合計</th>
                                 <td style="background-color:#ffe9d6">{{updateForm.calculation_data.minus_item}}</td>
                                 <tr align="right">
-                                    <th scope="row">請假時數(扣全薪)</th>
+                                    <th scope="row">請假分鐘(扣全薪)</th>
                                     <td>
                                         {{updateForm.statistic_data.leave_all}}
                                     </td>
@@ -311,7 +311,7 @@
                                     <td>
                                         <input @change="reComputeTotal('leave_all_fee', 'minus')" type="number" class="form-control" v-model="updateForm.calculation_data.leave_all_fee">
                                     </td>
-                                    <th scope="row">請假時數(扣半薪)</th>
+                                    <th scope="row">請假分鐘(扣半薪)</th>
                                     <td>
                                         {{updateForm.statistic_data.leave_half}}
                                     </td>
