@@ -63,7 +63,7 @@
                     </div>
                 </nav>
                 <div>
-                    <button type="reset" class="btn btn-primary"data-toggle="modal" data-target="#addEmployee" @click="add()">新增員工</button>
+                    <button  v-show="user.right > 4" type="reset" class="btn btn-primary"data-toggle="modal" data-target="#addEmployee" @click="add()">新增員工</button>
                     <button class="btn btn-primary"data-toggle="modal" data-target="#A">考勤設定</button>
                     <table class="table table-striped">
                         <thead>

@@ -8,7 +8,12 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/loading.css">
     <link rel="stylesheet" href="../assets/css/google.font.css">
-<link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+    .modal-open .modal {
+        background: rgba(0,0,0,0.2);
+    }
+    </style>
 </head>
 <body>
     <div class="loading-wrapper">
@@ -92,7 +97,7 @@
                         <tbody>
                             <tr v-for="(d, index) in data" >
                                 <th scope="row">{{index+1}}</th>
-                                <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
+                                <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id, d.employee_id)">{{d.name}}</button></td>
                                 <td>{{d.statistic_data.work_days}}</td>
                                 <td>{{d.statistic_data.total_time}}</td>
                                 <td>{{d.statistic_data.period}}</td>
@@ -115,6 +120,8 @@
 
             </div>
         </div>
+
+
 
         <!-- UPDATE ATTENDANCE Modal -->
         <div class="modal fade" id="updateAttendance" tabindex="-1" role="dialog" aria-labelledby="updateAttendanceLabel" aria-hidden="true">
@@ -145,143 +152,159 @@
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editEmployeeLabel">員工出勤統計</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h5 class="modal-title" id="editEmployeeLabel">編輯員工出勤</h5>
+                        <button @click="modalDissmiss('editEmployee')" type="button" class="close" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>薪資月份：{{this.month}}　本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}} 天</p>
-                        <p>應工作總工時：{{detail.work_hours}} 小時<!--　 應工作診數：{{detail.work_days * 2}} 診 -->　 在職天數：{{updateForm.statistic_data.work_days}} 天</p>
                         <table class="table" id="editTable">
                             <tbody>
                                 <tr>
                                     <th scope="row">姓名</th>
-                                    <td colspan="4">
+                                    <td colspan="5">
                                         {{this.updateForm.name}}
                                     </td>
                                 </tr>
                                 <tr>    
                                     <th scope="row">總工時</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.total_time"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">小時</div>
-                                            </div>
-                                          </div>
+                                        <span>{{updateForm.statistic_data.total_time}} 小時</span>
                                     </td>
                                     <th scope="row">總診數</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.period">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">診</div>
-                                            </div>
-                                          </div>
+                                        <span>{{updateForm.statistic_data.period}} 診</span>
                                     </td>
-                                </tr>
-                                <tr>
                                     <th scope="row">加診診數</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text"v-model="updateForm.statistic_data.bonus_period">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">診</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <th scope="row">請假(扣全薪)</th>
-                                    <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.leave_all">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">分鐘</div>
-                                            </div>
-                                        </div>
+                                        <span>{{updateForm.statistic_data.bonus_period}} 診</span>
                                     </td>
                                 </tr>
                                 <tr>
+                                    <th scope="row">請假(扣全薪)</th>
+                                    <td>
+                                        <span>{{updateForm.statistic_data.leave_all}} 分鐘</span>
+                                    </td>
                                     <th scope="row">請假(扣半薪)</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.leave_half"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">分鐘</div>
-                                            </div>
-                                        </div>
+                                        <span>{{updateForm.statistic_data.leave_half}} 分鐘</span>
                                     </td>
                                     <th scope="row">請假(不扣薪)</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.leave_none"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">分鐘</div>
-                                            </div>
-                                        </div>
-                                    </td>                                
+                                        <span>{{updateForm.statistic_data.leave_none}} 分鐘</span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">超時</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.over_time"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">分鐘</div>
-                                            </div>
-                                        </div>
+                                        <span>{{updateForm.statistic_data.over_time}} 分鐘</span>
                                     </td>
                                     <th scope="row">忘刷卡</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.no_record_times"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">次</div>
-                                            </div>
-                                        </div>
+                                        <span>{{updateForm.statistic_data.no_record_times}} 次</span>
                                     </td>
-                                </tr>
-                                <tr>
                                     <th scope="row">遲到</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.late"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">分鐘</div>
-                                            </div>
-                                        </div>
+                                        <span>{{updateForm.statistic_data.late}} 分鐘</span>
                                     </td>
+                                </tr>
+                                <tr>
                                     <th scope="row">早退</th>
                                     <td>
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.early"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">分鐘</div>
-                                            </div>
-                                        </div>
-                                    </td>                                
-                                </tr> 
-                                <tr>
-                                    <!-- <th scope="row">曠職</th><td><input class="form-control" type="text" id="absence" name="absence" value= 0 > 小時</td> -->
-                                    
+                                        <span>{{updateForm.statistic_data.early}} 分鐘</span>
+                                    </td>            
                                     <th scope="row">補助餐次數</th>
-                                    <td  colspan="4">
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" v-model="updateForm.statistic_data.meal_times"> 
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">次</div>
-                                            </div>
-                                        </div>
-                                    </td>                                
-                                </tr> 
-                                <tr>
-                                    <th colspan="4" style="text-align: right;">
-                                        <button type="button" class="btn btn-primary" @click="updateThisEmployeeData()">更新</button>
-                                    </th>
+                                    <td  colspan="3">
+                                        <span>{{updateForm.statistic_data.meal_times}} 次</span>
+                                    </td>                    
                                 </tr>
-                                  
                             </tbody>
                         </table>
+                        <button @click="clearManualForm()" type="button" class="btn btn-primary" data-toggle="modal" data-target="#manualModal">
+                            新增出勤紀錄
+                        </button>
+                        <!-- Modal -->
+                        <div class="modal fade" id="manualModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="manualModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title" id="manualModalLabel"><span v-show="manualMode === 0">新增</span><span  v-show="manualMode === 1">更新</span>紀錄</h5>
+                                <button @click="modalDissmiss('manualModal')" type="button" class="close" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="datetime">日期</label>
+                                            <input v-model="manualForm.date" class="form-control" type="date">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="type">類型</label>
+                                            <select v-model="manualForm.type" class="form-control" value="total_time">
+                                                <option value="total_time">總工時(小時)</option>
+                                                <option value="period">診數(次數)</option>
+                                                <option value="bonus_period">加診診數(次數)</option>
+                                                <option value="leave_all">請假(分鐘)(扣全薪)</option>
+                                                <option value="leave_half">請假(分鐘)(扣半薪)</option>
+                                                <option value="leave_none">請假(分鐘)(不扣薪)</option>
+                                                <option value="over_time">超時(分鐘)</option>
+                                                <option value="late">遲到(分鐘)</option>
+                                                <option value="early">早退(分鐘)</option>
+                                                <option value="no_record_times">忘打卡(次數)</option>
+                                                <option value="meal_times">餐費補助(次數)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="addORminus">加/減 項</label>
+                                            <select v-model="manualForm.addORminus" class="form-control" value="1">
+                                                <option value="1">加項</option>
+                                                <option value="0">減項</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="value">時/分鐘/次</label>
+                                            <input v-model="manualForm.value" class="form-control" type="number" value="0" min="0" max="5000"> 
+                                        </div>
+                                        <div class="col">
+                                            <label for="comment">備註</label>
+                                            <textarea v-model="manualForm.comment" class="form-control" cols="10" rows="5" placeholder="備註此項紀錄..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer" style="justify-content:center;">
+                                <button @click="addThisEmployeeDataManually()" type="button" class="btn btn-primary"  v-show="manualMode === 0">新增</button>
+                                <button @click="updateThisEmployeeDataManually()" type="button" class="btn btn-primary"  v-show="manualMode === 1">更新</button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        
+                        <h5>出勤編輯紀錄</h5>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>類型</th>
+                                    <th>加/減 項</th>
+                                    <th>時/分鐘/次</th>
+                                    <th>備註</th>
+                                    <th>操作</th>
+                                </tr>
+                                <tr v-for="(r, index) in manual_data">
+                                    <td>{{r.date}}</td>
+                                    <td>{{manualType[r.type]}}</td>
+                                    <td>{{parseInt(r.addORminus) === 1 ? '加項' : '減項'}}</td>
+                                    <td>{{r.value}}</td>
+                                    <td>{{r.comment}}</td>
+                                    <td>
+                                        <button data-toggle="modal" data-target="#manualModal"  type="button" class="btn btn-primary" @click="editThisEmployeeDataManually(r.manual_id)">編輯</button>
+                                        <button  type="button" class="btn btn-primary" @click="deleteThisEmployeeDataManually(r.manual_id, r.employee_id)">刪除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h5>出勤紀錄</h5>
                         <table class="table">
                             <tbody>
                                 <tr>
@@ -342,6 +365,7 @@
             el: "#app",
             data: {
                 data: [],
+                data2:[],
                 month: '0000-00',
                 updateForm: {
                     salary_calculation_id: 0,
@@ -369,6 +393,17 @@
                     work_hours: 0,
                     closed_days: 0,
                     closed_hours: 0
+                }, 
+                manual_data: [],
+                manualForm: {
+                    manual_id: 0,
+                    date: '',
+                    type: 'total_time',
+                    addORminus: '1',
+                    value: 0,
+                    comment: '',
+                    employee_id: 0,
+                    _check: 0,
                 },
                 user: {
                     user_id: 0,
@@ -376,6 +411,20 @@
                     right: 0,
                     clinic_id: 0
                 },
+                manualMode: 0,
+                manualType: {
+                    'total_time': '總工時(小時)',
+                    'period': '診數(次數)',
+                    'bonus_period': '加診診數(次數)',
+                    'leave_all': '請假(分鐘)(扣全薪)',
+                    'leave_half': '請假(分鐘)(扣半薪)',
+                    'leave_none': '請假(分鐘)(不扣薪)',
+                    'over_time': '超時(分鐘)',
+                    'late': '遲到(分鐘)',
+                    'early': '早退(分鐘)',
+                    'no_record_times': '忘打卡(次數)',
+                    'meal_times': '餐費補助(次數)',
+                }
             },
             created() {
                 get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
@@ -388,10 +437,9 @@
                         this.month = new Date().Format('yyyy-MM')
                         //自動賦值，月初和月底
                         this.getAttendanceStatisticData()
+                        this.clearManualForm()
                     }
-                })
-
-                
+                })                
             },
             methods: {
                 logout() {
@@ -421,7 +469,20 @@
                         if(res.code == 403) {
                             location.href = './index.html'
                         } else {
-                            this.data = res.data
+                            this.data = res.data[0]
+                            this.data2 = res.data[1]
+                            
+                            if(this.updateForm.salary_calculation_id !== 0) {
+                                const data = this.data.find(d => d.salary_calculation_id == this.updateForm.salary_calculation_id)
+                                this.updateForm.name = data.name
+                                this.updateForm.record_data = data.record_data
+                                this.updateForm.statistic_data = data.statistic_data
+                            }
+
+                            if(this.manualForm.employee_id !== 0) {
+                                this.manual_data = (this.data2.filter(d => parseInt(d.employee_id) === parseInt(this.manualForm.employee_id))).sort((a, b) => new Date(a.date) - new Date(b.date))
+                            }
+
                             this.getClosedDate()
                         }
                     })
@@ -436,12 +497,16 @@
                         }
                     })
                 },
-                showThisEmployeeData(salary_calculation_id) {
+                showThisEmployeeData(salary_calculation_id, employee_id) {
                     const data = this.data.find(d => d.salary_calculation_id == salary_calculation_id)
                     this.updateForm.salary_calculation_id = data.salary_calculation_id
                     this.updateForm.name = data.name
                     this.updateForm.record_data = data.record_data
                     this.updateForm.statistic_data = data.statistic_data
+
+                    //manual
+                    this.manual_data = (this.data2.filter(d => parseInt(d.employee_id) === parseInt(employee_id))).sort((a, b) => new Date(a.date) - new Date(b.date))
+                    this.manualForm.employee_id = employee_id
                 },
                 updateThisEmployeeData() {
                     let form = {}
@@ -459,6 +524,94 @@
                 },
                 computeLate(on_1st_l, on_2nd_l, on_3rd_l) {
                     return (on_1st_l ? on_1st_l : 0) + (on_2nd_l ? on_2nd_l : 0)  + (on_3rd_l ? on_3rd_l : 0)
+                },
+                addThisEmployeeDataManually() {
+                    if(this.manualForm.date === '' || this.manualForm.date === null) {
+                        alert('日期不能為空')
+                    } else if (this.manualForm.date.substr(0, 7) !== this.month) {
+                        alert(`月份須為${this.month}!`)
+                    } else {
+                        post(`/api_v1.1/clinic/attendance/statistic/manual/add?start=${this.month}`, this.manualForm).then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else if(res.code == 200) {
+                                alert('新增紀錄成功!')
+                                //重新獲取data
+                                this.getAttendanceStatisticData()
+                                //清空表單
+                                this.clearManualForm()
+                                this.$nextTick()
+                            }
+                        })
+                    }
+                },
+                editThisEmployeeDataManually(manual_id) {
+                    this.manualMode = 1
+                    //取值
+                    const data = this.manual_data.find(d => d.manual_id == manual_id)
+                    this.manualForm = data
+                    console.log(manual_id);
+                    console.log(data);
+                },
+                updateThisEmployeeDataManually() {
+                    if(this.manualForm.date === '' || this.manualForm.date === null) {
+                        alert('日期不能為空')
+                    } else if (this.manualForm.date.substr(0, 7) !== this.month) {
+                        alert(`月份須為${this.month}!`)
+                    } else {
+                        post(`/api_v1.1/clinic/attendance/statistic/manual/update?start=${this.month}`, this.manualForm).then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else if(res.code == 200) {
+                                alert('更新紀錄成功!')
+                                //重新獲取data
+                                this.getAttendanceStatisticData()
+                                this.manualMode = 0
+                                $('#manualModal').modal('hide')
+                                this.$nextTick()
+                            }
+                        })
+                    }
+                },
+                deleteThisEmployeeDataManually(manual_id, employee_id) {
+                    if(confirm('是否要刪除此紀錄?')) {
+                        const data = {
+                            'manual_id': manual_id,
+                            'employee_id': employee_id
+                        }
+                        post(`/api_v1.1/clinic/attendance/statistic/manual/delete?start=${this.month}`, data).then(res => {
+                            if (res.code === 200) {
+                                alert('刪除紀錄成功')
+                                //重新獲取data
+                                this.getAttendanceStatisticData()
+                                this.manualMode = 0
+                                this.$nextTick()
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
+                },
+                modalDissmiss(modal) {
+                    $(`#${modal}`).modal("hide")
+                    $('.modal').css('overflow-y', 'auto');
+                },
+                clearManualForm() {
+                    if(this.user.right > 1) {
+                        this.manualForm._check = 1
+                    } else {
+                        this.manualForm._check = 0
+                    }
+                    this.manualMode = 0
+                    this.manualForm.manual_id = 0
+                    this.manualForm.date = ''
+                    this.manualForm.type = 'total_time'
+                    this.manualForm.addORminus = '1'
+                    this.manualForm.value = 0
+                    this.manualForm.comment = ''
+                    this.manualMode = 0
                 }
             }
         })
