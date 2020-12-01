@@ -341,12 +341,12 @@
                     get('/api_v1.1/clinic/employee/family?employee_id='+employee_id).then(res => {
                         if (res.code === 200) {
                             this.family = res.data
-                            //獲取該員工基本薪資
-                            this.updateForm = this.data.find(d => d.employee_id == employee_id)
-                            this.editSalaryFixedItemValue(employee_id)
-                            if(parseInt(this.updateForm.salary_setting.pt_wage) === 1) {
-                                this.updateForm.basic_salary = 0
-                            }
+                        }
+                        //獲取該員工基本薪資
+                        this.updateForm = this.data.find(d => d.employee_id == employee_id)
+                        this.editSalaryFixedItemValue(employee_id)
+                        if(parseInt(this.updateForm.salary_setting.pt_wage) === 1) {
+                            this.updateForm.basic_salary = 0
                         }
                     })
                 },
