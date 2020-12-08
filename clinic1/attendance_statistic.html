@@ -434,7 +434,9 @@
                     } else {
                         this.user = res.data
                         //判斷這本月
-                        this.month = new Date().Format('yyyy-MM')
+                        let m = new Date(new Date().Format("yyyy-MM"))
+                        let newM = m.setMonth(m.getMonth() - 1, 1)
+                        this.month = new Date(newM).Format("yyyy-MM")
                         //自動賦值，月初和月底
                         this.getAttendanceStatisticData()
                         this.clearManualForm()
