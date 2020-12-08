@@ -70,6 +70,7 @@
                                 <th scope="col">工號</th>
                                 <th scope="col">員工姓名</th>
                                 <th scope="col">到職日</th>
+                                <th scope="col">離職日</th>
                                 <th scope="col">職位</th>
                                 <th scope="col">職別</th>
                                 <th scope="col">生日</th>
@@ -85,6 +86,7 @@
                                     <td><p>{{d.job_number}}</p></td>
                                     <td><p>{{d.name}}</p></td>
                                     <td><p>{{d.work_at}}</p></td>
+                                    <td><p>{{d.leave_at}}</p></td>
                                     <td><p>{{d.position}}</p></td>
                                     <td><p v-if="d.level_of_position == 2">正職</p><p v-if="d.level_of_position == 1">兼職</p><p v-if="d.level_of_position == 0">試用</p></td>                         
                                     <td><p>{{d.birthday}}</p></td>

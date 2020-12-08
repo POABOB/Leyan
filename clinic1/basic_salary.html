@@ -272,6 +272,8 @@
                     health_lowest: 23800,
                     //勞保普通事故
                     larbor_normal_rate: 0.1,
+                    //2021
+                    // larbor_normal_rate: 0.105,
                     //就保
                     larbor_rate: 0.01,
                     //勞保職災事故
@@ -320,7 +322,7 @@
                         if(res.code == 403) {
                             location.href = './index.html'
                         } else {
-                            this.data = res.data[0]
+                            this.data = res.data[0].filter(item => res.data[3].find(item2 => item2.employee_id === item.employee_id))
                             this.salary_item = res.data[1]
                             this.salary_fixed_item = res.data[2]
                             this.updateForm.salary_fixed_item = []
