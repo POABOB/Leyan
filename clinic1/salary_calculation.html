@@ -19,7 +19,7 @@
             <!-- Sidebar -->
             <nav id="sidebar">
                 <ul class="list-unstyled components">
-                    <p>樂薪考勤系統</p>
+                    <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
                     <li><a href="./assistant.html">診所管理</a></li>
                     <li><a href="./employee.html">員工資料</a></li>
                     <li><a href="./closed_date.html">休診設定</a></li>
@@ -243,7 +243,7 @@
                                     <td>
                                         {{updateForm.calculation_data.fixed_salary}}
                                     </td>
-                                    <th v-show="updateForm.level_of_position === '2'" scope="row">底薪</th>
+                                    <th v-show="updateForm.level_of_position === '2'" scope="row">⊙底薪</th>
                                     <td v-show="updateForm.level_of_position === '2'">
                                         <input disabled type="number" class="form-control" v-model="updateForm.calculation_data.basic_salary">
                                     </td>
@@ -386,6 +386,7 @@
                                 </tr>
                                 <tr>
                                     <th colspan="10" style="text-align: right;">
+                                        <button class="btn btn-primary" @click="updateSelfSalaryCalculation()">重新整理</button>
                                         <button type="button" class="btn btn-primary" @click="updateThisEmployeeData()">更新</button>
                                     </th>
                                 </tr>
@@ -486,7 +487,8 @@
                     user_id: 0,
                     account_number: '',
                     right: 0,
-                    clinic_id: 0
+                    clinic_id: 0,
+                    clinic_name:''
                 },
                 work_status: []
             },
@@ -815,6 +817,21 @@
                     } else {
                         return false
                     }
+                },
+                updateSelfSalaryCalculation() {
+                    //重整個人薪資
+                    let form = {}
+                    form.employee_id = this.updateForm.employee_id
+                    post(`/api_v1.1/clinic/salary/self/calculation/update?start=${this.month}`, form).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            alert('重整成功!')
+                            this.updateForm.calculation_data = res.data[0]
+                            this.updateForm.salary_item_data = res.data[1]
+                            this.$nextTick()
+                        }
+                    })
                 }
             }
         })

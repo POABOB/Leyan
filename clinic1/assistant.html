@@ -19,7 +19,7 @@
             <!-- Sidebar -->
             <nav id="sidebar">
                 <ul class="list-unstyled components">
-                    <p>樂薪考勤系統</p>
+                    <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
                     <li class="active"><a href="./assistant.html">診所管理</a></li>
                     <li><a href="./employee.html">員工資料</a></li>
                     <li><a href="./closed_date.html">休診設定</a></li>
@@ -233,7 +233,8 @@
                 updateForm: {
                     account_number: '',
                     right: '',
-                    user_id: 0
+                    user_id: 0,
+                    clinic_name:''
                 },
             },
             created() {
