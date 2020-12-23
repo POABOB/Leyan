@@ -494,11 +494,11 @@
                     let new_month = m.getMonth()+1
                     if(new_month == 12) {
                         let tmp = new Date().setFullYear(m.getFullYear() + 1,0, 1)
-                        this.getEmployeeData(new Date(tmp).Format("yyyy-MM"))
+                        this.getEmployeeData(new Date(tmp).Format("yyyy-MM")+'-01')
                         this.month.month = new Date(tmp).Format("yyyy-MM")
                     } else {
                         let newM = m.setMonth(new_month, 1)
-                        this.getEmployeeData(new Date(newM).Format("yyyy-MM"))
+                        this.getEmployeeData(new Date(newM).Format("yyyy-MM"+'-01'))
                         this.month.month = new Date(newM).Format("yyyy-MM")
                     }
                     this.weeks = []
@@ -510,11 +510,11 @@
                     let new_month = m.getMonth()-1
                     if(new_month == -1) {
                         let tmp = new Date().setFullYear(m.getFullYear() - 1,11, 1)
-                        this.getEmployeeData(new Date(tmp).Format("yyyy-MM"))
+                        this.getEmployeeData(new Date(tmp).Format("yyyy-MM"+'-01'))
                         this.month.month = new Date(tmp).Format("yyyy-MM")
                     } else {
                         let newM = m.setMonth(new_month, 1)
-                        this.getEmployeeData(new Date(newM).Format("yyyy-MM"))
+                        this.getEmployeeData(new Date(newM).Format("yyyy-MM"+'-01'))
                         this.month.month = new Date(newM).Format("yyyy-MM")
                     }
                     this.weeks = []
