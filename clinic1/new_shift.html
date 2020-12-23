@@ -619,6 +619,8 @@
                 employeeShift() {
                     //該週已排班員工
                     const startDay = this.form.startDay
+                    this.employee_not_in_shift = []
+                    this.employee_in_shift = []
                     let _in = []
                     let _not_in = []
                     if(this.shift_table !== null) {
