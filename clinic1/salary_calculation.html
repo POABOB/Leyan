@@ -79,6 +79,7 @@
                                 <th scope="col">固定薪</th>
                                 <th scope="col">日薪</th>
                                 <th scope="col">時薪</th>
+                                <th scope="col">餐費津貼</th>
                                 <th scope="col">超時(加班)費</th>
                                 <th scope="col">伙食津貼</th>
                                 <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
@@ -102,6 +103,7 @@
                                 <td>{{d.calculation_data.fixed_salary}}</td>
                                 <td>{{d.calculation_data.daily_wage.toFixed(2)}}</td>
                                 <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
+                                <td>{{d.calculation_data.meal_fee}}</td>
                                 <td>{{d.calculation_data.over_time_fee}}</td>
                                 <td>{{d.calculation_data.meal_times_fee}}</td>
                                 <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
@@ -131,6 +133,7 @@
                                 <th scope="col">時薪</th>
                                 <th scope="col">總工時</th>
                                 <th scope="col">薪津</th>
+                                <th scope="col">餐費津貼</th>
                                 <th scope="col">超時(加班)費</th>
                                 <th scope="col">伙食津貼</th>
                                 <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
@@ -154,6 +157,7 @@
                                 <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
                                 <td>{{(parseFloat(d.statistic_data.total_time)).toFixed(2)}}</td>
                                 <td>{{(d.calculation_data.hourly_wage * parseFloat(d.statistic_data.total_time)).toFixed(0)}}</td>
+                                <td>{{d.calculation_data.meal_fee}}</td>
                                 <td>{{d.calculation_data.over_time_fee}}</td>
                                 <td>{{d.calculation_data.meal_times_fee}}</td>
                                 <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
@@ -258,6 +262,12 @@
                                     <th v-show="updateForm.level_of_position === '1'" scope="row">薪津</th>
                                     <td v-show="updateForm.level_of_position === '1'">
                                         {{(this.updateForm.calculation_data.hourly_wage * this.updateForm.statistic_data.total_time).toFixed(0)}}
+                                    </td>
+                                </tr>
+                                <tr align="right">
+                                    <th scope="row">❋餐費津貼</th>
+                                    <td>
+                                        <input @change="reComputeTotal('meal_fee', 'add', 0)" type="number" min="0" class="form-control" v-model="updateForm.calculation_data.meal_fee">
                                     </td>
                                 </tr>
                                 <!-- 獎金 -->
@@ -787,8 +797,19 @@
                         const difference = this.updateForm.calculation_data[dataType] - this.oldUpdateForm.calculation_data[dataType]
                         if(calType === 'add') {
                             this.updateForm.calculation_data.add_item += difference
+                            if(parseInt(paidWay) === 0) {
+                                this.updateForm.calculation_data.cash += difference
+                            }
                             this.updateForm.calculation_data.total_salary = this.updateForm.calculation_data.add_item - this.updateForm.calculation_data.minus_item
                             this.updateForm.calculation_data.ATM = this.updateForm.calculation_data.total_salary - this.updateForm.calculation_data.cash
+                            //現金互扣運算
+                            if(this.updateForm.calculation_data.ATM < 0 && this.updateForm.calculation_data.total_salary > 0) {
+                                this.updateForm.calculation_data.ATM = 0
+                                this.updateForm.calculation_data.cash = this.updateForm.calculation_data.total_salary
+                            }else if(this.updateForm.calculation_data.total_salary < 0) {
+                                this.updateForm.calculation_data.ATM = this.updateForm.calculation_data.total_salary
+                                this.updateForm.calculation_data.cash = 0
+                            }
                         } else {
                             //健保計算方式特別
                             if(dataType === 'health_fee') {
@@ -829,6 +850,7 @@
                             alert('重整成功!')
                             this.updateForm.calculation_data = res.data[0]
                             this.updateForm.salary_item_data = res.data[1]
+                            $('#editEmployee').modal('hide')
                             this.$nextTick()
                         }
                     })

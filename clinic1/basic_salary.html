@@ -72,6 +72,7 @@
                                 <th scope="col">到職日</th>
                                 <th scope="col">離職日</th>
                                 <th scope="col">底薪</th>
+                                <th scope="col">餐費津貼</th>
                                 <th scope="col" v-for="(d, index) in salary_item">{{d.salary_name}}</th>
                                 <th scope="col">投保薪資</th>
                                 <th scope="col">勞保減免</th>
@@ -90,6 +91,7 @@
                                     <td><p>{{d.work_at}}</p></td>
                                     <td><p>{{(d.leave_at === "9999-12-31") ? "" : d.leave_at}}</p></td>
                                     <td><p>{{(parseInt(d.salary_setting.pt_wage) === 1) ? 0 : d.basic_salary}}</p></td>  
+                                    <td><p>{{d.meal_fee}}</p></td>  
                                     <td v-for="(d1, index) in salary_item"><p>{{getSalaryFixedItemValue(d.employee_id, d1.salary_item_id)}}</p></td>         
                                     <td><p>{{d.insurance_salary}}</p></td>
                                     <td><p>{{d.labor_relief}}</p></td>
@@ -139,6 +141,10 @@
                                     <td colspan="3"><input @change="get_fixed_salary()" :disabled="pt_wage" class="form-control" type="number" min="0" v-model="updateForm.basic_salary"></td>
                                     <th scope="row">固定薪</th>
                                     <td colspan="3">{{fixed_salary}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">餐費津貼</th>
+                                    <td colspan=7><input class="form-control" type="number" min="0" v-model="updateForm.meal_fee"></td>
                                 </tr>
                                 <tr v-for="(d, index) in salary_item">
                                         <th scope="row" v-if="(index * 2)  < (salary_item.length)">{{salary_item[index * 2].salary_name}}</th>

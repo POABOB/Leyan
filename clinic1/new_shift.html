@@ -338,9 +338,9 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
-                        this.getPositionData()
-                        this.getEmployeeData()
-                        this.getShiftSettingData()
+                        this.getPosition_ShiftSettingData()
+                        // this.getEmployeeData()
+                        // this.getShiftSettingData()
                         //月份一更動(watch)，隨即調用排班 Cal Shift
                         this.month.month = new Date().Format('yyyy-MM')
                         this.copySelect()
@@ -364,8 +364,17 @@
                     })
                 },
                 async getShiftTableData(month = "", week = "") {
+                    //處理三大筆資料 employee shift closed_date 
                     const res = await get('/api_v1.1/clinic/new/shift?month='+this.month.month)
-                    this.shift_table = res.data
+                    this.shift_table = res.data[0]
+                    this.employee = res.data[1]
+                    let tmp_data = []
+                    res.data[2][0].forEach(d => {
+                        tmp_data.push({
+                            date: new Date(new Date(d.date).setDate(d.day)).Format("yyyy-MM-dd")
+                        })
+                    })
+                    this.closed_date = tmp_data
                     if(month == "") {
                         this.getFirstWeekOfMonth()
                     } else {
@@ -378,14 +387,14 @@
                     }
                     this.shiftOnCalendar()
                 },
-                async getEmployeeData(date = null) {
-                    const res = await get('/api_v1.1/clinic/new/shift/employee?start='+date)
-                    this.employee = res.data
-                },
-                getShiftSettingData() {
-                    get('/api_v1.1/clinic/shift/setting').then(res => {
+                // async getEmployeeData(date = null) {
+                //     const res = await get('/api_v1.1/clinic/new/shift/employee?start='+date)
+                //     this.employee = res.data
+                // },
+                getPosition_ShiftSettingData() {
+                    get('/api_v1.1/clinic/shift/setting/position').then(res => {
                         //處理shift data
-                        let tmp = res.data
+                        let tmp = res.data[0]
                         tmp.forEach(item => {
                             let time = 0
                             for (let prop in item) {   
@@ -400,30 +409,31 @@
                             item['time'] = time
                         })
                         this.shift = tmp
+                        this.position = res.data[1]
                     })
                 },
-                getPositionData() {
-                    get('/api_v1.1/clinic/position').then(res => {
-                        if(res.code == 403) {
-                            location.href = './index.html'
-                        } else {
-                            this.position = res.data
-                        }
-                    })
-                },
-                getClosedDateData() {
-                    get('/api_v1.1/clinic/closed_date?date='+this.month.month).then(res => {
-                        if(res.code == 200) {
-                            let data = []
-                            res.data[0].forEach(d => {
-                                data.push({
-                                    date: new Date(new Date(d.date).setDate(d.day)).Format("yyyy-MM-dd")
-                                })
-                            })
-                            this.closed_date = data
-                        }
-                    })
-                },
+                // getPositionData() {
+                //     get('/api_v1.1/clinic/position').then(res => {
+                //         if(res.code == 403) {
+                //             location.href = './index.html'
+                //         } else {
+                //             this.position = res.data
+                //         }
+                //     })
+                // },
+                // getClosedDateData() {
+                //     get('/api_v1.1/clinic/closed_date?date='+this.month.month).then(res => {
+                //         if(res.code == 200) {
+                //             let data = []
+                //             res.data[0].forEach(d => {
+                //                 data.push({
+                //                     date: new Date(new Date(d.date).setDate(d.day)).Format("yyyy-MM-dd")
+                //                 })
+                //             })
+                //             this.closed_date = data
+                //         }
+                //     })
+                // },
                 checkClosedDate(date) {
                     return this.closed_date.find(item => item.date == date) !== undefined
                 },
@@ -912,7 +922,7 @@
                 "month.month": {
                     // immediate: true,
                     handler: function() {
-                        this.getEmployeeData(this.month.month+'-01')
+                        // this.getEmployeeData(this.month.month+'-01')
                         this.getShiftTableData(this.month.month)
                         this.calendar = new Calendar({
                             element: document.querySelector('.calendar'),
@@ -922,7 +932,7 @@
                         this.copySelect()
                         //顯示排班
                         // this.shiftOnCalendar()
-                        this.getClosedDateData()
+                        // this.getClosedDateData()
                     }
                 }
             }
