@@ -270,16 +270,25 @@
                     })
                 },
                 addAssistantData() {
-                    post('/api_v1.1/clinic/assistant/add', this.form).then(res => {
-                        if (res.code === 200) {
-                            alert(res.message)
-                            window.location.reload('./assistant.html')
-                        }
-                        else {
-                            alert(res.message)
-                            console.log(res.message)
-                        }
-                    })
+                    if(this.form.account_number === '' || this.form.password === '' || this.form.passconf === '') {
+                        alert('請輸入帳號或密碼!');
+                    } else if(this.form.password !== this.form.passconf) {
+                        alert('密碼確認不相符!');
+                    } else if(this.form.right === '' || this.form.right === null) {
+                        alert('請選擇權限!');
+                    } else {
+                        post('/api_v1.1/clinic/assistant/add', this.form).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                window.location.reload('./assistant.html')
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
+                    
                 },
                 getUpdateAssistantData(account_number, right, user_id) {
                     this.updateForm.account_number = account_number
