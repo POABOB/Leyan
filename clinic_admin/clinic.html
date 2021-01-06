@@ -15,32 +15,37 @@
     <div class="container" id="app">
         <div class="rows justify-content-center">
             <button class="btn btn-dark" @click="logout()">登出</button>
-            <button id="btnAddClinic" class="btn btn-primary"data-toggle="modal" data-target="#addClinic">新增診所</button>
+            <button @click="clinicModal('add')" id="btnAddClinic" class="btn btn-primary"data-toggle="modal" data-target="#Clinic">新增診所</button>
             <div id="content"  class="accordion">
                 <div class="card" v-for="d in data">
                     <div class="card-header" :id="'heading'+d.clinic_id">
                         <h2 class="mb-0">
                         <button class="btn btn-link" type="button" data-toggle="collapse" :data-target="'#collapse'+d.clinic_id" aria-expanded="true" aria-controls="collapse">
-                            {{ d.clinic_name }} | {{ d.clinic_manager }} | {{ d.clinic_address }} | {{ d.clinic_phone }}<button :id="'edit'+d.clinic_id" class="btn btn-info" data-toggle="modal" data-target="#updateClinic" @click="getClinicData(d.clinic_name, d.clinic_manager, d.clinic_address, d.clinic_phone, d.clinic_id)">編輯</button><button :id="'delete'+d.clinic_id" class="btn btn-danger" @click="deleteClinicData(d.clinic_id)">刪除</button>
+                            {{ d.clinic_name }} | {{ d.clinic_manager }} | {{ d.clinic_address }} | {{ d.clinic_phone }} | {{ d.clinic_code }}<button :id="'edit'+d.clinic_id" class="btn btn-info" data-toggle="modal" data-target="#Clinic" @click="editClinicData(d.clinic_id)">編輯</button><button :id="'delete'+d.clinic_id" class="btn btn-danger" @click="deleteClinicData(d.clinic_id)">刪除</button>
                         </button>
                         </h2>
                     </div>
             
-                    <div :id="'collapse'+d.clinic_id" class="collapse show" :aria-labelledby="'heading'+d.clinic_id" :data-parent="'#heading'+d.clinic_id">
+                    <div :id="'collapse'+d.clinic_id" class="collapse" :aria-labelledby="'heading'+d.clinic_id" :data-parent="'#heading'+d.clinic_id">
                         <div class="card-body">
-                            <div v-if="checkClinicId(d.clinic_id)">
-                                <button class="btn btn-primary" data-toggle="modal" data-target="#addBoss" @click="getId(d.clinic_id)">新增老闆</button>
+                            <div v-if="checkClinicId(d.clinic_id, 4)">
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#User" @click="userModal('add', 4, d.clinic_id)">新增老闆</button>
                             </div>
-                            <table v-else>
+                            <div v-if="checkClinicId(d.clinic_id, 5)">
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#User" @click="userModal('add', 5, d.clinic_id)">新增診所(管理員)</button>
+                            </div>
+                            <table>
                                 <thead>
                                     <th>帳號</th>
+                                    <th>權限</th>
                                     <th>操作</th>
                                 </thead>
                                 <tbody>
                                     <tr v-for="de in detail" v-show="d.clinic_id === de.clinic_id">
                                         <td>{{ de.account_number }}</td>
-                                        <td><button :id="'edit'+de.user_id" class="btn btn-info" data-toggle="modal" data-target="#updateBoss" @click="getUpdateData(de.account_number, de.clinic_id, de.user_id)">編輯</button></td>
-                                        <td><button :id="'delete'+de.user_id" class="btn btn-danger" @click="deleteBossData(de.clinic_id, de.user_id)">刪除</button></td>
+                                        <td>{{ de.right == 5 ? '樂薪管理員' : '老闆' }}</td>
+                                        <td><button class="btn btn-info" data-toggle="modal" data-target="#User" @click="editUserData(de.user_id, de.right, de.clinic_id)">編輯</button></td>
+                                        <td><button class="btn btn-danger" @click="deleteUserData(de.clinic_id, de.user_id)">刪除</button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -49,142 +54,85 @@
                 </div>
             </div>
         </div>
-        <!-- ADD Modal -->
-        <div class="modal fade" id="addClinic" tabindex="-1" role="dialog" aria-labelledby="addClinicLabel" aria-hidden="true">
+
+        <!-- Clinic Modal -->
+        <div class="modal fade" id="Clinic" tabindex="-1" role="dialog" aria-labelledby="ClinicLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addClinicLabel">新增診所</h5>
+                        <h5 class="modal-title"><span v-show="clinicMode === 'add'">新增</span><span v-show="clinicMode === 'edit'">編輯</span>診所</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="clinic_name">診所名稱</label>
-                            <input type="text" class="form-control" id="clinic_name">
+                    <form id="clinicForm" @submit.prevent="clinicSubmit">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="clinic_name">診所名稱</label>
+                                <input v-model="clinicForm.clinic_name" type="text" class="form-control"  required maxlength="32">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinic_manager">診所管理者</label>
+                                <input v-model="clinicForm.clinic_manager" type="text" class="form-control" required maxlength="32">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinic_address">診所地址</label>
+                                <input v-model="clinicForm.clinic_address" type="text" class="form-control" required maxlength="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinic_phone">診所電話</label>
+                                <input v-model="clinicForm.clinic_phone" type="text" class="form-control" required maxlength="15">
+                            </div>
+                            <div class="form-group">
+                                <label for="clinic_code">診所代號</label>
+                                <input v-model="clinicForm.clinic_code" type="text" class="form-control" required maxlength="5">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="clinic_manager">診所管理者</label>
-                            <input type="text" id="clinic_manager"class="form-control" >
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button v-show="clinicMode === 'add'" type="submit" class="btn btn-primary">新增</button>
+                            <button v-show="clinicMode === 'edit'" type="submit" class="btn btn-primary">更新</button>
                         </div>
-                        <div class="form-group">
-                            <label for="clinic_address">診所地址</label>
-                            <input type="text" id="clinic_address"class="form-control" >
-                        </div>
-                        <div class="form-group">
-                            <label for="clinic_phone">診所電話</label>
-                            <input type="text" id="clinic_phone"class="form-control" >
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @click="addClinicData()">送出</button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <!-- UPDATE Modal -->
-        <div class="modal fade" id="updateClinic" tabindex="-1" role="dialog" aria-labelledby="updateClinicLabel" aria-hidden="true">
+
+        <!-- User Modal-->
+        <div class="modal fade"  id="User" tabindex="-1" role="dialog" aria-labelledby="UserLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="updateClinicLabel">新增診所</h5>
+                        <h5 class="modal-title" id="UserLabel"><span v-show="userMode === 'add'">新增</span><span v-show="userMode === 'edit'">編輯</span><span v-show="userForm.right == 4">老闆</span><span v-show="userForm.right == 5">管理員</span></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="update_clinic_id">
-                        <div class="form-group">
-                            <label for="clinic_name">診所名稱</label>
-                            <input type="text" class="form-control" id="update_clinic_name">
+                    <form id="userForm" @submit.prevent="userSubmit">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="account_number">帳號</label>
+                                <input v-model="userForm.account_number" type="text" class="form-control" required maxlength="64">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">密碼</label>
+                                <input v-model="userForm.password" type="password" class="form-control"  required maxlength="256">
+                            </div>
+                            <div class="form-group">
+                                <label for="passconf">密碼確認</label>
+                                <input v-model="userForm.passconf" type="password" class="form-control"  required>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="clinic_manager">診所管理者</label>
-                            <input type="text" id="update_clinic_manager"class="form-control" >
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button v-show="userMode === 'add'" type="submit" class="btn btn-primary">新增</button>
+                            <button v-show="userMode === 'edit'" type="submit" class="btn btn-primary">更新</button>
                         </div>
-                        <div class="form-group">
-                            <label for="clinic_address">診所地址</label>
-                            <input type="text" id="update_clinic_address"class="form-control" >
-                        </div>
-                        <div class="form-group">
-                            <label for="clinic_phone">診所電話</label>
-                            <input type="text" id="update_clinic_phone"class="form-control" >
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @click="updateClinicData()">送出</button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <!-- ADD BOSS Modal-->
-        <div class="modal fade" id="addBoss" tabindex="-1" role="dialog" aria-labelledby="addBossLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addBossLabel">新增老闆</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="boss_clinic_id">
-                        <div class="form-group">
-                            <label for="account_number">帳號</label>
-                            <input type="text" class="form-control" id="account_number">
-                        </div>
-                        <div class="form-group">
-                            <label for="password">密碼</label>
-                            <input type="password" id="password"class="form-control" >
-                        </div>
-                        <div class="form-group">
-                            <label for="passconf">密碼確認</label>
-                            <input type="password" id="passconf"class="form-control" >
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @click="addBossData()">送出</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- UPDATE BOSS Modal -->
-        <div class="modal fade" id="updateBoss" tabindex="-1" role="dialog" aria-labelledby="updateBossLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="updateBossLabel">編輯老闆</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="update_boss_clinic_id">
-                        <input type="hidden" id="update_user_id">
-                        <div class="form-group">
-                            <label for="update_account_number">帳號</label>
-                            <input type="text" class="form-control" id="update_account_number">
-                        </div>
-                        <div class="form-group">
-                            <label for="update_password">密碼</label>
-                            <input type="password" id="update_password"class="form-control" >
-                        </div>
-                        <div class="form-group">
-                            <label for="update_passconf">密碼確認</label>
-                            <input type="password" id="update_passconf"class="form-control" >
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @click="updateBossData()">送出</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
     <script src="../assets/js/loading.js"></script>
@@ -204,15 +152,14 @@
             el: "#app",
             data: {
                 data: {},
-                detail: {}
+                detail: {},
+                clinicForm: {clinic_id:0,clinic_name:'',clinic_address:'',clinic_code:'',clinic_manager:'',clinic_phone:''},
+                userForm: {account_number:'',password:'',passconf:'',right:4,clinic_id:0,user_id:0},
+                clinicMode: 'add',
+                userMode: 'add',
             },
             created() {
-                get('/api_v1.1/admin/clinic').then(res1 => {
-                    get('/api_v1.1/admin/clinic/boss').then(res2 => {
-                        this.data = res1.data
-                        this.detail = res2.data
-                    })
-                })
+                this.getClinicData();
             },
             methods: {
                 logout() {
@@ -228,9 +175,18 @@
                         }
                     })
                 },
-                checkClinicId(clinic_id) {
+                getClinicData() {
+                    get('/api_v1.1/admin/clinic').then(res1 => {
+                        get('/api_v1.1/admin/clinic/boss').then(res2 => {
+                            this.data = res1.data
+                            this.detail = res2.data
+                        })
+                    })
+                },
+                checkClinicId(clinic_id, right) {
                     let ans = this.detail.find(function(item, index, array) {
-                        return item.clinic_id === clinic_id
+                        return parseInt(item.clinic_id) === parseInt(clinic_id) 
+                        && parseInt(item.right) === parseInt(right)
                     })
                     if(ans === undefined) {
                         return true
@@ -238,46 +194,52 @@
                     return false
                 },
                 addClinicData() {
-                    const data = {
-                        'clinic_name': $('#clinic_name').val(),
-                        'clinic_manager': $('#clinic_manager').val(),
-                        'clinic_address': $('#clinic_address').val(),
-                        'clinic_phone': $('#clinic_phone').val()
-                    }
-                    post('/api_v1.1/admin/clinic/add', data).then(res => {
+                    let form = JSON.parse(JSON.stringify(this.clinicForm));
+                    delete form.clinic_id;
+                    post('/api_v1.1/admin/clinic/add', form).then(res => {
                         if (res.code == 200) {
-                            alert(res.message)
-                            window.location.reload('./clinic.html')
-                            return
+                            alert(res.message);
+                            this.getClinicData();
+                            this.$nextTick();
+                            this.clinicForm =  {clinic_id:0,clinic_name:'',clinic_address:'',clinic_code:'',clinic_manager:'',clinic_phone:''};
+                            $('#Clinic').modal('toggle');
                         } else {
-                            alert(res.message)
+                            alert(res.message);
                         }
                     })
                 },
-                getClinicData(clinic_name, clinic_manager, clinic_address, clinic_phone, clinic_id) {
-                    $('#update_clinic_id').val(clinic_id)
-                    $('#update_clinic_name').val(clinic_name)
-                    $('#update_clinic_manager').val(clinic_manager)
-                    $('#update_clinic_address').val(clinic_address)
-                    $('#update_clinic_phone').val(clinic_phone)
+                editClinicData(clinic_id) {
+                    const clinic = this.data.find(d => parseInt(d.clinic_id) === parseInt(clinic_id));
+                    this.clinicModal('edit');
+                    this.clinicForm = clinic;
                 },
                 updateClinicData() {
-                    const data = {
-                        'clinic_id': $('#update_clinic_id').val(),
-                        'clinic_name': $('#update_clinic_name').val(),
-                        'clinic_manager': $('#update_clinic_manager').val(),
-                        'clinic_address': $('#update_clinic_address').val(),
-                        'clinic_phone': $('#update_clinic_phone').val()
-                    }
-                    post('/api_v1.1/admin/clinic/update', data).then(res => {
+                    post('/api_v1.1/admin/clinic/update', this.clinicUpdateForm).then(res => {
                         if (res.code == 200) {
-                            alert(res.message)
-                            window.location.reload('./clinic.html')
-                            return
+                            alert(res.message);
+                            this.getClinicData();
+                            this.$nextTick();
+                            this.clinicForm =  {clinic_id:0,clinic_name:'',clinic_address:'',clinic_code:'',clinic_manager:'',clinic_phone:''};
+                            $('#Clinic').modal('toggle');
                         } else {
-                            alert(res.message)
+                            alert(res.message);
                         }
                     })
+                },
+                clinicModal(mode = 'add') {
+                    if(this.clinicMode !== mode) {
+                        if(mode === 'add') {
+                            this.clinicForm =  {clinic_id:0,clinic_name:'',clinic_address:'',clinic_code:'',clinic_manager:'',clinic_phone:''};
+                        }
+                        this.clinicMode = mode;
+                    }
+                },
+                clinicSubmit(event) {
+                    if(this.clinicMode === 'add') {
+                        this.addClinicData();
+                    } else {
+                        this.updateClinicData();
+                    }
                 },
                 deleteClinicData(id) {
                     if(confirm('是否要刪除?')) {
@@ -286,59 +248,49 @@
                         }
                         post('/api_v1.1/admin/clinic/delete', data).then(res => {
                             if (res.code == 200) {
-                                alert(res.message)
-                                window.location.reload('./clinic.html')
-                                return
+                                alert(res.message);
+                                this.getClinicData();
+                                this.$nextTick();
                             } else {
-                                alert(res.message)
+                                alert(res.message);
                             }
                         })
                     }
                 },
-                getId(id) {
-                    $('#boss_clinic_id').val(id)
-                },
-                addBossData() {
-                    const data = {
-                        'account_number': $('#account_number').val(),
-                        'password': $('#password').val(),
-                        'passconf': $('#passconf').val(),
-                        'clinic_id': $('#boss_clinic_id').val()
-                    }
-                    post('/api_v1.1/admin/clinic/boss/add', data).then(res => {
+                addUserData() {
+                    let form = JSON.parse(JSON.stringify(this.userForm));
+                    delete form.user_id;
+                    post('/api_v1.1/admin/clinic/boss/add', form).then(res => {
                         if (res.code == 200) {
-                            alert(res.message)
-                            window.location.reload('./clinic.html')
-                            return
+                            alert(res.message);
+                            this.getClinicData();
+                            this.$nextTick();
+                            this.userForm =  {account_number:'',password:'',passconf:'',right:4,clinic_id:0,user_id:0};
+                            $('#User').modal('toggle');
                         } else {
                             alert(res.message)
                         }
                     })
                 },
-                getUpdateData(account_number, clinic_id, user_id) {
-                    $('#update_boss_clinic_id').val(clinic_id)
-                    $('#update_account_number').val(account_number)
-                    $('#update_user_id').val(user_id)
+                editUserData(user_id, right, clinic_id) {
+                    this.userModal('edit', right, clinic_id);
+                    const user = this.detail.find(d => parseInt(d.user_id) === parseInt(user_id));
+                    this.userForm = JSON.parse(JSON.stringify(user));
                 },
-                updateBossData() {
-                    const data = {
-                        'account_number': $('#update_account_number').val(),
-                        'password': $('#update_password').val(),
-                        'passconf': $('#update_passconf').val(),
-                        'clinic_id': $('#update_boss_clinic_id').val(),
-                        'user_id': $('#update_user_id').val(),
-                    }
-                    post('/api_v1.1/admin/clinic/boss/update', data).then(res => {
+                updateUserData() {
+                    post('/api_v1.1/admin/clinic/boss/update', this.userForm).then(res => {
                         if (res.code == 200) {
-                            alert(res.message)
-                            window.location.reload('./clinic.html')
-                            return
+                            alert(res.message);
+                            this.getClinicData();
+                            this.$nextTick();
+                            this.userForm =  {account_number:'',password:'',passconf:'',right:4,clinic_id:0,user_id:0};
+                            $('#User').modal('toggle');
                         } else {
                             alert(res.message)
                         }
                     })
                 },
-                deleteBossData(clinic_id, user_id) {
+                deleteUserData(clinic_id, user_id) {
                     if(confirm('是否要刪除?')) {
                         const data = {
                             'clinic_id': clinic_id,
@@ -346,15 +298,32 @@
                         }
                         post('/api_v1.1/admin/clinic/boss/delete', data).then(res => {
                             if (res.code == 200) {
-                                alert(res.message)
-                                window.location.reload('./clinic.html')
-                                return
+                                alert(res.message);
+                                this.getClinicData();
+                                this.$nextTick();
                             } else {
                                 alert(res.message)
                             }
                         })
                     }
-                }
+                },
+                userModal(mode = 'add', right = 4, clinic_id = 0) {
+                    if(this.userMode !== mode) {
+                        if(mode === 'add') {
+                            this.userForm =  {account_number:'',password:'',passconf:'',right:4,clinic_id:0,user_id:0};
+                        }
+                        this.userMode = mode;
+                    }
+                    this.userForm.right = right;
+                    this.userForm.clinic_id = clinic_id;
+                },
+                userSubmit(event) {
+                    if(this.userMode === 'add') {
+                        this.addUserData();
+                    } else {
+                        this.updateUserData();
+                    }
+                },
             }
         })
     </script>
