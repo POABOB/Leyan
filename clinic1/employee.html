@@ -698,22 +698,26 @@
                     $('#leave_employee_id').attr("value",this.data[index].employee_id)
                 },
                 leave() {
-                    const data = {
-                        'leave_at': $('#leave_at').val(),
-                        'status': $('#status').val(),
-                        'employee_id': $('#leave_employee_id').val()
+                    if($('#leave_at').val() === "") {
+                        const data = {
+                            'leave_at': $('#leave_at').val(),
+                            'status': $('#status').val(),
+                            'employee_id': $('#leave_employee_id').val()
+                        }
+                        post('/api_v1.1/clinic/employee/delete/soft', data).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                window.location.reload('./employee.html')
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    } else {
+                        alert('請選擇日期!');
                     }
-                    post('/api_v1.1/clinic/employee/delete/soft', data).then(res => {
-                        if (res.code === 200) {
-                            alert(res.message)
-                            window.location.reload('./employee.html')
-                            return
-                        }
-                        else {
-                            alert(res.message)
-                            console.log(res.message)
-                        }
-                    })
                 },
                 getFamilyData(employee_id) {
                     $('#familyUpdate').css('display', 'none')
