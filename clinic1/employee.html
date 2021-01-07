@@ -698,7 +698,7 @@
                     $('#leave_employee_id').attr("value",this.data[index].employee_id)
                 },
                 leave() {
-                    if($('#leave_at').val() === "") {
+                    if($('#leave_at').val() !== "") {
                         const data = {
                             'leave_at': $('#leave_at').val(),
                             'status': $('#status').val(),
