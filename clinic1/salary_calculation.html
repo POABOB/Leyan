@@ -67,6 +67,7 @@
                                 <button class="btn btn-outline-secondary" type="button" @click="getSalaryCalculationData()" >確認</button>
                             </div>
                             <button class="btn btn-primary" data-toggle="modal" data-target="#updateSalaryCalculation">資料統計</button>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#printSalaryCalculation">資料列印</button>
                         </div>
                     </div>
                     <p>本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}} 天　應工作總工時：{{detail.work_hours}} 小時</p>
@@ -178,8 +179,129 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div id="salary-table" style="display: none;">
+                        <table>
+                            <tr>
+                                <td style="text-align:center;" colspan="3">
+                                    <span>薪資表</span><br>
+                                    <span>月份: </span><span class="year"></span><span> 年 </span><span class="month"></span><span> 月</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">職位</td>
+                                <td class="position"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">姓名</td>
+                                <td class="name"></td>
+                            </tr>
+                            <!--    add     -->
+                            <tr>
+                                <td class="break" rowspan="11">應<br>領<br>薪<br>資<br>金<br>額</td>
+                                <td class="keep clear" id="s1"></td>
+                                <td class="keep clear" id="m1"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s2"></td>
+                                <td class="keep" id="m2"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s3"></td>
+                                <td class="keep" id="m3"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s4"></td>
+                                <td class="keep" id="m4"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s5"></td>
+                                <td class="keep" id="m5"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s6"></td>
+                                <td class="keep" id="m6"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s7"></td>
+                                <td class="keep" id="m7"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s8"></td>
+                                <td class="keep" id="m8"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s9"></td>
+                                <td class="keep" id="m9"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s10"></td>
+                                <td class="keep" id="m10"></td>
+                            </tr>
+                            <tr>
+                                <td id="s11">合計</td>
+                                <td class="keep" id="m11"></td>
+                            </tr>
+                            <!--     minus    -->
+                            <tr>
+                                <td class="break" rowspan="10">應<br>扣<br>金<br>額</td>
+                                <td class="keep" id="s12"></td>
+                                <td class="keep" id="m12"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s13"></td>
+                                <td class="keep" id="m13"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s14"></td>
+                                <td class="keep" id="m14"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s15"></td>
+                                <td class="keep" id="m15"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s16"></td>
+                                <td class="keep" id="m16"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s17"></td>
+                                <td class="keep" id="m17"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s18"></td>
+                                <td class="keep" id="m18"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s19"></td>
+                                <td class="keep" id="m19"></td>
+                            </tr>
+                            <tr>
+                                <td class="keep" id="s20"></td>
+                                <td class="keep" id="m20"></td>
+                            </tr>
+                            <tr>
+                                <td id="s21">合計</td>
+                                <td class="keep" id="m21"></td>
+                            </tr>
+                            <!--    total      -->
+                            <tr>
+                                <td colspan="2">實領金額</td>
+                                <td class="total"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">匯款</td>
+                                <td class="ATM"></td>
+                            </tr>
+                            <tr>
+                                <td class="cashT" colspan="2">現金</td>
+                                <td class="cash"></td>
+                            </tr>
+                            
+                        </table>
+                    </div>
                 </div>
 
+                <iframe id="hidden-table" name="hidden-table" style="display: none;"></iframe>
             </div>
         </div>
 
@@ -202,6 +324,51 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                         <button type="button" class="btn btn-primary" @click="updateSalaryCalculationData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRINT SalaryCalculation Modal -->
+        <div class="modal fade" id="printSalaryCalculation" tabindex="-1" role="dialog" aria-labelledby="printSalaryCalculationLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="printSalaryCalculationLabel">資料列印</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <legend  style="font-size: 1rem;">列印類型</legend>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="type" id="radioType1" value="1" v-model="printType">
+                                <label class="form-check-label" for="radioType1">薪資條(pdf)</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="type" id="radioType2" value="2" v-model="printType">
+                                <label class="form-check-label" for="radioType2">薪資條(不含現金)(pdf)</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="type" id="radioType3" value="3"  v-model="printType">
+                                <label class="form-check-label" for="radioType3">薪資條(csv)</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <legend  style="font-size: 1rem;">員工</legend>
+                            <button @click="checkToggle()" type="button"  class="btn btn-link">全選/取消</button>
+                            <div style="height:100%;max-height:200px;overflow-y:scroll;">
+                                <div class="form-check" v-for="(d, index) in printForm">
+                                    <input v-model="printForm[index].check" class="form-check-input check-all" type="checkbox" :value="d.employee_id">
+                                    <label class="form-check-label" for="check" v-text="d.name"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="printSalaryList()">送出</button>
                     </div>
                 </div>
             </div>
@@ -407,6 +574,9 @@
                     </div>
                 </div>
             </div>
+
+            
+
         </div>
 
 
@@ -500,7 +670,12 @@
                     clinic_id: 0,
                     clinic_name:''
                 },
-                work_status: []
+                work_status: [],
+                employeePosition: [],
+                printForm:[],
+                printType: 1,
+                checkAll: false,
+                tableIndex: 1,
             },
             created() {
                 get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
@@ -558,7 +733,19 @@
                                     this.salary_item.push(item.salary_name);
                                 })
                             }
+                            this.employeePosition = res.data[2]
                             this.getClosedDate()
+                            // printForm
+                            this.printForm = []
+                            if(this.data.length > 0) {
+                                this.data.forEach(item => {
+                                    this.printForm.push({
+                                        employee_id: item.employee_id,
+                                        name: item.name,
+                                        check: false
+                                    });
+                                });
+                            }
                             
                         }
                     })
@@ -854,7 +1041,399 @@
                             this.$nextTick()
                         }
                     })
-                }
+                },
+                checkToggle() {
+                    if(this.checkAll === false) {
+                        this.printForm.forEach(item => {
+                            item.check = true;
+                        })
+                    } else {
+                        this.printForm.forEach(item => {
+                            item.check = false;
+                        })
+                    }
+                    this.checkAll = !this.checkAll
+                },
+                printSalaryList() {
+                    //月份確認
+                    const year = this.month.slice(0, 4);
+                    const month = this.month.slice(-2);
+                    
+                    if(parseInt(this.printType) <= 2) {
+                        let printHTML = ``;
+                        document.querySelector('.year').textContent = year;
+                        document.querySelector('.month').textContent = month;
+                        if(parseInt(this.printType) === 1) {
+                            //pdf all
+                            this.data.forEach(item => {
+                                const printData = this.printForm.find(d => d.employee_id === item.employee_id)
+                                if(printData.check === true) {
+                                    const e = this.employeePosition.find(d => d.employee_id === item.employee_id)
+                                    //人 職位
+                                    document.querySelector('.position').textContent = e.position;
+                                    document.querySelector('.name').textContent = item.name;
+                                    //固定加項
+                                    this.tableIndex = 1;
+                                    //判斷兼職 正職
+                                    if(parseInt(item.level_of_position) === 2) {
+                                        this.addItemToColumn('基本薪資', Math.round(parseInt(item.calculation_data.basic_salary) / 30.0 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                    } else {
+                                        this.addItemToColumn('薪津', Math.round(item.calculation_data.hourly_wage * parseFloat(item.statistic_data.total_time)));
+                                    }
+                                    this.addItemToColumn('超時費', item.calculation_data.over_time_fee);
+                                    this.addItemToColumn('加診費', item.calculation_data.bonus_period_fee);
+                                    this.addItemToColumn('伙食津貼總計', item.calculation_data.meal_times_fee);
+                                    this.addItemToColumn('餐費津貼', item.calculation_data.meal_fee ? item.calculation_data.meal_fee : 0);
+                                    //非固定加項
+                                    item.salary_item_data.forEach(item2 => {
+                                        if(parseInt(item2.addORminus) === 1 && parseInt(item2.value) > 0) {
+                                            if(parseInt(item2.is_daily_salary) === 1) {
+                                                //日薪計算基準
+                                                this.addItemToColumn(item2.salary_name, Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                            } else {
+                                                this.addItemToColumn(item2.salary_name, parseInt(item2.value));
+                                            }
+                                        }
+                                    })
+                                    
+                                    this.tableIndex = 12;
+                                    //固定減項
+                                    this.addItemToColumn('請假扣薪', item.calculation_data.leave_all_fee + item.calculation_data.leave_half_fee);
+                                    this.addItemToColumn('遲到扣薪', item.calculation_data.late_fee);
+                                    this.addItemToColumn('早退扣薪', item.calculation_data.early_fee);
+                                    this.addItemToColumn('健保費', item.calculation_data.health_total_fee);
+                                    this.addItemToColumn('勞保費', item.calculation_data.labor_fee);
+                                    //非固定減項
+                                    item.salary_item_data.forEach(item2 => {
+                                        if(parseInt(item2.addORminus) === 0 && parseInt(item2.value) > 0) {
+                                            document.getElementById(`s${i}`).textContent = item2.salary_name;
+                                            if(parseInt(item2.is_daily_salary) === 1) {
+                                                //日薪計算基準
+                                                document.getElementById(`m${i}`).textContent = this.three(Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                            } else{
+                                                document.getElementById(`m${i}`).textContent = this.three(parseInt(item2.value));
+                                            }
+                                            i++;
+                                        }
+                                    })
+                                    //總計
+                                    let add_diff = this.addItemFix(item);
+                                    if(add_diff !== 0) {
+                                        document.getElementById('m1').textContent = parseInt((document.getElementById('m1').textContent).replace(',', '')) + add_diff;
+                                    }
+
+                                    document.getElementById('m11').textContent = this.three(item.calculation_data.add_item);
+                                    document.getElementById('m21').textContent = this.three(item.calculation_data.minus_item);
+                                    document.querySelector('.total').textContent = this.three(item.calculation_data.total_salary);
+                                    document.querySelector('.cash').textContent = this.three(item.calculation_data.cash);
+                                    document.querySelector('.cash').style.display = 'table-cell';
+                                    document.querySelector('.cashT').style.display = 'table-cell';
+                                    document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
+                                    //蒐集html
+                                    printHTML += document.getElementById('salary-table').innerHTML;
+                                    this.cleanTable();
+                                }
+                            });
+                        } else {
+                            //pdf ATM
+                            this.data.forEach(item => {
+                                const printData = this.printForm.find(d => d.employee_id === item.employee_id)
+                                if(printData.check === true) {
+                                    const e = this.employeePosition.find(d => d.employee_id === item.employee_id)
+                                    //人 職位
+                                    document.querySelector('.position').textContent = e.position;
+                                    document.querySelector('.name').textContent = item.name;
+                                    //固定加項
+                                    this.tableIndex = 1;
+                                    //判斷兼職 正職
+                                    if(parseInt(item.level_of_position) === 2) {
+                                        this.addItemToColumn('基本薪資', Math.round(parseInt(item.calculation_data.basic_salary) / 30.0 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                    } else {
+                                        this.addItemToColumn('薪津', Math.round(item.calculation_data.hourly_wage * parseFloat(item.statistic_data.total_time)));
+                                    }
+                                    this.addItemToColumn('超時費', item.calculation_data.over_time_fee);
+                                    this.addItemToColumn('加診費', item.calculation_data.bonus_period_fee);
+                                    this.addItemToColumn('伙食津貼總計', item.calculation_data.meal_times_fee);
+                                    //非固定加項
+                                    let cash_add = 0;
+                                    cash_add += item.calculation_data.meal_fee ? parseInt(item.calculation_data.meal_fee) : 0;
+                                    item.salary_item_data.forEach(item2 => {
+                                        if(parseInt(item2.addORminus) === 1 && parseInt(item2.value) > 0  && parseInt(item2.paid_way) === 0) {
+                                            if(parseInt(item2.is_daily_salary) === 1) {
+                                                //日薪計算基準
+                                                this.addItemToColumn(item2.salary_name, Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                            } else {
+                                                this.addItemToColumn(item2.salary_name, parseInt(item2.value));
+                                            }
+                                        } else if(parseInt(item2.addORminus) === 1 && parseInt(item2.value) > 0  && parseInt(item2.paid_way) === 1) {
+                                            if(parseInt(item2.is_daily_salary) === 1) {
+                                                //日薪計算基準
+                                                cash_add += Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days));
+                                            } else {
+                                                cash_add += parseInt(item2.value);
+                                            }
+                                        }
+                                    })
+                                    
+                                    this.tableIndex = 12;
+                                    //固定減項
+                                    this.addItemToColumn('請假扣薪', item.calculation_data.leave_all_fee + item.calculation_data.leave_half_fee);
+                                    this.addItemToColumn('遲到扣薪', item.calculation_data.late_fee);
+                                    this.addItemToColumn('早退扣薪', item.calculation_data.early_fee);
+                                    this.addItemToColumn('健保費', item.calculation_data.health_total_fee);
+                                    this.addItemToColumn('勞保費', item.calculation_data.labor_fee);
+                                    //非固定減項
+                                    let cash_minus = 0;
+                                    item.salary_item_data.forEach(item2 => {
+                                        if(parseInt(item2.addORminus) === 0 && parseInt(item2.value) > 0 && parseInt(item2.paid_way) === 0) {
+                                            if(parseInt(item2.is_daily_salary) === 1) {
+                                                //日薪計算基準
+                                                this.addItemToColumn(item2.salary_name, Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                            } else{
+                                                this.addItemToColumn(item2.salary_name, parseInt(item2.value));
+                                            }
+                                        } else if(parseInt(item2.addORminus) === 0 && parseInt(item2.value) > 0  && parseInt(item2.paid_way) === 1) {
+                                            if(parseInt(item2.is_daily_salary) === 1) {
+                                                //日薪計算基準
+                                                cash_minus += Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days));
+                                            } else {
+                                                cash_minus += parseInt(item2.value);
+                                            }
+                                        }
+                                    })
+                                    //總計
+                                    let add_diff = this.addItemFix(item);
+                                    if(add_diff !== 0) {
+                                        document.getElementById('m1').textContent = parseInt((document.getElementById('m1').textContent).replace(',', '')) + add_diff;
+                                    }
+
+                                    document.getElementById('m11').textContent = this.three(item.calculation_data.add_item - cash_add);
+                                    document.getElementById('m21').textContent = this.three(item.calculation_data.minus_item - cash_minus);
+                                    document.querySelector('.total').textContent = this.three(item.calculation_data.total_salary - item.calculation_data.cash);
+                                    document.querySelector('.cash').textContent = this.three(item.calculation_data.cash);
+                                    document.querySelector('.cash').style.display = 'none';
+                                    document.querySelector('.cashT').style.display = 'none';
+                                    document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
+                                    //蒐集html
+                                    printHTML += document.getElementById('salary-table').innerHTML;
+                                    this.cleanTable();
+                                }
+                            });
+                        }
+                        //打印
+                        if(printHTML !== '') {
+                            const style = "<style>@page { size:  auto; margin: 0 5px; }body {margin: 0 5px;font-family: Arial;font-size: 10px;}table {display:inline-block;border-collapse: collapse;max-width: 300px; margin-top:5px;margin-left:0;margin-right:2px;}table th {background-color: #fff;color: #333;font-weight: bold;}table th, table td {padding: 1px 5px;border: 1px solid #000;text-align: center;height:16px;}.keep {word-break: keep-all;}.break {word-break: break-all;}</style>"
+                            var win = window.frames['hidden-table'];
+                            win.document.write(`<!DOCTYPE html><html><head><title>薪資條</title>${style}</head><body>${printHTML}</body></html>`);
+                            win.document.close();
+                            win.print();
+                        } else {
+                            alert('請選擇員工!');
+                        }
+                    } else {
+                        //csv all
+                        let data = [];
+                        //正職標題
+                        let FT = ['姓名', '基本薪資', '超時費', '加診費', '伙食津貼總計', '伙食津貼'];
+                        this.salary_item.forEach(item => {
+                            FT.push(item);   
+                        })
+                        FT = FT.concat(['勞保費', '健保費', '請假', '遲到', '早退', '應領金額', '扣項金額', '實領薪津', '轉帳', '現金']);
+                        data.push(['正職'],FT);
+
+                        this.data.forEach(item => {
+                            const printData = this.printForm.find(d => d.employee_id === item.employee_id)
+                            if(printData.check === true) {
+                                if(parseInt(item.level_of_position) === 2){
+                                    let tmp_data = []
+                                    // const e = this.employeePosition.find(d => d.employee_id === item.employee_id)
+                                    tmp_data.push(item.name);
+                                    //加項
+                                    tmp_data.push(Math.round(parseInt(item.calculation_data.basic_salary) / 30.0 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                    tmp_data.push(item.calculation_data.over_time_fee);
+                                    tmp_data.push(item.calculation_data.bonus_period_fee);
+                                    tmp_data.push(item.calculation_data.meal_times_fee);
+                                    tmp_data.push(item.calculation_data.meal_fee ? item.calculation_data.meal_fee : 0);
+                                    //薪項
+                                    item.salary_item_data.forEach(item2 => {
+                                        if(parseInt(item2.is_daily_salary) === 1) {
+                                            //日薪計算基準
+                                            tmp_data.push(Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                        } else {
+                                            tmp_data.push(parseInt(item2.value));
+                                        }
+                                    })
+                                    //減項
+                                    tmp_data.push(item.calculation_data.labor_fee);
+                                    tmp_data.push(item.calculation_data.health_total_fee);
+                                    tmp_data.push(item.calculation_data.leave_all_fee + item.calculation_data.leave_half_fee);
+                                    tmp_data.push(item.calculation_data.late_fee);
+                                    tmp_data.push(item.calculation_data.early_fee);
+                                    //總計
+                                    tmp_data.push(item.calculation_data.add_item);
+                                    tmp_data.push(item.calculation_data.minus_item);
+                                    tmp_data.push(item.calculation_data.total_salary);
+                                    tmp_data.push(item.calculation_data.ATM);
+                                    tmp_data.push(item.calculation_data.cash);
+
+                                    //diff
+                                    let add_diff = this.addItemFix(item);
+                                    if(add_diff !== 0) {
+                                        for(let i = 1; i < tmp_data.length; i++) {
+                                            if(parseInt(tmp_data[i]) > 0) {
+                                                tmp_data[i] = tmp_data[i] + add_diff;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    data.push(tmp_data);
+                                }
+                            }
+                        });
+                        
+                        //兼職標題
+                        FT[1] = '薪津';
+                        data.push([],['兼職'], FT);
+                        //兼職員工
+                        this.data.forEach(item => {
+                            const printData = this.printForm.find(d => d.employee_id === item.employee_id)
+                            if(printData.check === true) {
+                                if(parseInt(item.level_of_position) === 1) {
+                                    let tmp_data = []
+                                    // const e = this.employeePosition.find(d => d.employee_id === item.employee_id)
+                                    tmp_data.push(item.name);
+                                    //加項
+                                    tmp_data.push(Math.round(item.calculation_data.hourly_wage * parseFloat(item.statistic_data.total_time)));
+                                    tmp_data.push(item.calculation_data.over_time_fee);
+                                    tmp_data.push(item.calculation_data.bonus_period_fee);
+                                    tmp_data.push(item.calculation_data.meal_times_fee);
+                                    tmp_data.push(item.calculation_data.meal_fee ? item.calculation_data.meal_fee : 0);
+                                    //薪項
+                                    item.salary_item_data.forEach(item2 => {
+                                        if(parseInt(item2.is_daily_salary) === 1) {
+                                            //日薪計算基準
+                                            tmp_data.push(Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)));
+                                        } else {
+                                            tmp_data.push(parseInt(item2.value));
+                                        }
+                                    })
+                                    //減項
+                                    tmp_data.push(item.calculation_data.labor_fee);
+                                    tmp_data.push(item.calculation_data.health_total_fee);
+                                    tmp_data.push(item.calculation_data.leave_all_fee + item.calculation_data.leave_half_fee);
+                                    tmp_data.push(item.calculation_data.late_fee);
+                                    tmp_data.push(item.calculation_data.early_fee);
+                                    //總計
+                                    tmp_data.push(item.calculation_data.add_item);
+                                    tmp_data.push(item.calculation_data.minus_item);
+                                    tmp_data.push(item.calculation_data.total_salary);
+                                    tmp_data.push(item.calculation_data.ATM);
+                                    tmp_data.push(item.calculation_data.cash);
+                                    //diff
+                                    let add_diff = this.addItemFix(item);
+                                    if(add_diff !== 0) {
+                                        for(let i = 1; i < tmp_data.length; i++) {
+                                            if(parseInt(tmp_data[i]) > 0) {
+                                                tmp_data[i] = tmp_data[i] + add_diff;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    data.push(tmp_data);
+                                }
+                            }
+                        });
+
+                        this.exportCSV(data);
+                    }
+                },
+                three(num) {
+                    const parts = num.toString().split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    return parts.join('.');// '$' +
+                },
+                addItemToColumn(name = '', value = 0) {
+                    if(parseInt(value) > 0) {
+                        document.getElementById(`s${this.tableIndex}`).textContent = name;
+                        document.getElementById(`m${this.tableIndex}`).textContent = this.three(value);
+                        this.tableIndex++;
+                    }
+                },
+                cleanTable() {
+                    const td = document.getElementsByClassName('keep');
+                    const tdLen = td.length;
+                    for(let i = 0;i < tdLen;i++){
+                        //將.kepp的text清空
+                        td[i].textContent = '';
+                    }
+
+                    document.querySelector('.position').textContent = '';
+                    document.querySelector('.name').textContent = '';
+                    document.querySelector('.total').textContent = '';
+                    document.querySelector('.cash').textContent = '';
+                    document.querySelector('.ATM').textContent = '';
+                },
+                exportCSV(rows = [], filename = `${this.month} 薪資條.csv`) {
+                    var processRow = function (row) {
+                        var finalVal = '';
+                        for (var j = 0; j < row.length; j++) {
+                            var innerValue = row[j] === null ? '' : row[j].toString();
+                            if (row[j] instanceof Date) {
+                                innerValue = row[j].toLocaleString();
+                            };
+                            var result = innerValue.replace(/"/g, '""');
+                            if (result.search(/("|,|\n)/g) >= 0)
+                                result = '"' + result + '"';
+                            if (j > 0)
+                                finalVal += ',';
+                            finalVal += result;
+                        }
+                        return finalVal + '\n';
+                    };
+
+                    var csvFile = '';
+                    for (var i = 0; i < rows.length; i++) {
+                        csvFile += processRow(rows[i]);
+                    }
+
+                    var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+                    if (navigator.msSaveBlob) { // IE 10+
+                        navigator.msSaveBlob(blob, filename);
+                    } else {
+                        var link = document.createElement("a");
+                        if (link.download !== undefined) { // feature detection
+                            // Browsers that support HTML5 download attribute
+                            var url = URL.createObjectURL(blob);
+                            link.setAttribute("href", url);
+                            link.setAttribute("download", filename);
+                            link.style.visibility = 'hidden';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }
+                    }
+                },
+                addItemFix(item) {
+                    let diff = 0;
+                    //修正加項金額差額
+                    if(parseInt(item.level_of_position) === 2) {
+                        diff += Math.round(parseInt(item.calculation_data.basic_salary) / 30.0 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days)) + parseInt(item.calculation_data.over_time_fee) + parseInt(item.calculation_data.bonus_period_fee) + parseInt(item.calculation_data.meal_times_fee) + parseInt(item.calculation_data.meal_fee ? item.calculation_data.meal_fee : 0);
+                    } else {
+                        diff += Math.round(item.calculation_data.hourly_wage * parseFloat(item.statistic_data.total_time)) + parseInt(item.calculation_data.over_time_fee) + parseInt(item.calculation_data.bonus_period_fee) + parseInt(item.calculation_data.meal_times_fee) + parseInt(item.calculation_data.meal_fee ? item.calculation_data.meal_fee : 0);
+                    }
+                    //非固定加項
+                    item.salary_item_data.forEach(item2 => {
+                        if(parseInt(item2.addORminus) === 1 && parseInt(item2.value) > 0) {
+                            if(parseInt(item2.is_daily_salary) === 1) {
+                                //日薪計算基準
+                                diff += Math.round(parseInt(item2.value) / 30 * ((item.statistic_data.work_days >= 30) ? 30 : item.statistic_data.work_days));
+                            } else {
+                                diff += parseInt(item2.value);
+                            }
+                        }
+                    })
+                    return parseInt(item.calculation_data.add_item - diff);
+                },
             }
         })
     </script>
