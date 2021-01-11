@@ -219,8 +219,7 @@
                 updateClosedDateData() {
                     const form = $('form').serializeArray()
                     const data = this.serializeToJson(form)
-
-                    post('/api_v1.1/clinic/closed_date/update', JSON.parse(data)).then(res => {
+                    post('/api_v1.1/clinic/closed_date/update?date='+this.month, JSON.parse(data)).then(res => {
                         if (res.code === 200) {
                             alert(res.message)
                             window.location.reload('./assistant.html')
