@@ -557,7 +557,8 @@
                             if(res.code == 403) {
                                 location.href = './index.html'
                             } else {
-                                this.data = res.data
+                                // this.data = res.data
+                                this.data = res.data.sort((a,b) => a.email-b.email)
                                 this.getPositionData()
                                 this.getAttendanceData()
                             }
