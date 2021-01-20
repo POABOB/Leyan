@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>公告</title>
+    <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
+    <link rel="stylesheet" href="../../assets/css/google.font.css">
+    <link rel="stylesheet" href="../../assets/css/ckeditor5.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
+                    <li class="active"><a href="./announce.html">公告</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <table id="table1" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">已讀</th>
+                                <th scope="col">標題</th>
+                                <th scope="col">發布時間</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <tr v-for="(d, index) in data">
+                                    <th scope="row">{{index + 1}}</th>
+                                    <td>
+                                        <input type="checkbox" v-model="postForm" :value="d.id" :disabled="read(d.id)">
+                                    </td>
+                                    <td><p>{{d.title}}</p></td>
+                                    <td><p>{{d.start_at}}</p></td>
+                                    <td>
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#Announce" @click="seeAnnounceData(d.id)">查看</button> 
+                                    </td>
+                                </tr>
+                                <tr v-if="data == null || data.length < 1">
+                                    <td colspan="11" style="text-align: center;">無公告資料</td>
+                                </tr>
+                        </tbody>
+                            
+                    </table>
+                    <div v-if="data !== null" style="text-align: center;"><button class="btn btn-primary" @click="updateAnnounceReadData()">提交已讀公告</button></div>
+                    <div class="d-flex justify-content-center">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination table1" >
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Announce Modal -->
+        <div class="modal fade" id="Announce"  tabindex="-1" role="dialog" aria-labelledby="AnnounceLabel"  data-focus="false">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="AnnounceLabel">公告</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="title">標題</label>
+                                <span v-text="form.title"></span>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="start_at">發布時間</label>
+                                <span v-text="form.start_at"></span>
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="content">公告內容</label>
+                               <div v-html="form.content">
+
+                               </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../../assets/js/loading.js"></script>
+    <script src="../../assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="../../assets/js/q.js"></script>
+    <script src="../../assets/js/popper.min.js"></script>
+    <script src="../../assets/js/bootstrap.min.js"></script>
+    <script src="../../assets/js/vue.js"></script>
+    <script src="../../assets/js/pagination.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+        });
+
+        new Vue({
+            el: "#app",
+            data: {
+                data: [],
+                employee: [],
+                form: {title:'',start_at:'',end_at:'',content:'',id:0},
+                read_id: [],
+                postForm:[],
+                user: {
+                    user_id: 0,
+                    account_number: '',
+                    right: 0,
+                    clinic_id: 0,
+                    clinic_name:''
+                }
+            },
+            created() {
+                get('/api_v1.1/info/employee?token='+window.localStorage.getItem('token')).then(res => {
+                    if(res.code == 403) {
+                        window.localStorage.removeItem('token')
+                        location.href = '../index.html'
+                    } else {
+                        this.user = res.data;
+                        this.getAnnounceData();
+                    }
+                });
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.code === 200) {
+                            window.localStorage.removeItem('token')
+                            alert('success')
+                            location.href = '../index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                getAnnounceData() {
+                    get('/api_v1.1/employee/announce').then(res => {
+                        if (res.code === 200) {
+                            this.data = res.data[0];
+                            this.employee = res.data[1];
+                            //紀錄employee_id
+                            const employee = this.employee.find(d => parseInt(d.user_id) === parseInt(this.user.user_id))
+                            if(employee !== undefined) {
+                                this.user.employee_id = employee.employee_id
+                            }
+                            //紀錄已讀公告id
+                            this.data.forEach(item => {
+                                const _read = JSON.parse(item.employee_read)
+                                const a = _read.find(d => parseInt(d) === parseInt(this.user.employee_id))
+                                if(a !== undefined) {
+                                    this.read_id.push(parseInt(item.id));
+                                }
+                            })
+                            this.postForm = JSON.parse(JSON.stringify(this.read_id));
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                seeAnnounceData(id) {
+                    let a = this.data.find(d => parseInt(d.id) === parseInt(id));
+                    this.form = {title:a.title,start_at:a.start_at,end_at:a.end_at,content:a.content,id:a.id}
+                },
+                updateAnnounceReadData() {
+                    let form = [];
+                    this.postForm.forEach(item => {
+                        const a = this.read_id.find(d => parseInt(d) === parseInt(item));
+                        if(a === undefined) {
+                            form.push(parseInt(item));
+                        }
+                    })
+                    if(form.length !== 0) {
+                        post('/api_v1.1/employee/announce/update', this.form).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                this.getAnnounceData();
+                                this.$nextTick();
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    } else {
+                        alert("請勾選公告!");
+                    }
+                },
+                read(id = 0) {
+                    const a = this.read_id.find(d => parseInt(d) === parseInt(id));
+                    if(a === undefined) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

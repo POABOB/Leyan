@@ -21,6 +21,7 @@
                 <ul class="list-unstyled components">
                     <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
                     <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./announce.html">公告管理</a></li>
                     <li><a href="./employee.html">員工資料</a></li>
                     <li><a href="./closed_date.html">休診設定</a></li>
                     <li><a href="./position.html">崗位設定</a></li>
@@ -130,7 +131,7 @@
                                         <td>{{d2.meal_times}}</td>
                                 </div>
                             </template>
-                            <tr v-show="data == null || data.length < 1">
+                            <tr v-if="data == null || data.length < 1">
                                 <td colspan="30" style="text-align: center;">無薪出勤資料</td>
                             </tr>
                         </tbody>

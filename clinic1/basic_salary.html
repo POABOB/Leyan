@@ -21,6 +21,7 @@
                 <ul class="list-unstyled components">
                     <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
                     <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./announce.html">公告管理</a></li>
                     <li><a href="./employee.html">員工資料</a></li>
                     <li><a href="./closed_date.html">休診設定</a></li>
                     <li><a href="./position.html">崗位設定</a></li>
@@ -63,7 +64,7 @@
                     </div>
                 </nav>
                 <div>
-                    <table class="table table-striped">
+                    <table id="table1" class="table table-striped">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -103,11 +104,17 @@
                                         <button class="btn btn-primary" data-toggle="modal" data-target="#editBasicSalary" @click="editBasicSalaryData(d.employee_id)">編輯</button> 
                                     </td>
                                 </tr>
-                                <tr v-show="data == null || data.length < 1">
+                                <tr v-if="data == null || data.length < 1">
                                     <td colspan="13" style="text-align: center;">無資料</td>
                                 </tr>
                         </tbody>
                     </table>
+                    <div class="d-flex justify-content-center">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination table1" >
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
@@ -229,6 +236,7 @@
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/pagination.js"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -272,21 +280,24 @@
                 },
                 insurance: {
                     //TODO 2021年要更改
-                    // 2020勞健保費率和公式
-                    rank: [11100,12540,13500,15840,16500,17280,17880,19047,20008,21009,22000,23100,23800,24000,25200,26400,27600,28800,30300,31800,33300,34800,36300,38200,40100,42000,43900,45800,48200,50600,53000,55400,57800,60800,63800,66800,69800,72800,76500,80200,83900,87600,92100,96600,101100,105600,110100,115500,120900,126300,131700,137100,142500,147900,150000,156400,162800,169200,175600,182000],
-                    labor_lowest: 11100,
-                    health_lowest: 23800,
-                    //勞保普通事故
-                    larbor_normal_rate: 0.1,
+                    // 2020勞健保費率和公式 rank: [11100,12540,13500,15840,16500,17280,17880,19047,20008,21009,22000,23100,23800,24000,25200,26400,27600,28800,30300,31800,33300,34800,36300,38200,40100,42000,43900,45800,48200,50600,53000,55400,57800,60800,63800,66800,69800,72800,76500,80200,83900,87600,92100,96600,101100,105600,110100,115500,120900,126300,131700,137100,142500,147900,150000,156400,162800,169200,175600,182000],
                     //2021
-                    // larbor_normal_rate: 0.105,
+                    rank: [11100,12540,13500,15840,16500,17280,17880,19047,20008,21009,22000,23100,24000,25200,26400,27600,28800,30300,31800,33300,34800,36300,38200,40100,42000,43900,45800,48200,50600,53000,55400,57800,60800,63800,66800,69800,72800,76500,80200,83900,87600,92100,96600,101100,105600,110100,115500,120900,126300,131700,137100,142500,147900,150000,156400,162800,169200,175600,182000],
+                    labor_lowest: 11100,
+                    health_lowest: 24000,
+                    //勞保普通事故
+                    //2020 larbor_normal_rate: 0.1,
+                    //2021
+                    larbor_normal_rate: 0.105,
                     //就保
                     larbor_rate: 0.01,
                     //勞保職災事故
                     larbor_damage_rate: 0.001,
                     //健保，補助保費者，會優先列入眷口計費，總共最多四位
                     //健保費率
-                    health_rate: 0.0469,
+                    //2020 health_rate: 0.0469,
+                    //2021
+                    health_rate: 0.0517,
                     //人均眷口數
                     average_family: 1.58
                 },
@@ -309,6 +320,9 @@
                     }
                 })
                 
+            },
+            updated() {
+                getPagination('#table1',10);
             },
             methods: {
                 logout() {
@@ -373,10 +387,9 @@
                 },
                 labor_cal() {
                     this.updateForm.labor_insurance = 
-                        parseInt((this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2).toFixed(0))
+                        this.laborRound(this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2);
                 },
                 health_cal() {
-
                     if(this.updateForm.insurance_salary > this.insurance.health_lowest || this.updateForm.insurance_salary == 0) {
                         this.updateForm.health_insurance = parseInt((this.updateForm.insurance_salary * this.insurance.health_rate * 0.3).toFixed(0))
                         let rate = parseFloat(1 - this.updateForm.health_relief)
@@ -434,6 +447,25 @@
                         sum += parseInt(item.value) * op
                     })
                     this.fixed_salary = sum
+                },
+                //勞保特殊進位
+                laborRound(number) {
+                    //進位尾數 4,7,8,9
+                    const lastNum = [4, 7, 8, 9];
+                    let strNumber = number.toString();
+                    var a = strNumber.indexOf(".");
+                    if(a !== -1) {
+                        if(lastNum.find(d => d === parseInt(strNumber.slice(a+1,a+2))) === undefined) {
+                            //捨去
+                            return Math.floor(number);
+                        } else {
+                            //進位
+                            return Math.ceil(number);
+                        }
+                    } else {
+                        //整數
+                        return parseInt(number);
+                    }
                 }
             },
             watch: {
@@ -477,7 +509,7 @@
                 //勞保30天
                 larbor() {
                     //個人
-                    return parseInt((this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2 * (1 - this.updateForm.labor_relief)).toFixed(0))
+                    return this.laborRound(this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2 * (1 - this.updateForm.labor_relief));
                     // //公司
                     // this.insurance_salary * 30 / 30 * ((larbor_normal_rate + larbor_rate) * 0.7 + larbor_damage_rate)
                 },

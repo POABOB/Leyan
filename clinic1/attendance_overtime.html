@@ -21,6 +21,7 @@
                 <ul class="list-unstyled components">
                     <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
                     <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./announce.html">公告管理</a></li>
                     <li><a href="./employee.html">員工資料</a></li>
                     <li><a href="./closed_date.html">休診設定</a></li>
                     <li><a href="./position.html">崗位設定</a></li>
@@ -79,7 +80,7 @@
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
                         <div class="tab-pane fade show active" id="pills-o" role="tabpanel" aria-labelledby="pills-o-tab">
-                            <table class="table table-striped">
+                            <table id="table1" class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
@@ -103,7 +104,7 @@
                                             <input type="checkbox" class="form-control" v-model="d.check">
                                         </td>
                                     </tr>
-                                    <tr v-show="data_o == null || data_o.length < 1">
+                                    <tr v-if="data_o == null || data_o.length < 1">
                                         <td colspan="30" style="text-align: center;">無加班明細</td>
                                     </tr>
                                 </tbody>
@@ -113,9 +114,15 @@
                                     </tr>
                                 </tfoot>
                             </table>
+                            <div class="d-flex justify-content-center">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination table1" >
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="pills-o2" role="tabpanel" aria-labelledby="pills-o2-tab">
-                            <table class="table table-striped">
+                            <table id="table2" class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
@@ -137,11 +144,17 @@
                                             <button class="btn btn-primary" data-toggle="modal" data-target="#updateRecordO2" @click="editRecordO2(d.datetime, d.employee_id, d.over_time)">編輯</button>
                                         </td>
                                     </tr>
-                                    <tr v-show="data_o2 == null || data_o2.length < 1">
+                                    <tr v-if="data_o2 == null || data_o2.length < 1">
                                         <td colspan="30" style="text-align: center;">無加班明細</td>
                                     </tr>
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-center">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination table2" >
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
                     </div>
 
@@ -192,6 +205,7 @@
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/pagination.js"></script>
     <script src="../assets/js/moment.js"></script>
     <script>
         $(document).ready(function () {
@@ -238,6 +252,10 @@
                     }
                 })
                 
+            },
+            updated() {
+                getPagination('#table1',10);
+                getPagination('#table2',10);
             },
             methods: {
                 logout() {

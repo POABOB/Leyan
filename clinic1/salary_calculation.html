@@ -21,6 +21,7 @@
                 <ul class="list-unstyled components">
                     <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
                     <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./announce.html">公告管理</a></li>
                     <li><a href="./employee.html">員工資料</a></li>
                     <li><a href="./closed_date.html">休診設定</a></li>
                     <li><a href="./position.html">崗位設定</a></li>
@@ -71,114 +72,140 @@
                         </div>
                     </div>
                     <p>本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}} 天　應工作總工時：{{detail.work_hours}} 小時</p>
-                    <h3>正職</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">姓名</th>
-                                <th scope="col">固定薪</th>
-                                <th scope="col">日薪</th>
-                                <th scope="col">時薪</th>
-                                <th scope="col">餐費津貼</th>
-                                <th scope="col">超時(加班)費</th>
-                                <th scope="col">伙食津貼</th>
-                                <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
-                                <th scope="col">勞保費</th>
-                                <th scope="col">健保費</th>
-                                <th scope="col">請假(扣全薪)</th>
-                                <th scope="col">請假(扣半薪)</th>
-                                <th scope="col">遲到</th>
-                                <th scope="col">早退</th>
-                                <th scope="col">應領金額</th>
-                                <th scope="col">扣項金額</th>
-                                <th scope="col">實領薪津</th>
-                                <th scope="col">轉帳</th>
-                                <th scope="col">現金</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(d, index) in data_2" v-show="alreadyLeave(d.employee_id)">
-                                <th scope="row">{{index+1}}</th>
-                                <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
-                                <td>{{d.calculation_data.fixed_salary}}</td>
-                                <td>{{d.calculation_data.daily_wage.toFixed(2)}}</td>
-                                <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
-                                <td>{{d.calculation_data.meal_fee}}</td>
-                                <td>{{d.calculation_data.over_time_fee}}</td>
-                                <td>{{d.calculation_data.meal_times_fee}}</td>
-                                <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
-                                <td>{{d.calculation_data.labor_fee}}</td>
-                                <td>{{d.calculation_data.health_total_fee}}</td>
-                                <td>{{d.calculation_data.leave_all_fee}}</td>
-                                <td>{{d.calculation_data.leave_half_fee}}</td>
-                                <td>{{d.calculation_data.late_fee}}</td>
-                                <td>{{d.calculation_data.early_fee}}</td>
-                                <td>{{d.calculation_data.add_item}}</td>
-                                <td>{{d.calculation_data.minus_item}}</td>
-                                <td>{{d.calculation_data.total_salary}}</td>
-                                <td>{{d.calculation_data.ATM}}</td>
-                                <td>{{d.calculation_data.cash}}</td>
-                            </tr>
-                            <tr v-show="data_2 == null || data_2.length < 1">
-                                <td colspan="30" style="text-align: center;">無月薪結算</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <h3>兼職</h3>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">姓名</th>
-                                <th scope="col">時薪</th>
-                                <th scope="col">總工時</th>
-                                <th scope="col">薪津</th>
-                                <th scope="col">餐費津貼</th>
-                                <th scope="col">超時(加班)費</th>
-                                <th scope="col">伙食津貼</th>
-                                <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
-                                <th scope="col">勞保費</th>
-                                <th scope="col">健保費</th>
-                                <th scope="col">請假(扣全薪)</th>
-                                <th scope="col">請假(扣半薪)</th>
-                                <th scope="col">遲到</th>
-                                <th scope="col">早退</th>
-                                <th scope="col">應領金額</th>
-                                <th scope="col">扣項金額</th>
-                                <th scope="col">實領薪津</th>
-                                <th scope="col">轉帳</th>
-                                <th scope="col">現金</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(d, index) in data_1"  v-show="alreadyLeave(d.employee_id)">
-                                <th scope="row">{{index+1}}</th>
-                                <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
-                                <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
-                                <td>{{(parseFloat(d.statistic_data.total_time)).toFixed(2)}}</td>
-                                <td>{{(d.calculation_data.hourly_wage * parseFloat(d.statistic_data.total_time)).toFixed(0)}}</td>
-                                <td>{{d.calculation_data.meal_fee}}</td>
-                                <td>{{d.calculation_data.over_time_fee}}</td>
-                                <td>{{d.calculation_data.meal_times_fee}}</td>
-                                <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
-                                <td>{{d.calculation_data.labor_fee}}</td>
-                                <td>{{d.calculation_data.health_total_fee}}</td>
-                                <td>{{d.calculation_data.leave_all_fee}}</td>
-                                <td>{{d.calculation_data.leave_half_fee}}</td>
-                                <td>{{d.calculation_data.late_fee}}</td>
-                                <td>{{d.calculation_data.early_fee}}</td>
-                                <td>{{d.calculation_data.add_item}}</td>
-                                <td>{{d.calculation_data.minus_item}}</td>
-                                <td>{{d.calculation_data.total_salary}}</td>
-                                <td>{{d.calculation_data.ATM}}</td>
-                                <td>{{d.calculation_data.cash}}</td>
-                            </tr>
-                            <tr v-show="data_1 == null || data_1.length < 1">
-                                <td colspan="30" style="text-align: center;">無月薪結算</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="pills-tab1" data-toggle="pill" href="#pills1" role="tab" aria-controls="pills1" aria-selected="true">正職</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="pills-tab2" data-toggle="pill" href="#pills2" role="tab" aria-controls="pills2" aria-selected="false">兼職</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills1" role="tabpanel" aria-labelledby="pills1">
+                            <h3>正職</h3>
+                            <table id="table1" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">姓名</th>
+                                        <th scope="col">固定薪</th>
+                                        <th scope="col">日薪</th>
+                                        <th scope="col">時薪</th>
+                                        <th scope="col">餐費津貼</th>
+                                        <th scope="col">超時(加班)費</th>
+                                        <th scope="col">伙食津貼</th>
+                                        <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
+                                        <th scope="col">勞保費</th>
+                                        <th scope="col">健保費</th>
+                                        <th scope="col">請假(扣全薪)</th>
+                                        <th scope="col">請假(扣半薪)</th>
+                                        <th scope="col">遲到</th>
+                                        <th scope="col">早退</th>
+                                        <th scope="col">應領金額</th>
+                                        <th scope="col">扣項金額</th>
+                                        <th scope="col">實領薪津</th>
+                                        <th scope="col">轉帳</th>
+                                        <th scope="col">現金</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(d, index) in data_2" v-show="alreadyLeave(d.employee_id)">
+                                        <th scope="row">{{index+1}}</th>
+                                        <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
+                                        <td>{{d.calculation_data.fixed_salary}}</td>
+                                        <td>{{d.calculation_data.daily_wage.toFixed(2)}}</td>
+                                        <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
+                                        <td>{{d.calculation_data.meal_fee}}</td>
+                                        <td>{{d.calculation_data.over_time_fee}}</td>
+                                        <td>{{d.calculation_data.meal_times_fee}}</td>
+                                        <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
+                                        <td>{{d.calculation_data.labor_fee}}</td>
+                                        <td>{{d.calculation_data.health_total_fee}}</td>
+                                        <td>{{d.calculation_data.leave_all_fee}}</td>
+                                        <td>{{d.calculation_data.leave_half_fee}}</td>
+                                        <td>{{d.calculation_data.late_fee}}</td>
+                                        <td>{{d.calculation_data.early_fee}}</td>
+                                        <td>{{d.calculation_data.add_item}}</td>
+                                        <td>{{d.calculation_data.minus_item}}</td>
+                                        <td>{{d.calculation_data.total_salary}}</td>
+                                        <td>{{d.calculation_data.ATM}}</td>
+                                        <td>{{d.calculation_data.cash}}</td>
+                                    </tr>
+                                    <tr v-if="data_2 == null || data_2.length < 1">
+                                        <td colspan="30" style="text-align: center;">無月薪結算</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination table1" >
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade show" id="pills2" role="tabpanel" aria-labelledby="pills2">
+                            <h3>兼職</h3>
+                            <table id="table2" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">姓名</th>
+                                        <th scope="col">時薪</th>
+                                        <th scope="col">總工時</th>
+                                        <th scope="col">薪津</th>
+                                        <th scope="col">餐費津貼</th>
+                                        <th scope="col">超時(加班)費</th>
+                                        <th scope="col">伙食津貼</th>
+                                        <th scope="col" v-for="(d, index) in salary_item">{{d}}</th>
+                                        <th scope="col">勞保費</th>
+                                        <th scope="col">健保費</th>
+                                        <th scope="col">請假(扣全薪)</th>
+                                        <th scope="col">請假(扣半薪)</th>
+                                        <th scope="col">遲到</th>
+                                        <th scope="col">早退</th>
+                                        <th scope="col">應領金額</th>
+                                        <th scope="col">扣項金額</th>
+                                        <th scope="col">實領薪津</th>
+                                        <th scope="col">轉帳</th>
+                                        <th scope="col">現金</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(d, index) in data_1"  v-show="alreadyLeave(d.employee_id)">
+                                        <th scope="row">{{index+1}}</th>
+                                        <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
+                                        <td>{{d.calculation_data.hourly_wage.toFixed(2)}}</td>
+                                        <td>{{(parseFloat(d.statistic_data.total_time)).toFixed(2)}}</td>
+                                        <td>{{(d.calculation_data.hourly_wage * parseFloat(d.statistic_data.total_time)).toFixed(0)}}</td>
+                                        <td>{{d.calculation_data.meal_fee}}</td>
+                                        <td>{{d.calculation_data.over_time_fee}}</td>
+                                        <td>{{d.calculation_data.meal_times_fee}}</td>
+                                        <td v-for="(d1, index) in d.salary_item_data">{{d1.value}}</td>
+                                        <td>{{d.calculation_data.labor_fee}}</td>
+                                        <td>{{d.calculation_data.health_total_fee}}</td>
+                                        <td>{{d.calculation_data.leave_all_fee}}</td>
+                                        <td>{{d.calculation_data.leave_half_fee}}</td>
+                                        <td>{{d.calculation_data.late_fee}}</td>
+                                        <td>{{d.calculation_data.early_fee}}</td>
+                                        <td>{{d.calculation_data.add_item}}</td>
+                                        <td>{{d.calculation_data.minus_item}}</td>
+                                        <td>{{d.calculation_data.total_salary}}</td>
+                                        <td>{{d.calculation_data.ATM}}</td>
+                                        <td>{{d.calculation_data.cash}}</td>
+                                    </tr>
+                                    <tr v-if="data_1 == null || data_1.length < 1">
+                                        <td colspan="30" style="text-align: center;">無月薪結算</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination table2" >
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                     <div id="salary-table" style="display: none;">
                         <table>
                             <tr>
@@ -591,6 +618,7 @@
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/pagination.js"></script>
     <script src="../assets/js/moment.js"></script>
     <script>
         $(document).ready(function () {
@@ -694,6 +722,10 @@
                 })
 
                 
+            },
+            updated() {
+                getPagination('#table1',10);
+                getPagination('#table2',10);
             },
             methods: {
                 logout() {

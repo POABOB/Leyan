@@ -21,6 +21,7 @@
                 <ul class="list-unstyled components">
                     <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
                     <li><a href="./assistant.html">診所管理</a></li>
+                    <li><a href="./announce.html">公告管理</a></li>
                     <li><a href="./employee.html">員工資料</a></li>
                     <li><a href="./closed_date.html">休診設定</a></li>
                     <li><a href="./position.html">崗位設定</a></li>
@@ -61,7 +62,7 @@
                 </nav>
                 <div>
                     <button class="btn btn-primary" data-toggle="modal" data-target="#addShiftSetting">新增班別</button>
-                    <table class="table table-striped">
+                    <table id="table1" class="table table-striped">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -106,11 +107,17 @@
                                         <button class="btn btn-primary" @click="deleteShiftSettingData(d.shift_id)">刪除</button> 
                                     </td>
                                 </tr>
-                                <tr v-show="data == null || data.length < 1">
+                                <tr v-if="data == null || data.length < 1">
                                     <td colspan="4" style="text-align: center;">無班別資料</td>
                                 </tr>
                         </tbody>
                     </table>
+                    <div>
+                        <nav>
+                            <ul class="pagination table1" >
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
@@ -272,6 +279,7 @@
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/pagination.js"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -309,6 +317,9 @@
                     }
                 })
 
+            },
+            updated() {
+                getPagination('#table1',10);
             },
             methods: {
                 logout() {

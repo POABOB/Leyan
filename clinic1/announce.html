@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>公告管理</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/google.font.css">
+    <link rel="stylesheet" href="../assets/css/ckeditor5.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<style>
+    .cke_dialog
+{
+    z-index: 10055 !important;
+}
+</style>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <div class="wrapper"  >
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+                    <p>樂薪考勤系統 - <span v-text="user.clinic_name"></span></p>
+                    <li><a href="./assistant.html">診所管理</a></li>
+                    <li class="active"><a href="./announce.html">公告管理</a></li>
+                    <li><a href="./employee.html">員工資料</a></li>
+                    <li><a href="./closed_date.html">休診設定</a></li>
+                    <li><a href="./position.html">崗位設定</a></li>
+                    <li><a href="./shift_setting.html">班別設定</a></li>
+                    <li v-show="user.right > 2"><a href="./salary_item.html">薪項名稱設定</a></li>
+                    <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
+                    <li><a href="./new_shift.html">新排班表</a></li>
+                    <li><a href="./shift_record.html">打卡明細</a></li>
+                    <li ><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li><a href="./attendance_record.html">出勤明細</a></li>
+                    <li><a href="./attendance_statistic.html">出勤統計表</a></li>
+                    <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
+                </ul>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="navbar-btn">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" @click="logout()">登出</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <div>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addAnnounce" @click="setTime()">新增公告</button>
+                    <table id="table1" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">標題</th>
+                                <th scope="col">發布時間</th>
+                                <th scope="col">結束時間</th>
+                                <th scope="col">已讀人數</th>
+                                <th scope="col" colspan="2">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <tr v-for="(d, index) in data">
+                                    <th scope="row">{{index + 1}}</th>
+                                    <td><p>{{d.title}}</p></td>
+                                    <td><p>{{d.start_at}}</p></td>
+                                    <td><p>{{d.end_at}}</p></td>
+                                    <td><p>{{readNums(d.employee_read)}}</p></td>
+                                    <td>
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#updateAnnounce" @click="editAnnounceData(d.id)">編輯</button> 
+                                        <button class="btn btn-primary" @click="deleteAnnounceData(d.id)">刪除</button> 
+                                    </td>
+                                </tr>
+                                <tr v-if="data == null || data.length < 1">
+                                    <td colspan="11" style="text-align: center;">無公告資料</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-center">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination table1" >
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- addAnnounce Modal -->
+        <div class="modal fade" id="addAnnounce" data-backdrop="static"  tabindex="-1" role="dialog" aria-labelledby="addAnnounceLabel" data-focus="false">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addAnnounceLabel">新增公告</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="title">標題</label>
+                                <input type="text" class="form-control" v-model="addForm.title">
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="start_at">發布時間</label>
+                                <input type="datetime-local" class="form-control" v-model="addForm.start_at">
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="end_at">結束時間</label>
+                                <input type="datetime-local" class="form-control" v-model="addForm.end_at">
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="content">公告內容</label>
+                               <div id="editor1" style="border: 1px solid #ccc;"><p>請輸入內容...</p></div>
+                               <textarea style="display: none;" v-model="addForm.content"></textarea>
+                            </div>              
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="addAnnounceData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- updateAnnounce Modal -->
+        <div class="modal fade" id="updateAnnounce"  data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="updateAnnounceLabel"  data-focus="false">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateAnnounceLabel">編輯公告</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="title">標題</label>
+                                <input type="text" class="form-control" v-model="updateForm.title">
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="start_at">發布時間</label>
+                                <input type="datetime-local" class="form-control" v-model="updateForm.start_at">
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="end_at">結束時間</label>
+                                <input type="datetime-local" class="form-control" v-model="updateForm.end_at">
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="content">公告內容</label>
+                               <div id="editor2" style="border: 1px solid #ccc;"></div>
+                               <textarea style="display: none;" v-model="updateForm.content"></textarea>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="updateAnnounceData()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="../assets/js/popper.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/ckeditor/ckeditor.js"></script>
+    <script src="../assets/js/moment.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+        });
+        
+
+        new Vue({
+            el: "#app",
+            data: {
+                data: [],
+                employee: [],
+                editor1:{},
+                editor2:{},
+                addForm:{title:'',start_at:'',end_at:'',content:''},
+                updateForm: {title:'',start_at:'',end_at:'',content:'',id:0},
+                user: {
+                    user_id: 0,
+                    account_number: '',
+                    right: 0,
+                    clinic_id: 0,
+                    clinic_name:''
+                },
+                config: {
+                    toolbar: {items: ['heading','|','bold','link','bulletedList','numberedList','|','alignment','|','imageUpload','blockQuote','insertTable','mediaEmbed','undo','redo']},
+                    language: 'zh',
+                    image: {toolbar: ['imageTextAlternative','imageStyle:full','imageStyle:side']},
+                    table: {contentToolbar: ['tableColumn','tableRow','mergeTableCells']},
+                    mediaEmbed: {previewsInData: true},
+                    allowedContent: true
+                }
+            },
+            created() {
+                get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
+                    if(res.code == 403) {
+                        window.localStorage.removeItem('token')
+                        location.href = './index.html'
+                    } else {
+                        this.user = res.data;
+                        this.getAnnounceData();
+                    }
+                });
+            },
+            mounted() {
+                InlineEditor
+                    .create( document.querySelector('#editor1'), this.config)
+                    .then( editor => {
+                        window.editor = editor;
+                        this.editor1 = editor;
+                    } )
+                    .catch( err => {
+                        console.error( err.stack );
+                    } );
+                    InlineEditor
+                    .create( document.querySelector('#editor2'), this.config)
+                    .then( editor => {
+                        window.editor = editor;
+                        this.editor2 = editor;
+                    } )
+                    .catch( err => {
+                        console.error( err.stack );
+                    } );
+            },
+            methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.code === 200) {
+                            window.localStorage.removeItem('token')
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+                getAnnounceData() {
+                    get('/api_v1.1/clinic/announce').then(res => {
+                        if (res.code === 200) {
+                            this.data = res.data[0];
+                            this.employee = res.data[1];
+                        }
+                        else {
+                            alert(res.message)
+                            console.log(res.message)
+                        }
+                    })
+                },
+                setTime() {
+                    let s = new Date().Format("yyyy-MM-ddThh:mm:ss")
+                    this.addForm.start_at = s;
+                    s = new Date(new Date().Format("yyyy-MM-ddThh:mm:ss"));
+                    let e = s.setFullYear(s.getFullYear()+1);
+                    this.addForm.end_at = new Date(e).Format("yyyy-MM-ddThh:mm:ss");
+                },
+                addAnnounceData() {
+                    this.addForm.content = this.editor1.getData();
+                    if(this.validateForm(this.addForm)) {
+                        post('/api_v1.1/clinic/announce/add', this.addForm).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                this.addForm = {title:'',start_at:'',end_at:'',content:''};
+                                this.editor1.setData('<p>請輸入內容...</p>');
+                                this.getAnnounceData();
+                                this.$nextTick();
+                                $('#addAnnounce').modal('hide');
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
+                },
+                editAnnounceData(id) {
+                    let a = this.data.find(d => parseInt(d.id) === parseInt(id));
+                    a.start_at = a.start_at.replace(' ', 'T');
+                    a.end_at = a.end_at.replace(' ', 'T');
+                    this.updateForm = {title:a.title,start_at:a.start_at,end_at:a.end_at,content:a.content,id:a.id}
+                    this.editor2.setData(a.content);
+                },
+                updateAnnounceData() {
+                    this.updateForm.content = this.editor2.getData();
+                    if(this.validateForm(this.updateForm)) {
+                        post('/api_v1.1/clinic/announce/update', this.updateForm).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                this.getAnnounceData();
+                                this.$nextTick();
+                                $('#updateAnnounce').modal('hide');
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
+                },
+                deleteAnnounceData(id = 0) {
+                    if(confirm("請問是否要刪除這篇公告?")) {
+                        post('/api_v1.1/clinic/announce/delete', {id: id}).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message);
+                                this.getAnnounceData();
+                                this.$nextTick();
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
+                },
+                readNums(employee_read = []) {
+                    return 0;
+                },
+                validateForm(form) {
+                    if(form.title === ""){
+                        alert("請輸入標題!");
+                        return 0;
+                    } else if (form.start_at === "") {
+                        alert("請選擇發布日期!");
+                        return 0;
+                    } else if(form.end_at === "") {
+                        alert("請選擇結束日期!");
+                        return 0;
+                    } else if (form.content === "") {
+                        alert("請輸入公告內容!");
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>
