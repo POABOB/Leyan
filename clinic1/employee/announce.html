@@ -213,15 +213,16 @@
                     this.form = {title:a.title,start_at:a.start_at,end_at:a.end_at,content:a.content,id:a.id}
                 },
                 updateAnnounceReadData() {
-                    let form = [];
+                    let form = {id: [], employee_id: 0};
                     this.postForm.forEach(item => {
                         const a = this.read_id.find(d => parseInt(d) === parseInt(item));
                         if(a === undefined) {
-                            form.push(parseInt(item));
+                            form['id'].push(parseInt(item));
                         }
                     })
-                    if(form.length !== 0) {
-                        post('/api_v1.1/employee/announce/update', this.form).then(res => {
+                    form['employee_id'] = this.user.employee_id;
+                    if(form['id'].length !== 0) {
+                        post('/api_v1.1/employee/announce/update', form).then(res => {
                             if (res.code === 200) {
                                 alert(res.message)
                                 this.getAnnounceData();

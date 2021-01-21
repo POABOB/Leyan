@@ -86,7 +86,7 @@
                                     <td><p>{{d.title}}</p></td>
                                     <td><p>{{d.start_at}}</p></td>
                                     <td><p>{{d.end_at}}</p></td>
-                                    <td><p>{{readNums(d.employee_read)}}</p></td>
+                                    <td><button  class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisAnnounceRead"  @click="showThisAnnounceRead(d.id)">{{readNums(d.employee_read)}}</button></td>
                                     <td>
                                         <button class="btn btn-primary" data-toggle="modal" data-target="#updateAnnounce" @click="editAnnounceData(d.id)">編輯</button> 
                                         <button class="btn btn-primary" @click="deleteAnnounceData(d.id)">刪除</button> 
@@ -186,6 +186,30 @@
             </div>
         </div>
 
+        <!-- showThisAnnounceRead Modal -->
+        <div class="modal fade" id="showThisAnnounceRead" tabindex="-1" role="dialog" aria-labelledby="showThisAnnounceReadLabel"  data-focus="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="showThisAnnounceReadLabel">已讀員工</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>當月員工</p>
+                        <span v-text="renderEmployee('all')"></span>
+                        <hr>
+                        <p>已讀員工</p>
+                        <span v-text="renderEmployee('read')"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script src="../assets/js/loading.js"></script>
@@ -215,6 +239,7 @@
                 editor2:{},
                 addForm:{title:'',start_at:'',end_at:'',content:''},
                 updateForm: {title:'',start_at:'',end_at:'',content:'',id:0},
+                readEmployee:[],
                 user: {
                     user_id: 0,
                     account_number: '',
@@ -354,7 +379,36 @@
                     }
                 },
                 readNums(employee_read = []) {
-                    return 0;
+                    let count = 0;
+                    employee_read = JSON.parse(employee_read);
+                    employee_read.forEach(item => {
+                        const a = this.employee.find(d => parseInt(d.employee_id) === parseInt(item));
+                        if(a !== undefined) {
+                            count++;
+                        }
+                    })
+                    return `${count} / ${this.employee.length}`;
+                },
+                showThisAnnounceRead(id) {
+                    let a = this.data.find(d => parseInt(d.id) === parseInt(id));
+                    this.readEmployee = JSON.parse(a.employee_read);
+                },
+                renderEmployee(type = 'all') {
+                    let text = ''
+                    if(type === 'all') {
+                        this.employee.forEach(item => {
+                            text += `${item.name}、`;
+                        })
+                    } else if(type === 'read') {
+                        this.readEmployee.forEach(item => {
+                            const a = this.employee.find(d => parseInt(d.employee_id) === parseInt(item))
+                            text += `${a.name}、`;
+                        })
+                    }
+                    if(text === "") {
+                        text = "無 ";
+                    }
+                    return text.slice(0, -1);
                 },
                 validateForm(form) {
                     if(form.title === ""){
