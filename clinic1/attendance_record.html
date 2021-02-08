@@ -30,7 +30,7 @@
                     <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
-                    <li ><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li ><a href="./attendance_overtime.html">稽核明細</a></li>
                     <li  class="active"><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
@@ -53,6 +53,10 @@
 
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item" style="margin: auto;">
+                                    <img width="25" height="25" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAACqklEQVRoge3Zy29NURTH8U/JNdGWgTCqBBOPxGtATEww8aom+hcYif/AY0oYMmLolRYzM48ZkWAiEdqiAxLvRrRGFa3Bvk33PbTncU+dRu43Wcm+95y19m+du8/aj0uLFi3KpIZeXMcAftRtANfq12qVqUuhB68wmWKvcKgijX9lAc5KF560M3XfykmK/4jj2ITFdduME/VrySQqpUejoD60z3J/B/oTPt1zrHFGFmkc831oy+DXhhuR35CKXuxejcNmtiefpAOfIv/DRUU08xL1RO3zQrnMyhguRJ8rqUqDpp/gxgL+myP/gRJ1ZWYsEpBn+EzRHvmPFRVRZR2O+54oI0he3kft1QX8Y58PRUU0k8DTqH2ggH/s86QJHYVJltGOHL6d+KyEMtoMNY0TWb/sE9lN82AiI9TveFlww+y/RKdG8RM4OMcaUzmjMYlPOIktQqlsr7dPaRw2kzhdgd4/WODPJNJsQhA/L5bTU3QL4zlN/JB5MGxmoiZUlKt4KcywY3iBK/Vr83ZL2aLF/0wXbmFU/tOHvDYqTHZdZYof+QfCkzZSVhK3KhA/ZTfLSCAeNtvKCJjC9qi/72k3Z1k9Tua8vwwy95llLRJv9/7FLJqrjywJjETtVfm0FCLX9jRLAs+i9u58WgqxJ2pfLCPgUdMv1VssKSPoDCzBu6i/PbPfno3FiaAPFDsHSqMdD6N+HmNhWcH34lcU/DV2lhW8Hut1FH8cW0uMD44JFSneVd3BPsWqUw37cTcR96ccpxR563o3LmF54vtR3MMjYfPyBl+FzUybMDyWYQ3WY4dQEDoTcb7gCG7n1JWL5cLualx5S4ZxXMaKuRSeZCXOYbgJ4cPCX1SFF21lLQ3WYRc2YK2Q3FLT1eoHvglleBDPcV9Fx+otWvxP/AYbWExd//xgHAAAAABJRU5ErkJggg=="/>
+                                    {{user.name ? user.name : user.account_number}}
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="#" @click="logout()">登出</a>
                                 </li>
@@ -112,17 +116,17 @@
                                         <td>{{d2.date.slice(-2)}}</td>
                                         <td>{{d2.day}}</td>
                                         <td>{{d2.shift_name}}</td>
-                                        <td>{{d2.data[0].slice(11,16)}}</td>
+                                        <td>{{datetimeFix(d2.data[0])}}</td>
                                         <td>{{d2.on_1st_l}}</td>
-                                        <td>{{d2.data[1].slice(11,16)}}</td>
+                                        <td>{{datetimeFix(d2.data[1])}}</td>
                                         <td>{{d2.off_1st_l}}</td>
-                                        <td>{{d2.data[2].slice(11,16)}}</td>
+                                        <td>{{datetimeFix(d2.data[2])}}</td>
                                         <td>{{d2.on_2nd_l}}</td>
-                                        <td>{{d2.data[3].slice(11,16)}}</td>
+                                        <td>{{datetimeFix(d2.data[3])}}</td>
                                         <td>{{d2.off_2nd_l}}</td>
-                                        <td>{{d2.data[4].slice(11,16)}}</td>
+                                        <td>{{datetimeFix(d2.data[4])}}</td>
                                         <td>{{d2.on_3rd_l}}</td>
-                                        <td>{{d2.data[5].slice(11,16)}}</td>
+                                        <td>{{datetimeFix(d2.data[5])}}</td>
                                         <td>{{d2.off_3rd_l}}</td>
                                         <td>{{d2.total_time}}</td>
                                         <td>{{d2.over_time}}</td>
@@ -297,7 +301,9 @@
                             location.href = './index.html'
                         } else if(res.code == 200) {
                             alert('更新成功!')
-                            window.location.reload('./attendance_record.html')
+                            this.getAttendanceRecordData();
+                            $('#updateAttendance').modal('toggle');
+                            this.$nextTick();
                         }
                     })
                 },
@@ -354,6 +360,13 @@
                         options
                     })
                     window.open(doc.output('bloburl'), '_blank');
+                },
+                datetimeFix(datetime = "00:00:00") {
+                    if(datetime.length > 10) {
+                        return datetime.substr(11, 16);
+                    } else {
+                        return datetime.substr(0, 5);
+                    }
                 }
             },
             watch: {

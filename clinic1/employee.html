@@ -30,7 +30,7 @@
                     <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
-                    <li ><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li ><a href="./attendance_overtime.html">稽核明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
@@ -53,6 +53,10 @@
 
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item" style="margin: auto;">
+                                    <img width="25" height="25" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAACqklEQVRoge3Zy29NURTH8U/JNdGWgTCqBBOPxGtATEww8aom+hcYif/AY0oYMmLolRYzM48ZkWAiEdqiAxLvRrRGFa3Bvk33PbTncU+dRu43Wcm+95y19m+du8/aj0uLFi3KpIZeXMcAftRtANfq12qVqUuhB68wmWKvcKgijX9lAc5KF560M3XfykmK/4jj2ITFdduME/VrySQqpUejoD60z3J/B/oTPt1zrHFGFmkc831oy+DXhhuR35CKXuxejcNmtiefpAOfIv/DRUU08xL1RO3zQrnMyhguRJ8rqUqDpp/gxgL+myP/gRJ1ZWYsEpBn+EzRHvmPFRVRZR2O+54oI0he3kft1QX8Y58PRUU0k8DTqH2ggH/s86QJHYVJltGOHL6d+KyEMtoMNY0TWb/sE9lN82AiI9TveFlww+y/RKdG8RM4OMcaUzmjMYlPOIktQqlsr7dPaRw2kzhdgd4/WODPJNJsQhA/L5bTU3QL4zlN/JB5MGxmoiZUlKt4KcywY3iBK/Vr83ZL2aLF/0wXbmFU/tOHvDYqTHZdZYof+QfCkzZSVhK3KhA/ZTfLSCAeNtvKCJjC9qi/72k3Z1k9Tua8vwwy95llLRJv9/7FLJqrjywJjETtVfm0FCLX9jRLAs+i9u58WgqxJ2pfLCPgUdMv1VssKSPoDCzBu6i/PbPfno3FiaAPFDsHSqMdD6N+HmNhWcH34lcU/DV2lhW8Hut1FH8cW0uMD44JFSneVd3BPsWqUw37cTcR96ccpxR563o3LmF54vtR3MMjYfPyBl+FzUybMDyWYQ3WY4dQEDoTcb7gCG7n1JWL5cLualx5S4ZxXMaKuRSeZCXOYbgJ4cPCX1SFF21lLQ3WYRc2YK2Q3FLT1eoHvglleBDPcV9Fx+otWvxP/AYbWExd//xgHAAAAABJRU5ErkJggg=="/>
+                                    {{user.name ? user.name : user.account_number}}
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="./employee_leave.html">離職名單</a>
                                 </li>
@@ -128,105 +132,105 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form id="employeeForm">
+                        <form ref="employeeForm" id="employeeForm">
                             <div class="form-row">
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="name">*姓名</label>
-                                    <input class="form-control resetByAdd" type="text" id="name">
+                                    <input class="form-control resetByAdd" type="text" id="name" required maxlength="32">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="nickname">*暱稱</label>
-                                    <input class="form-control resetByAdd" type="text" id="nickname">
+                                    <input class="form-control resetByAdd" type="text" id="nickname" required maxlength="10">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="work_at">*工作日</label>
-                                    <input class="form-control resetByAdd" type="date" id="work_at">
+                                    <input class="form-control resetByAdd" type="date" id="work_at" required maxlength="10">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="position">*職稱</label>
-                                    <input class="form-control resetByAdd" type="text" id="position">
+                                    <input class="form-control resetByAdd" type="text" id="position" required maxlength="20">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="level_of_position">*職別</label>
-                                    <select class="form-control resetByAdd" name="level_of_position" id="level_of_position">
-                                        <option value="0">試用</option>
+                                    <select class="form-control resetByAdd" name="level_of_position" id="level_of_position" required>
+                                        <!-- <option value="0">試用</option> -->
                                         <option value="1">兼職</option>
-                                        <option value="2" selected>正職</option>
+                                        <option value="2" selected="selected">正職</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="gender">*性別</label>
-                                    <select class="form-control resetByAdd" name="gender" id="gender">
+                                    <select class="form-control resetByAdd" name="gender" id="gender" required>
                                         <option value="0">男</option>
-                                        <option value="1">女</option>
+                                        <option value="1" selected="selected">女</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="status">*狀態</label>
-                                    <select class="form-control resetByAdd" name="status" id="status">
+                                    <select class="form-control resetByAdd" name="status" id="status" required>
                                         <option value="1">休假</option>
-                                        <option value="2" selected>在職</option>
+                                        <option value="2" selected="selected">在職</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="cellphone">*手機</label>
-                                    <input class="form-control resetByAdd" type="text" id="cellphone">
+                                    <input class="form-control resetByAdd" type="text" id="cellphone" required maxlength="15">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="id_card_number">*身份證字號<span style="color:crimson">(登入密碼)</span></label>
-                                    <input class="form-control resetByAdd" type="text" id="id_card_number">
+                                    <input class="form-control resetByAdd" type="text" id="id_card_number" required maxlength="10">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="email">*email<span style="color:crimson">(<span v-text="user.clinic_code"></span>_開頭，登入帳號)</span></label>
-                                    <input class="form-control resetByAdd" type="text" id="email">
+                                    <input class="form-control resetByAdd" type="text" id="email" required maxlength="128">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="job_number">工號</label>
-                                    <input class="form-control resetByAdd" type="text" id="job_number">
+                                    <input class="form-control resetByAdd" type="text" id="job_number" maxlength="64">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="birthday">生日</label>
-                                    <input class="form-control resetByAdd" type="date" id="birthday">
+                                    <input class="form-control resetByAdd" type="date" id="birthday" maxlength="10">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="telephone">家電</label>
-                                    <input class="form-control resetByAdd" type="text" id="telephone">
+                                    <input class="form-control resetByAdd" type="text" id="telephone" maxlength="15">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="blood_type">血型</label>
-                                    <input class="form-control resetByAdd" type="text" id="blood_type">
+                                    <input class="form-control resetByAdd" type="text" id="blood_type" maxlength="2">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="resistence_phone">戶籍電話</label>
-                                    <input class="form-control resetByAdd" type="text" id="resistence_phone">
+                                    <input class="form-control resetByAdd" type="text" id="resistence_phone" maxlength="15">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="resistence_address">戶籍地址</label>
-                                    <input class="form-control resetByAdd" type="text" id="resistence_address">
+                                    <input class="form-control resetByAdd" type="text" id="resistence_address" maxlength="128">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="mailing_phone">聯絡電話</label>
-                                    <input class="form-control resetByAdd" type="text" id="mailing_phone">
+                                    <input class="form-control resetByAdd" type="text" id="mailing_phone" maxlength="15">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="mailing_address">聯絡地址</label>
-                                    <input class="form-control resetByAdd" type="text" id="mailing_address">
+                                    <input class="form-control resetByAdd" type="text" id="mailing_address" maxlength="128">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="emergency_contact">緊急聯絡人</label>
-                                    <input class="form-control resetByAdd" type="text" id="emergency_contact">
+                                    <input class="form-control resetByAdd" type="text" id="emergency_contact" maxlength="32">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="emergency_phone">緊急聯絡人電話</label>
-                                    <input class="form-control resetByAdd" type="text" id="emergency_phone">
+                                    <input class="form-control resetByAdd" type="text" id="emergency_phone" maxlength="15">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="emergency_relationship">緊急聯絡人關係</label>
-                                    <input class="form-control resetByAdd" type="text" id="emergency_relationship">
+                                    <input class="form-control resetByAdd" type="text" id="emergency_relationship" maxlength="10">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <label for="assistant_number">助理人數</label>
-                                    <input class="form-control resetByAdd" type="text" id="assistant_number">
+                                    <input class="form-control resetByAdd" type="text" id="assistant_number" maxlength="2">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
                                     <input class="form-control resetByAdd" type="hidden" id="employee_id">
@@ -490,6 +494,21 @@
                                 </div>
                                 
                             </li>
+                            <li class="list-group-item form-inline">
+                                <div class="form-group mx-sm-3 mb-1">
+                                    <input type="checkbox" id="is_before" v-model="AForm.is_before.onORoff"  :true-value="1" :false-value="0">是否計算早到，上班
+                                    <input type="text" class="form-control" size="1" id="is_before_1" v-model="AForm.is_before.param1">
+                                    分鐘前算早到，開始計算時間為上班時間加
+                                    <input type="text" class="form-control" size="1" id="is_before_2" v-model="AForm.is_before.param2">分鐘
+                                </div>
+                            </li>
+                            <li class="list-group-item form-inline">
+                                <div class="form-group mx-sm-3 mb-2">
+                                    <input type="checkbox" id="is_early"  v-model="AForm.is_early.onORoff"  :true-value="1" :false-value="0">是否計算早退時間，下班
+                                    <input type="text" class="form-control" size="1" id="is_early_1"  v-model="AForm.is_early.param1">分鐘前算早退
+                                </div>
+                                
+                            </li>
                         </ul>
                     </div>
                     <div class="modal-footer">
@@ -535,15 +554,10 @@
                     position_id: 0
                 },
                 AForm : {
-                    is_delay: {
-                        onORoff:1,
-                        param1:0
-                    },
-                    is_overtime: {
-                        onORoff:1,
-                        param1:0,
-                        param2:0
-                    }
+                    is_delay: { onORoff:1, param1:0 },
+                    is_overtime: { onORoff:1, param1:0, param2:0 },
+                    is_early: { onORoff:1, param1:0 },
+                    is_before: { onORoff:1, param1:0, param2:0 }
                 },
                 user: {
                     user_id: 0,
@@ -594,6 +608,9 @@
                     $('.btn-update').css('display', 'none')
                     $('.btn-add').css('display', 'block')
                     $('.resetByAdd').val('')
+                    $('#status').val('2');
+                    $('#gender').val('1');
+                    $('#level_of_position').val('2');
                 },
                 addEmployeeData() {
                     const data = {
@@ -622,17 +639,25 @@
                     }
                     //正則
                     if(this.emailRegExp($('#email').val())) {
-                        post('/api_v1.1/clinic/employee/add', data).then(res => {
-                            if (res.code === 200) {
-                                alert(res.message)
-                                window.location.reload('./employee.html')
-                                return
-                            }
-                            else {
-                                alert(res.message)
-                                console.log(res.message)
-                            }
-                        })
+                        if (this.$refs.employeeForm.checkValidity()) {
+                            post('/api_v1.1/clinic/employee/add', data).then(res => {
+                                if (res.code === 200) {
+                                    alert(res.message)
+                                    window.location.reload('./employee.html')
+                                    return
+                                }
+                                else {
+                                    let errorMsg = res.message+':'
+                                    const data = res.data !== null ? res.data : []
+                                    Object.values(data).forEach((item, key) => {
+                                        errorMsg += `\n${key+1}. ${item}`
+                                    })
+                                    alert(errorMsg)
+                                }
+                            })
+                        } else {
+                            this.$refs.employeeForm.reportValidity();
+                        }
                     }
                 },
                 getEmployeeData(index) {
@@ -690,17 +715,25 @@
                     }
                     //正則
                     if(this.emailRegExp($('#email').val())) {
-                        post('/api_v1.1/clinic/employee/update', data).then(res => {
-                            if (res.code === 200) {
-                                alert(res.message)
-                                window.location.reload('./employee.html')
-                                return
-                            }
-                            else {
-                                alert(res.message)
-                                console.log(res.message)
-                            }
-                        })
+                        if (this.$refs.employeeForm.checkValidity()) {
+                            post('/api_v1.1/clinic/employee/update', data).then(res => {
+                                if (res.code === 200) {
+                                    alert(res.message)
+                                    window.location.reload('./employee.html')
+                                    return
+                                }
+                                else {
+                                    let errorMsg = res.message+':'
+                                    const data = res.data !== null ? res.data : []
+                                    Object.values(data).forEach((item, key) => {
+                                        errorMsg += `\n${key+1}. ${item}`
+                                    })
+                                    alert(errorMsg)
+                                }
+                            })
+                        } else {
+                            this.$refs.employeeForm.reportValidity();
+                        }
                     }
                 },
                 getLeaveData(index) {

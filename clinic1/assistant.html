@@ -30,7 +30,7 @@
                     <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
-                    <li v-show="user.right > 2"><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li v-show="user.right > 2"><a href="./attendance_overtime.html">稽核明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
@@ -53,6 +53,10 @@
 
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item" style="margin: auto;">
+                                    <img width="25" height="25" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAACqklEQVRoge3Zy29NURTH8U/JNdGWgTCqBBOPxGtATEww8aom+hcYif/AY0oYMmLolRYzM48ZkWAiEdqiAxLvRrRGFa3Bvk33PbTncU+dRu43Wcm+95y19m+du8/aj0uLFi3KpIZeXMcAftRtANfq12qVqUuhB68wmWKvcKgijX9lAc5KF560M3XfykmK/4jj2ITFdduME/VrySQqpUejoD60z3J/B/oTPt1zrHFGFmkc831oy+DXhhuR35CKXuxejcNmtiefpAOfIv/DRUU08xL1RO3zQrnMyhguRJ8rqUqDpp/gxgL+myP/gRJ1ZWYsEpBn+EzRHvmPFRVRZR2O+54oI0he3kft1QX8Y58PRUU0k8DTqH2ggH/s86QJHYVJltGOHL6d+KyEMtoMNY0TWb/sE9lN82AiI9TveFlww+y/RKdG8RM4OMcaUzmjMYlPOIktQqlsr7dPaRw2kzhdgd4/WODPJNJsQhA/L5bTU3QL4zlN/JB5MGxmoiZUlKt4KcywY3iBK/Vr83ZL2aLF/0wXbmFU/tOHvDYqTHZdZYof+QfCkzZSVhK3KhA/ZTfLSCAeNtvKCJjC9qi/72k3Z1k9Tua8vwwy95llLRJv9/7FLJqrjywJjETtVfm0FCLX9jRLAs+i9u58WgqxJ2pfLCPgUdMv1VssKSPoDCzBu6i/PbPfno3FiaAPFDsHSqMdD6N+HmNhWcH34lcU/DV2lhW8Hut1FH8cW0uMD44JFSneVd3BPsWqUw37cTcR96ccpxR563o3LmF54vtR3MMjYfPyBl+FzUybMDyWYQ3WY4dQEDoTcb7gCG7n1JWL5cLualx5S4ZxXMaKuRSeZCXOYbgJ4cPCX1SFF21lLQ3WYRc2YK2Q3FLT1eoHvglleBDPcV9Fx+otWvxP/AYbWExd//xgHAAAAABJRU5ErkJggg=="/>
+                                    {{user.name ? user.name : user.account_number}}
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="#" data-toggle="modal" data-target="#changePassword">更改密碼</a>
                                 </li>
@@ -70,6 +74,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">帳號</th>
+                                <th scope="col">名稱</th>
                                 <th scope="col">權限</th>
                                 <th scope="col" colspan="2">操作</th>
                             </tr>
@@ -78,9 +83,10 @@
                                 <tr v-for="(d, index) in data">
                                     <th scope="row">{{index + 1}}</th>
                                     <td><p>{{d.account_number}}</p></td>
+                                    <td><p>{{d.name ? d.name : '無'}}</p></td>
                                     <td><p v-show="d.right == 4">診所老闆</p><p v-show="d.right == 3">管理員</p><p v-show="d.right == 2">助理</p></td>                         
                                     <td>
-                                        <button v-if="user.right >= d.right" class="btn btn-primary" data-toggle="modal" data-target="#updateAssistant" @click="getUpdateAssistantData(d.account_number, d.right, d.user_id)">編輯</button> 
+                                        <button v-if="user.right >= d.right" class="btn btn-primary" data-toggle="modal" data-target="#updateAssistant" @click="getUpdateAssistantData(d.user_id)">編輯</button> 
                                         <button v-if="user.right > d.right" class="btn btn-primary" @click="deleteAssistantData(d.user_id)">刪除</button> 
                                     </td>
                                 </tr>
@@ -111,6 +117,10 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">名稱</label>
+                            <input v-model="form.name" type="text" class="form-control" id="name">
+                        </div>
                         <div class="form-group">
                             <label for="account_number">帳號</label>
                             <input v-model="form.account_number" type="text" class="form-control" id="account_number">
@@ -150,6 +160,10 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">名稱</label>
+                            <input v-model="updateForm.name" type="text" class="form-control" id="update_name">
+                        </div>
                         <div class="form-group">
                             <label for="account_number">帳號</label>
                             <input v-model="updateForm.account_number" type="text" class="form-control" id="update_account_number">
@@ -234,12 +248,14 @@
                     clinic_name:''
                 },
                 form: {
+                    name: '',
                     account_number: '',
                     password: '',
                     passconf: '',
-                    right: '',
+                    right: '3',
                 },
                 updateForm: {
+                    name: '',
                     account_number: '',
                     right: '',
                     user_id: 0,
@@ -252,13 +268,7 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
-                        get('/api_v1.1/clinic/assistant').then(res => {
-                            if(res.code == 403) {
-                                location.href = './index.html'
-                            } else {
-                                this.data = res.data
-                            }
-                        })
+                        this.getAssistantData();
                     }
                 })
                 
@@ -280,6 +290,15 @@
                         }
                     })
                 },
+                getAssistantData() {
+                    get('/api_v1.1/clinic/assistant').then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else {
+                            this.data = res.data
+                        }
+                    });
+                },
                 addAssistantData() {
                     if(this.form.account_number === '' || this.form.password === '' || this.form.passconf === '') {
                         alert('請輸入帳號或密碼!');
@@ -290,31 +309,36 @@
                     } else {
                         post('/api_v1.1/clinic/assistant/add', this.form).then(res => {
                             if (res.code === 200) {
-                                alert(res.message)
-                                window.location.reload('./assistant.html')
+                                alert(res.message);
+                                this.form = {account_number: '',password: '',passconf: '',right: '3'};
+                                this.getAssistantData();
+                                $('#addAssistant').modal('toggle');
+                                this.$nextTick();
                             }
                             else {
-                                alert(res.message)
-                                console.log(res.message)
+                                alert(res.message);
+                                console.log(res.message);
                             }
                         })
                     }
                     
                 },
-                getUpdateAssistantData(account_number, right, user_id) {
-                    this.updateForm.account_number = account_number
-                    this.updateForm.right = right
-                    this.updateForm.user_id = user_id
+                getUpdateAssistantData(user_id) {
+                    const user = this.data.find(d => d.user_id === user_id)
+                    this.updateForm = JSON.parse(JSON.stringify(user));
                 },
                 updateAssistantData() {
                     post('/api_v1.1/clinic/assistant/update/email', this.updateForm).then(res => {
                         if (res.code === 200) {
-                            alert(res.message)
-                            window.location.reload('./assistant.html')
+                            alert(res.message);
+                            this.updateForm = {account_number: '', user_id: '',right: '', clinic_id: ''};
+                            this.getAssistantData();
+                            $('#updateAssistant').modal('toggle');
+                            this.$nextTick();
                         }
                         else {
-                            alert(res.message)
-                            console.log(res.message)
+                            alert(res.message);
+                            console.log(res.message);
                         }
                     })
                 },
@@ -325,12 +349,13 @@
                         }
                         post('/api_v1.1/clinic/assistant/delete', data).then(res => {
                             if (res.code === 200) {
-                                alert(res.message)
-                                window.location.reload('./assistant.html')
+                                alert(res.message);
+                                this.getAssistantData();
+                                this.$nextTick();
                             }
                             else {
-                                alert(res.message)
-                                console.log(res.message)
+                                alert(res.message);
+                                console.log(res.message);
                             }
                         })
                     }

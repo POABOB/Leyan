@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>加班明細</title>
+    <title>稽核明細</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/loading.css">
     <link rel="stylesheet" href="../assets/css/google.font.css">
@@ -30,7 +30,7 @@
                     <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
-                    <li class="active"><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li class="active"><a href="./attendance_overtime.html">稽核明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
@@ -53,6 +53,10 @@
 
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item" style="margin: auto;">
+                                    <img width="25" height="25" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAACqklEQVRoge3Zy29NURTH8U/JNdGWgTCqBBOPxGtATEww8aom+hcYif/AY0oYMmLolRYzM48ZkWAiEdqiAxLvRrRGFa3Bvk33PbTncU+dRu43Wcm+95y19m+du8/aj0uLFi3KpIZeXMcAftRtANfq12qVqUuhB68wmWKvcKgijX9lAc5KF560M3XfykmK/4jj2ITFdduME/VrySQqpUejoD60z3J/B/oTPt1zrHFGFmkc831oy+DXhhuR35CKXuxejcNmtiefpAOfIv/DRUU08xL1RO3zQrnMyhguRJ8rqUqDpp/gxgL+myP/gRJ1ZWYsEpBn+EzRHvmPFRVRZR2O+54oI0he3kft1QX8Y58PRUU0k8DTqH2ggH/s86QJHYVJltGOHL6d+KyEMtoMNY0TWb/sE9lN82AiI9TveFlww+y/RKdG8RM4OMcaUzmjMYlPOIktQqlsr7dPaRw2kzhdgd4/WODPJNJsQhA/L5bTU3QL4zlN/JB5MGxmoiZUlKt4KcywY3iBK/Vr83ZL2aLF/0wXbmFU/tOHvDYqTHZdZYof+QfCkzZSVhK3KhA/ZTfLSCAeNtvKCJjC9qi/72k3Z1k9Tua8vwwy95llLRJv9/7FLJqrjywJjETtVfm0FCLX9jRLAs+i9u58WgqxJ2pfLCPgUdMv1VssKSPoDCzBu6i/PbPfno3FiaAPFDsHSqMdD6N+HmNhWcH34lcU/DV2lhW8Hut1FH8cW0uMD44JFSneVd3BPsWqUw37cTcR96ccpxR563o3LmF54vtR3MMjYfPyBl+FzUybMDyWYQ3WY4dQEDoTcb7gCG7n1JWL5cLualx5S4ZxXMaKuRSeZCXOYbgJ4cPCX1SFF21lLQ3WYRc2YK2Q3FLT1eoHvglleBDPcV9Fx+otWvxP/AYbWExd//xgHAAAAABJRU5ErkJggg=="/>
+                                    {{user.name ? user.name : user.account_number}}
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="#" @click="logout()">登出</a>
                                 </li>
@@ -72,10 +76,13 @@
                     
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="pills-o-tab" data-toggle="pill" href="#pills-o" role="tab" aria-controls="pills-o" aria-selected="true">未稽核列表</a>
+                            <a class="nav-link active" id="pills-o-tab" data-toggle="pill" href="#pills-o" role="tab" aria-controls="pills-o" aria-selected="true">未稽核列表(加班)</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-o2-tab" data-toggle="pill" href="#pills-o2" role="tab" aria-controls="pills-o2" aria-selected="false">已稽核列表</a>
+                            <a class="nav-link" id="pills-o2-tab" data-toggle="pill" href="#pills-o2" role="tab" aria-controls="pills-o2" aria-selected="false">已稽核列表(加班)</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="pills-e2-tab" data-toggle="pill" href="#pills-e2" role="tab" aria-controls="pills-e2" aria-selected="false">已稽核列表(早退)</a>
                         </li>
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
@@ -86,6 +93,7 @@
                                         <th scope="col">#</th>
                                         <th scope="col">日期</th>
                                         <th scope="col">姓名</th>
+                                        <th scope="col">上班時間</th>
                                         <th scope="col">下班時間</th>
                                         <th scope="col">超時分鐘數</th>
                                         <th scope="col">核定</th>
@@ -96,7 +104,8 @@
                                         <th scope="row">{{index+1}}</th>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
                                         <td>{{d.name}}</td>
-                                        <td>{{d.datetime.slice(10,16)}}</td>
+                                        <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'on')}}</td>
+                                        <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'of')}}</td>
                                         <td>
                                             <input type="text" class="form-control" v-model="d.over_time">
                                         </td>
@@ -128,6 +137,7 @@
                                         <th scope="col">#</th>
                                         <th scope="col">日期</th>
                                         <th scope="col">姓名</th>
+                                        <th scope="col">上班時間</th>
                                         <th scope="col">下班時間</th>
                                         <th scope="col">超時分鐘數</th>
                                         <th scope="col">核定</th>
@@ -138,7 +148,8 @@
                                         <th scope="row">{{index+1}}</th>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
                                         <td>{{d.name}}</td>
-                                        <td>{{d.datetime.slice(10,16)}}</td>
+                                        <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'on')}}</td>
+                                        <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'of')}}</td>
                                         <td>{{d.over_time}}</td>
                                         <td>
                                             <button class="btn btn-primary" data-toggle="modal" data-target="#updateRecordO2" @click="editRecordO2(d.datetime, d.employee_id, d.over_time)">編輯</button>
@@ -152,6 +163,41 @@
                             <div class="d-flex justify-content-center">
                                 <nav aria-label="Page navigation example">
                                     <ul class="pagination table2" >
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-e2" role="tabpanel" aria-labelledby="pills-e2-tab">
+                            <table id="table3" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">日期</th>
+                                        <th scope="col">姓名</th>
+                                        <th scope="col">下班時間</th>
+                                        <th scope="col">早退分鐘數</th>
+                                        <th scope="col">核定</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(d, index) in data_e2" >
+                                        <th scope="row">{{index+1}}</th>
+                                        <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
+                                        <td>{{d.name}}</td>
+                                        <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'of')}}</td>
+                                        <td>{{d.over_time}}</td>
+                                        <td>
+                                            <button class="btn btn-primary" data-toggle="modal" data-target="#updateRecordO2" @click="editRecordE2(d.datetime, d.employee_id, d.over_time)">編輯</button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="data_e2 == null || data_e2.length < 1">
+                                        <td colspan="30" style="text-align: center;">無早退明細</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination table3" >
                                     </ul>
                                 </nav>
                             </div>
@@ -183,7 +229,7 @@
                             <input disabled type="text" class="form-control" id="datetime" v-model="o2.datetime">
                         </div>
                         <div class="form-group">
-                            <label for="over_time">加班時間</label>
+                            <label for="over_time"><span v-show="editMode">加班</span><span v-show="!editMode">早退</span>時間</label>
                             <input type="text" class="form-control" id="over_time" v-model="o2.over_time">
                         </div>
                     </div>
@@ -222,6 +268,7 @@
                 data: [],
                 data_o:[],
                 data_o2:[],
+                data_e2:[],
                 month: '0000-00',
                 o2: {
                     datetime: "0000-00-00 00:00:00",
@@ -230,6 +277,7 @@
                     employee_id: 0,
                     name: ""
                 },
+                editMode: true,
                 user: {
                     user_id: 0,
                     account_number: '',
@@ -256,6 +304,7 @@
             updated() {
                 getPagination('#table1',10);
                 getPagination('#table2',10);
+                getPagination('#table3',10);
             },
             methods: {
                 logout() {
@@ -277,19 +326,15 @@
                             location.href = './index.html'
                         } else {
                             this.data = res.data ? res.data : [] 
-                            let o = this.data.filter(
-                                d => d.type === "off_1st_o" || 
-                                        d.type === "off_2nd_o" ||
-                                        d.type === "off_3rd_o")
+                            let o = this.data[0].filter(d => d.type.slice(-2) === "_o")
                             o.forEach(item => {
                                 item.check = true
                             })
-                            const o2 = this.data.filter(
-                                d => d.type === "off_1st_o2" || 
-                                        d.type === "off_2nd_o2" ||
-                                        d.type === "off_3rd_o2")
+                            const o2 = this.data[0].filter(d => d.type.slice(-2) === "o2")
                             this.data_o = o
                             this.data_o2 = o2
+                            // e2
+                            this.data_e2 = this.data[1];
                         }
                     })
                 },
@@ -315,6 +360,14 @@
                         d => d.datetime === datetime &&
                                 d.employee_id === employee_id &&
                                 d.over_time == over_time)
+                    this.editMode = true;
+                },
+                editRecordE2(datetime, employee_id, over_time) {
+                    this.o2 = this.data_e2.find(
+                        d => d.datetime === datetime &&
+                                d.employee_id === employee_id &&
+                                d.over_time == over_time)
+                    this.editMode = false;
                 },
                 updateRecordO2() {
                     // console.log(this.o2);
@@ -323,7 +376,6 @@
                             location.href = './index.html'
                         } else if(res.code == 200) {
                             alert('稽核更新成功!')
-                            
                             this.getRecordOData()
                             $('#updateRecordO2').modal('hide')
                             this.$nextTick()
@@ -334,6 +386,13 @@
                     const day_list = ['日', '一', '二', '三', '四', '五', '六']
                     const D = new Date(date)
                     return day_list[D.getDay()]
+                },
+                checkOnOROff(time = "00:00", dataType = 'on_1st_o', type = 'on') {
+                    if(dataType.slice(0, 2) == type) {
+                        return time;
+                    } else {
+                        return;
+                    }
                 }
             }
         })

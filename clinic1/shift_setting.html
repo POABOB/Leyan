@@ -30,7 +30,7 @@
                     <li v-show="user.right > 2"><a href="./basic_salary.html">基本薪資設定</a></li></a></li>
                     <li><a href="./new_shift.html">新排班表</a></li>
                     <li><a href="./shift_record.html">打卡明細</a></li>
-                    <li ><a href="./attendance_overtime.html">加班明細</a></li>
+                    <li ><a href="./attendance_overtime.html">稽核明細</a></li>
                     <li><a href="./attendance_record.html">出勤明細</a></li>
                     <li><a href="./attendance_statistic.html">出勤統計表</a></li>
                     <li v-show="user.right > 2"><a href="./salary_calculation.html">每月薪資明細表</a></li>
@@ -53,6 +53,10 @@
 
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="nav navbar-nav ml-auto">
+                                <li class="nav-item" style="margin: auto;">
+                                    <img width="25" height="25" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAACqklEQVRoge3Zy29NURTH8U/JNdGWgTCqBBOPxGtATEww8aom+hcYif/AY0oYMmLolRYzM48ZkWAiEdqiAxLvRrRGFa3Bvk33PbTncU+dRu43Wcm+95y19m+du8/aj0uLFi3KpIZeXMcAftRtANfq12qVqUuhB68wmWKvcKgijX9lAc5KF560M3XfykmK/4jj2ITFdduME/VrySQqpUejoD60z3J/B/oTPt1zrHFGFmkc831oy+DXhhuR35CKXuxejcNmtiefpAOfIv/DRUU08xL1RO3zQrnMyhguRJ8rqUqDpp/gxgL+myP/gRJ1ZWYsEpBn+EzRHvmPFRVRZR2O+54oI0he3kft1QX8Y58PRUU0k8DTqH2ggH/s86QJHYVJltGOHL6d+KyEMtoMNY0TWb/sE9lN82AiI9TveFlww+y/RKdG8RM4OMcaUzmjMYlPOIktQqlsr7dPaRw2kzhdgd4/WODPJNJsQhA/L5bTU3QL4zlN/JB5MGxmoiZUlKt4KcywY3iBK/Vr83ZL2aLF/0wXbmFU/tOHvDYqTHZdZYof+QfCkzZSVhK3KhA/ZTfLSCAeNtvKCJjC9qi/72k3Z1k9Tua8vwwy95llLRJv9/7FLJqrjywJjETtVfm0FCLX9jRLAs+i9u58WgqxJ2pfLCPgUdMv1VssKSPoDCzBu6i/PbPfno3FiaAPFDsHSqMdD6N+HmNhWcH34lcU/DV2lhW8Hut1FH8cW0uMD44JFSneVd3BPsWqUw37cTcR96ccpxR563o3LmF54vtR3MMjYfPyBl+FzUybMDyWYQ3WY4dQEDoTcb7gCG7n1JWL5cLualx5S4ZxXMaKuRSeZCXOYbgJ4cPCX1SFF21lLQ3WYRc2YK2Q3FLT1eoHvglleBDPcV9Fx+otWvxP/AYbWExd//xgHAAAAABJRU5ErkJggg=="/>
+                                    {{user.name ? user.name : user.account_number}}
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="#" @click="logout()">登出</a>
                                 </li>
@@ -79,7 +83,7 @@
                                 <th scope="col">第三班<br>下班時間</th>
                                 <th scope="col">第三班<br>休息(分)</th>
                                 <th scope="col">工時(分)</th>
-                                <th scope="col">餐費補助</th>
+                                <th scope="col">餐費補助次數</th>
                                 <th scope="col">診數</th>
                                 <th scope="col" colspan="2">操作</th>
                             </tr>
@@ -103,7 +107,7 @@
                                     <td>{{d.meal_times}}</td>   
                                     <td>{{d.period}}</td>                    
                                     <td>
-                                        <button class="btn btn-primary" data-toggle="modal" data-target="#updateShiftSetting" @click="getUpdateShiftSettingData(index)">編輯</button> 
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#updateShiftSetting" @click="getUpdateShiftSettingData(d.shift_id)">編輯</button> 
                                         <button class="btn btn-primary" @click="deleteShiftSettingData(d.shift_id)">刪除</button> 
                                     </td>
                                 </tr>
@@ -138,52 +142,52 @@
                         <div class="row">
                             <div class="form-group col-12">
                                 <label for="shift_name">名稱</label>
-                                <input type="text" class="form-control" id="shift_name">
+                                <input type="text" class="form-control" v-model="addForm.shift_name">
                             </div>
                             
                             <div class="form-group col-4">
                                 <label for="on_1st">第一班 上班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control" id="on_1st">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control" v-model="addForm.on_1st">
                             </div>
                             <div class="form-group col-4">
                                 <label for="off_1st">第一班 下班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_1st">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" v-model="addForm.off_1st">
                             </div>
                             <div class="form-group col-4">
                                 <label for="break_1st">第一班 休息時間</label>
-                                <input type="number"  min="0" max="1440" class="form-control" id="break_1st"  value="0">
+                                <input type="number"  min="0" max="1440" class="form-control" v-model="addForm.break_1st"  value="0">
                             </div>
                             <div class="form-group col-4">
                                 <label for="on_2nd">第二班 上班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_2nd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" v-model="addForm.on_2nd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="off_2nd">第二班 下班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_2nd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" v-model="addForm.off_2nd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="break_2nd">第二班 休息時間</label>
-                                <input type="number"  min="0" max="1440" class="form-control" id="break_2nd"  value="0">
+                                <input type="number"  min="0" max="1440" class="form-control" v-model="addForm.break_2nd"  value="0">
                             </div>
                             <div class="form-group col-4">
                                 <label for="on_3rd">第三班 上班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="on_3rd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" v-model="addForm.on_3rd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="off_3rd">第三班 下班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" id="off_3rd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}"  min="06:00" max="24:00" class="form-control timepicker" v-model="addForm.off_3rd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="break_3rd">第三班 休息時間</label>
-                                <input type="number"  min="0" max="1440" class="form-control" id="break_3rd" value="0">
+                                <input type="number"  min="0" max="1440" class="form-control" v-model="addForm.break_3rd" value="0">
                             </div>
                             <div class="form-group col-12">
-                                <label for="meal_times">餐費補助</label>
-                                <input type="text" class="form-control" id="meal_times" value="0">
+                                <label for="meal_times">餐費補助次數</label>
+                                <input type="text" class="form-control" v-model="addForm.meal_times" value="0">
                             </div>
                             <div class="form-group col-12">
                                 <label for="period">診數</label>
-                                <input type="number" class="form-control" id="period" value="1" min="1" max="3">
+                                <input type="number" class="form-control" v-model="addForm.period" value="1" min="1" max="3">
                             </div>
                         </div>
                     </div>
@@ -210,54 +214,51 @@
                             <p>格式:請以24小時制設定，ex: 08:00 , 16:00</p>
                             <div class="form-group col-12">
                                 <label for="shift_name">名稱</label>
-                                <input type="text" class="form-control" id="update_shift_name">
+                                <input type="text" class="form-control" v-model="updateForm.shift_name">
                             </div>
                             <div class="form-group col-4">
                                 <label for="on_1st col-4">第一班 上班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_1st">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" v-model="updateForm.on_1st">
                             </div>
                             <div class="form-group col-4">
                                 <label for="off_1st">第一班 下班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_1st">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" v-model="updateForm.off_1st">
                             </div>
                             <div class="form-group col-4">
                                 <label for="break_1st">第一班 休息時間</label>
-                                <input type="number"  min="0" max="1440" class="form-control" id="update_break_1st" value="0">
+                                <input type="number"  min="0" max="1440" class="form-control" v-model="updateForm.break_1st" value="0">
                             </div>
                             <div class="form-group col-4">
                                 <label for="on_2nd">第二班 上班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_2nd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" v-model="updateForm.on_2nd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="off_2nd">第二班 下班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_2nd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" v-model="updateForm.off_2nd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="break_2nd">第二班 休息時間</label>
-                                <input type="number"  min="0" max="1440" class="form-control" id="update_break_2nd" value="0">
+                                <input type="number"  min="0" max="1440" class="form-control" v-model="updateForm.break_2nd" value="0">
                             </div>
                             <div class="form-group col-4">
                                 <label for="on_3rd">第三班 上班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_on_3rd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" v-model="updateForm.on_3rd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="off_3rd">第三班 下班時間</label>
-                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" id="update_off_3rd">
+                                <input type="text" pattern="([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}" min="06:00" max="24:00" class="form-control" v-model="updateForm.off_3rd">
                             </div>
                             <div class="form-group col-4">
                                 <label for="break_3rd">第三班 休息時間</label>
-                                <input type="number"  min="0" max="1440" class="form-control" id="update_break_3rd" value="0">
+                                <input type="number"  min="0" max="1440" class="form-control" v-model="updateForm.break_3rd" value="0">
                             </div>
                             <div class="form-group col-12">
-                                <label for="meal_times">餐費補助</label>
-                                <input type="text" class="form-control" id="update_meal_times">
+                                <label for="meal_times">餐費補助次數</label>
+                                <input type="text" class="form-control" v-model="updateForm.meal_times">
                             </div>
                             <div class="form-group col-12">
                                 <label for="period">診數</label>
-                                <input type="number" class="form-control" id="update_period" value="1" min="1" max="3">
-                            </div>
-                            <div class="form-group">
-                                <input type="hidden" class="form-control" id="update_shift_id">
+                                <input type="number" class="form-control" v-model="updateForm.period" value="1" min="1" max="3">
                             </div>
                         </div>
                     </div>
@@ -292,6 +293,8 @@
             el: "#app",
             data: {
                 data: [],
+                addForm: {shift_name: '',on_1st: '',off_1st: '',break_1st: 0,on_2nd: '',off_2nd: '',break_2nd: 0,on_3rd: '',off_3rd: '',break_3rd: 0,meal_times: 0,period: 1},
+                updateForm: {shift_name: '',on_1st: '',off_1st: '',break_1st: 0,on_2nd: '',off_2nd: '',break_2nd: 0,on_3rd: '',off_3rd: '',break_3rd: 0,meal_times: 0,period: 1,shift_id: ''},
                 user: {
                     user_id: 0,
                     account_number: '',
@@ -307,16 +310,9 @@
                         location.href = './index.html'
                     } else {
                         this.user = res.data
-                        get('/api_v1.1/clinic/shift/setting').then(res => {
-                            if(res.code == 403) {
-                                location.href = './index.html'
-                            } else {
-                                this.data = res.data
-                            }
-                        })
+                        this.getShiftSettingData();
                     }
                 })
-
             },
             updated() {
                 getPagination('#table1',10);
@@ -331,77 +327,50 @@
                             return
                         }
                         else {
-                            alert(res.message)
+                            alert(res.message);
                         }
                     })
+                },
+                getShiftSettingData() {
+                    get('/api_v1.1/clinic/shift/setting').then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else {
+                            this.data = res.data
+                        }
+                    });
                 },
                 addShiftSettingData() {
-                    const data = {
-                        'shift_name': $('#shift_name').val(),
-                        'on_1st': $('#on_1st').val(),
-                        'off_1st': $('#off_1st').val(),
-                        'break_1st': $('#break_1st').val(),
-                        'on_2nd': $('#on_2nd').val(),
-                        'off_2nd': $('#off_2nd').val(),
-                        'break_2nd': $('#break_2nd').val(),
-                        'on_3rd': $('#on_3rd').val(),
-                        'off_3rd': $('#off_3rd').val(),
-                        'break_3rd': $('#break_3rd').val(),
-                        'meal_times': $('#meal_times').val(),
-                        'period': $('#period').val()
-                    }
-                    post('/api_v1.1/clinic/shift/setting/add', data).then(res => {
+                    post('/api_v1.1/clinic/shift/setting/add', this.addForm).then(res => {
                         if (res.code === 200) {
-                            alert(res.message)
-                            window.location.reload('./shift_setting.html')
-                            return
+                            alert(res.message);
+                            this.addForm = {shift_name: '',on_1st: '',off_1st: '',break_1st: 0,on_2nd: '',off_2nd: '',break_2nd: 0,on_3rd: '',off_3rd: '',break_3rd: 0,meal_times: 0,period: 1};
+                            this.getShiftSettingData();
+                            $('#addShiftSetting').modal('toggle');
+                            this.$nextTick();
                         }
                         else {
-                            alert(res.message)
-                            console.log(res.message)
+                            alert(res.message);
+                            console.log(res.message);
                         }
                     })
                 },
-                getUpdateShiftSettingData(index) {
-                    $('#update_shift_name').val(this.data[index].shift_name)
-                    $('#update_on_1st').val(this.data[index].on_1st)
-                    $('#update_off_1st').val(this.data[index].off_1st)
-                    $('#update_break_1st').val(this.data[index].break_1st)
-                    $('#update_on_2nd').val(this.data[index].on_2nd)
-                    $('#update_off_2nd').val(this.data[index].off_2nd)
-                    $('#update_break_2nd').val(this.data[index].break_2nd)
-                    $('#update_on_3rd').val(this.data[index].on_3rd)
-                    $('#update_off_3rd').val(this.data[index].off_3rd)
-                    $('#update_break_3rd').val(this.data[index].break_3rd)
-                    $('#update_meal_times').val(this.data[index].meal_times)
-                    $('#update_period').val(this.data[index].period)
-                    $('#update_shift_id').val(this.data[index].shift_id)
+                getUpdateShiftSettingData(shift_id) {
+                    const shift = this.data.find(d => d.shift_id === shift_id)
+                    this.updateForm = JSON.parse(JSON.stringify(shift));
                 },
                 updateShiftSettingData() {
-                    const data = {
-                        'shift_name': $('#update_shift_name').val(),
-                        'on_1st': $('#update_on_1st').val(),
-                        'off_1st': $('#update_off_1st').val(),
-                        'break_1st': $('#update_break_1st').val(),
-                        'on_2nd': $('#update_on_2nd').val(),
-                        'off_2nd': $('#update_off_2nd').val(),
-                        'break_2nd': $('#update_break_2nd').val(),
-                        'on_3rd': $('#update_on_3rd').val(),
-                        'off_3rd': $('#update_off_3rd').val(),
-                        'break_3rd': $('#update_break_3rd').val(),
-                        'meal_times': $('#update_meal_times').val(),
-                        'period': $('#update_period').val(),
-                        'shift_id': $('#update_shift_id').val()
-                    }
-                    post('/api_v1.1/clinic/shift/setting/update', data).then(res => {
+                    post('/api_v1.1/clinic/shift/setting/update', this.updateForm).then(res => {
                         if (res.code === 200) {
-                            alert(res.message)
-                            window.location.reload('./shift_setting.html')
-                            return
+                            alert(res.message);
+                            this.updateForm = {shift_name: '',on_1st: '',off_1st: '',break_1st: 0,on_2nd: '',off_2nd: '',break_2nd: 0,on_3rd: '',off_3rd: '',break_3rd: 0,meal_times: 0,period: 1, shift_id: ''};
+                            this.getShiftSettingData();
+                            $('#updateShiftSetting').modal('toggle');
+                            this.$nextTick();
                         }
                         else {
-                            alert(res.message)
-                            console.log(res.message)
+                            alert(res.message);
+                            console.log(res.message);
                         }
                     })
                 },
@@ -413,12 +382,12 @@
                         post('/api_v1.1/clinic/shift/setting/delete', data).then(res => {
                             if (res.code === 200) {
                                 alert(res.message)
-                                window.location.reload('./shift_setting.html')
-                                return
+                                this.getShiftSettingData();
+                                this.$nextTick();
                             }
                             else {
-                                alert(res.message)
-                                console.log(res.message)
+                                alert(res.message);
+                                console.log(res.message);
                             }
                         })
                     }
