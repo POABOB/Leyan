@@ -87,6 +87,7 @@
                                 <th scope="col">姓名</th>
                                 <th scope="col">在職天數</th>
                                 <th scope="col">總工時</th>
+                                <th scope="col">實際打卡時數</th>
                                 <th scope="col">簽到分鐘</th>
                                 <th scope="col">工作診數</th>
                                 <th scope="col">加診診數</th>
@@ -106,6 +107,7 @@
                                 <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id, d.employee_id)">{{d.name}}</button></td>
                                 <td>{{d.statistic_data.work_days}}</td>
                                 <td>{{d.statistic_data.total_time}}</td>
+                                <td>{{d.statistic_data.true_time ? d.statistic_data.true_time : 0}}</td>
                                 <td>{{d.statistic_data.check ? d.statistic_data.check : 0}}</td>
                                 <td>{{d.statistic_data.period}}</td>
                                 <td>{{d.statistic_data.bonus_period}}</td>
@@ -184,13 +186,13 @@
                                     <td>
                                         <span>{{updateForm.statistic_data.total_time}} 小時</span>
                                     </td>
+                                    <th scope="row">實際打卡時數</th>
+                                    <td>
+                                        <span>{{updateForm.statistic_data.true_time ? updateForm.statistic_data.true_time : 0}} 小時</span>
+                                    </td>
                                     <th scope="row">總診數</th>
                                     <td>
                                         <span>{{updateForm.statistic_data.period}} 診</span>
-                                    </td>
-                                    <th scope="row">加診診數</th>
-                                    <td>
-                                        <span>{{updateForm.statistic_data.bonus_period}} 診</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -212,9 +214,9 @@
                                     <td>
                                         <span>{{updateForm.statistic_data.over_time}} 分鐘</span>
                                     </td>
-                                    <th scope="row">忘刷卡</th>
+                                    <th scope="row">早退</th>
                                     <td>
-                                        <span>{{updateForm.statistic_data.no_record_times}} 次</span>
+                                        <span>{{updateForm.statistic_data.early}} 分鐘</span>
                                     </td>
                                     <th scope="row">遲到</th>
                                     <td>
@@ -222,9 +224,13 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">早退</th>
+                                    <th scope="row">忘刷卡</th>
                                     <td>
-                                        <span>{{updateForm.statistic_data.early}} 分鐘</span>
+                                        <span>{{updateForm.statistic_data.no_record_times}} 次</span>
+                                    </td>
+                                    <th scope="row">加診診數</th>
+                                    <td>
+                                        <span>{{updateForm.statistic_data.bonus_period}} 診</span>
                                     </td>            
                                     <th scope="row">補助餐次數</th>
                                     <td  colspan="3">
@@ -330,7 +336,8 @@
                                     <th>忘刷卡</th>
                                     <th>遲到</th>
                                     <th>早退</th>    
-                                    <th>超時</th> 
+                                    <th>超時</th>
+                                    <th>實際打卡分鐘</th> 
                                 </tr>
                                 <tr v-for="(r, index) in updateForm.record_data">
                                     <td>{{r.date.slice(-5)}}</td>
@@ -342,6 +349,7 @@
                                     <td>{{computeLate(r.on_1st_l, r.on_2nd_l, r.on_3rd_l)}}</td>
                                     <td>{{computeLate(r.off_1st_l, r.off_2nd_l, r.off_3rd_l)}}</td>
                                     <td>{{r.over_time}}</td>
+                                    <td>{{r.true_time}}</td>
                                 </tr>
                             </tbody>
                         </table>
