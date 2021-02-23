@@ -73,6 +73,7 @@
                             </div>
                             <button class="btn btn-primary" data-toggle="modal" data-target="#updateSalaryCalculation">資料統計</button>
                             <button class="btn btn-primary" data-toggle="modal" data-target="#printSalaryCalculation">資料列印</button>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#lockSalaryCalculation">資料鎖定</button>
                         </div>
                     </div>
                     <p>本月天數：{{detail.total_days}} 天　例假與國定假日天數：{{detail.closed_days}} 天　應工作總工時：{{detail.work_hours}} 小時</p>
@@ -405,6 +406,36 @@
             </div>
         </div>
 
+        <!-- LOCK SalaryCalculation Modal -->
+        <div class="modal fade" id="lockSalaryCalculation" tabindex="-1" role="dialog" aria-labelledby="lockSalaryCalculationLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="lockSalaryCalculationLabel">資料鎖定</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <legend  style="font-size: 1rem;">員工</legend>
+                            <button @click="checkLockToggle()" type="button"  class="btn btn-link">全選/取消</button>
+                            <div style="height:100%;max-height:200px;overflow-y:scroll;">
+                                <div class="form-check" v-for="(d, index) in lockedForm">
+                                    <input v-model="lockedForm[index].check" class="form-check-input check-all" type="checkbox" :value="d.employee_id">
+                                    <label class="form-check-label" for="check" v-text="d.name"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="lockSalaryCalculation()">送出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- EDIT ATTENDANCE Modal -->
         <div class="modal fade" id="editEmployee" tabindex="-1" role="dialog" aria-labelledby="editEmployeeLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
@@ -705,6 +736,7 @@
                 work_status: [],
                 employeePosition: [],
                 printForm:[],
+                lockedForm: [],
                 printType: 1,
                 checkAll: false,
                 tableIndex: 1,
@@ -782,21 +814,37 @@
                                     });
                                 });
                             }
-                            
+                            // lockedForm
+                            this.lockedForm = []
+                            if(this.data.length > 0) {
+                                this.data.forEach(item => {
+                                    this.lockedForm.push({
+                                        employee_id: item.employee_id,
+                                        name: item.name,
+                                        check: item.locked === '1'
+                                    });
+                                });
+                            }
                         }
                     })
                 },
                 updateSalaryCalculationData() {
-                    post(`/api_v1.1/clinic/salary/calculation/update?start=${this.month}`).then(res => {
-                        if(res.code == 403) {
-                            location.href = './index.html'
-                        } else if(res.code == 200) {
-                            alert('更新成功!')
-                            this.getSalaryCalculationData()
-                            $('#updateSalaryCalculation').modal('toggle');
-                            this.$nextTick();
-                        }
-                    })
+                    //判斷鎖表人數
+                    const employee = this.lockedForm.filter(d => d.check === false)
+                    if(employee.length > 0 || this.lockedForm.length === 0) {
+                            post(`/api_v1.1/clinic/salary/calculation/update?start=${this.month}`).then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else if(res.code == 200) {
+                                alert('更新成功!')
+                                this.getSalaryCalculationData()
+                                $('#updateSalaryCalculation').modal('toggle');
+                                this.$nextTick();
+                            }
+                        })
+                    } else {
+                        alert('員工資料皆已鎖定!')
+                    }
                 },
                 showThisEmployeeData(salary_calculation_id) {
                     const data = JSON.parse(JSON.stringify(this.data.find(d => d.salary_calculation_id == salary_calculation_id)));
@@ -814,19 +862,27 @@
                     this.setValue()
                 },
                 updateThisEmployeeData() {
-                    let form = {}
-                    form.salary_calculation_id = this.updateForm.salary_calculation_id
-                    form.calculation_data = this.updateForm.calculation_data
-                    form.salary_item_data = this.updateForm.salary_item_data
-                    post(`/api_v1.1/clinic/salary/calculation/update/id`, form).then(res => {
-                        if(res.code == 403) {
-                            location.href = './index.html'
-                        } else if(res.code == 200) {
-                            alert('更新成功!')
-                            $('#editEmployee').modal('hide')
-                            this.$nextTick()
-                        }
-                    })
+                    const employee = this.lockedForm.find(d => parseInt(d.employee_id) === parseInt(this.updateForm.employee_id))
+                    if(employee.check === true) {
+                        alert('請將該員工解除鎖定!')
+                    } else {
+                        let form = {}
+                        form.salary_calculation_id = this.updateForm.salary_calculation_id
+                        form.calculation_data = this.updateForm.calculation_data
+                        form.salary_item_data = this.updateForm.salary_item_data
+                        post(`/api_v1.1/clinic/salary/calculation/update/id`, form).then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else if(res.code == 200) {
+                                alert('更新成功!')
+                                this.getSalaryCalculationData();
+                                $('#editEmployee').modal('hide')
+                                this.$nextTick()
+                            } else if(res.code == 201) {
+                                alert('請將該員工解除鎖定!')
+                            }
+                        })
+                    }
                 },
                 reComputeTotal(dataType = null, calType = 'add', paidWay = 0, isFixed = 0, isDailySalary = 0) {
                     //TODO 兼職全職方式不同
@@ -1016,7 +1072,7 @@
                                 }
                             }
                         }
-                        console.log(dataType, calType, paidWay , isFixed, isDailySalary);
+                        // console.log(dataType, calType, paidWay , isFixed, isDailySalary);
                     } else {
                         //該新值與舊值的差
                         const difference = this.updateForm.calculation_data[dataType] - this.oldUpdateForm.calculation_data[dataType]
@@ -1065,20 +1121,28 @@
                     }
                 },
                 updateSelfSalaryCalculation() {
-                    //重整個人薪資
-                    let form = {}
-                    form.employee_id = this.updateForm.employee_id
-                    post(`/api_v1.1/clinic/salary/self/calculation/update?start=${this.month}`, form).then(res => {
-                        if(res.code == 403) {
-                            location.href = './index.html'
-                        } else if(res.code == 200) {
-                            alert('重整成功!')
-                            this.updateForm.calculation_data = res.data[0]
-                            this.updateForm.salary_item_data = res.data[1]
-                            $('#editEmployee').modal('hide')
-                            this.$nextTick()
-                        }
-                    })
+                    const employee = this.lockedForm.find(d => parseInt(d.employee_id) === parseInt(this.updateForm.employee_id))
+                    if(employee.check === true) {
+                        alert('請將該員工解除鎖定!')
+                    } else {
+                        //重整個人薪資
+                        let form = {}
+                        form.employee_id = this.updateForm.employee_id
+                        post(`/api_v1.1/clinic/salary/self/calculation/update?start=${this.month}`, form).then(res => {
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else if(res.code == 200) {
+                                alert('重整成功!')
+                                this.getSalaryCalculationData();
+                                this.updateForm.calculation_data = res.data[0]
+                                this.updateForm.salary_item_data = res.data[1]
+                                $('#editEmployee').modal('hide')
+                                this.$nextTick()
+                            } else if(res.code == 201) {
+                                alert('請將該員工解除鎖定!')
+                            }
+                        })
+                    }
                 },
                 checkToggle() {
                     if(this.checkAll === false) {
@@ -1091,6 +1155,39 @@
                         })
                     }
                     this.checkAll = !this.checkAll
+                },
+                checkLockToggle() {
+                    if(this.checkAll === false) {
+                        this.lockedForm.forEach(item => {
+                            item.check = true;
+                        })
+                    } else {
+                        this.lockedForm.forEach(item => {
+                            item.check = false;
+                        })
+                    }
+                    this.checkAll = !this.checkAll
+                },
+                lockSalaryCalculation() {
+                    //重整個人薪資
+                    let form = {true:[],false:[]};
+                    this.lockedForm.forEach(item => {
+                        if(item.check === true) {
+                            form.true.push(item.employee_id);
+                        } else {
+                            form.false.push(item.employee_id);
+                        }
+                    });
+                    post(`/api_v1.1/clinic/salary/calculation/update/lock?start=${this.month}`, form).then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            alert('資料鎖定成功!')
+                            this.getSalaryCalculationData()
+                            $('#lockSalaryCalculation').modal('hide')
+                            this.$nextTick()
+                        }
+                    })
                 },
                 printSalaryList() {
                     //月份確認
