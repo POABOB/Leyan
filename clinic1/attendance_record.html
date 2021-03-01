@@ -317,8 +317,8 @@
                         item.record_data.forEach(item2 => {
                             nums += 1
                             data.push([nums, item.name, item2.date.slice(-2), item2.day, 
-                            item2.shift_name, item2.data[0].slice(11,16), item2.data[1].slice(11,16), 
-                            item2.data[2].slice(11,16), item2.data[3].slice(11,16), item2.data[4].slice(11,16), item2.data[5].slice(11,16)])
+                            item2.shift_name, item2.data[0].slice(0,5), item2.data[1].slice(0,5), 
+                            item2.data[2].slice(0,5), item2.data[3].slice(0,5), item2.data[4].slice(0,5), item2.data[5].slice(0,5)])
                         })
                         if(item.record_data.length !== 0) {
                             data.push(['', '', '', '', '', '', '', '', '', '',])
@@ -326,6 +326,7 @@
                     })
 
                     //列印
+                    console.log(data);
                     const doc = new jsPDF()
                     doc.setFont('TaipeiSans');
                     const options = {
