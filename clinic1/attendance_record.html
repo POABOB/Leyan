@@ -112,11 +112,19 @@
                         <tbody>
                             <template v-for="(d, index) in data">
                                 <tr v-for="(d2, index2) in d.record_data" >
-                                        <th scope="row">{{(index * data.length) + (index2 + 1)}}</th>
+                                        <th scope="row">{{getIndex()}}</th>
                                         <td>{{d.name}}</td>
                                         <td>{{d2.date.slice(-2)}}</td>
                                         <td>{{d2.day}}</td>
-                                        <td>{{d2.shift_name}}</td>
+                                        <td v-if="d2.shift_name !== '無排班'">
+                                            <button :id="'p'+(_index)" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+                                                {{d2.shift_name}}
+                                            </button>
+                                            <div style="display: none;">{{employeeShiftTime(d2.date, d.employee_id, 'p'+_index)}}</div>
+                                        </td>
+                                        <td v-else>
+                                            {{d2.shift_name}}
+                                        </td>
                                         <td>{{datetimeFix(d2.data[0])}}</td>
                                         <td>{{d2.on_1st_l}}</td>
                                         <td>{{datetimeFix(d2.data[1])}}</td>
@@ -202,13 +210,16 @@
             });
 
         });
-
+        var  _popover = [];
         new Vue({
             el: "#app",
             data: {
                 origin_data: [],
                 data: [],
+                shiftTable: [],
+                // popover:[],
                 month: '0000-00',
+                _index: 0,
                 filter: {
                     startDate: '0000-00-00',
                     endDate: '0000-00-00',
@@ -253,14 +264,24 @@
                         }
                     })
                 },
+                getIndex(){
+                    if (!this._index){
+                        this._index=1
+                    }else{
+                        this._index++
+                    }
+                    return this._index
+                },
                 getAttendanceRecordData() {
+                    this._index = 0;
+                    _popover = [];
                     get(`/api_v1.1/clinic/attendance/record?start=${this.filter.startDate}`).then(res => {
                         if(res.code == 403) {
                             location.href = './index.html'
                         } else {
-                            this.origin_data = JSON.parse(JSON.stringify(res.data))
+                            this.origin_data = JSON.parse(JSON.stringify(res.data[0]))
                             //filter employee_id
-                            let tmp = res.data
+                            let tmp = res.data[0]
                             if(parseInt(this.filter.employee_id) !== 0) {
                                 tmp = tmp.filter(d => d.employee_id == this.filter.employee_id)
                             }
@@ -270,6 +291,18 @@
                                 item.record_data = item.record_data.filter(d => new Date(d.date) >= new Date(this.filter.startDate) && new Date(d.date) <= new Date(this.filter.endDate))
                             })
                             this.data = tmp
+
+                            this.shiftTable = res.data[1]
+                            this.$nextTick(() => {
+                                _popover.forEach(item => {
+                                    $(item.id).popover({
+                                        html: true,
+                                        content: item.content,
+                                        trigger: 'hover'
+                                    });
+                                    $(item.id).data('bs.popover').config.content = item.content;
+                                });
+                            });
                         }
                     })
                 },
@@ -316,9 +349,16 @@
                     this.data.forEach(item => {
                         item.record_data.forEach(item2 => {
                             nums += 1
-                            data.push([nums, item.name, item2.date.slice(-2), item2.day, 
-                            item2.shift_name, item2.data[0].slice(0,5), item2.data[1].slice(0,5), 
-                            item2.data[2].slice(0,5), item2.data[3].slice(0,5), item2.data[4].slice(0,5), item2.data[5].slice(0,5)])
+                            data.push([
+                                nums, item.name, item2.date.slice(-2), 
+                                item2.day, item2.shift_name, 
+                                item2.data[0].length > 11 ? item2.data[0].slice(11,16) : item2.data[0].slice(0,5), 
+                                item2.data[1].length > 11 ? item2.data[1].slice(11,16) : item2.data[1].slice(0,5), 
+                                item2.data[2].length > 11 ? item2.data[2].slice(11,16) : item2.data[2].slice(0,5), 
+                                item2.data[3].length > 11 ? item2.data[3].slice(11,16) : item2.data[3].slice(0,5), 
+                                item2.data[4].length > 11 ? item2.data[4].slice(11,16) : item2.data[4].slice(0,5), 
+                                item2.data[5].length > 11 ? item2.data[5].slice(11,16) : item2.data[5].slice(0,5)
+                            ])
                         })
                         if(item.record_data.length !== 0) {
                             data.push(['', '', '', '', '', '', '', '', '', '',])
@@ -369,6 +409,35 @@
                         return datetime.substr(11, 16);
                     } else {
                         return datetime.substr(0, 5);
+                    }
+                },
+                employeeShiftTime(date = '0000-00-00', employee_id = 0, id="p1") {
+                    if(!_popover.find(d => d.id === id)) {
+                        const newDate = new Date(date);
+                        const employee = this.shiftTable.find(
+                            d => parseInt(d.employee_id) === parseInt(employee_id) &&
+                            new Date(d.startDay) <= newDate && 
+                            new Date(d.endDay) >= newDate
+                        );
+                        if(employee) {
+                            const data = employee.data.find(d => d.date === date);
+                            if(data) {
+                                let content = ``;
+                                if('on_1st' in data.shift && 'off_1st' in data.shift) {
+                                    content += `第一班: ${data.shift.on_1st} ~ ${data.shift.off_1st}<br>`
+                                }
+                                if('on_2nd' in data.shift && 'off_2nd' in data.shift) {
+                                    content += `第二班: ${data.shift.on_2nd} ~ ${data.shift.off_2nd}<br>`
+                                }
+                                if ('on_3rd' in data.shift && 'off_3rd' in data.shift) {
+                                    content += `第三班: ${data.shift.on_3rd} ~ ${data.shift.off_3rd}<br>`
+                                }
+                                _popover.push({
+                                    id: `#${id}`,
+                                    content: content,
+                                });
+                            }
+                        }
                     }
                 }
             },

@@ -120,7 +120,7 @@
                                             <tfoot>
                                                 <tr>
                                                     <td colspan="8">
-                                                        <span>本週已排時數: {{ form.time / 60 }} 小時</span>
+                                                        <span>本週已排時數: {{ (parseFloat(form.time / 60)).toFixed(2) }} 小時</span>
                                                         <button class="btn btn-primary" @click="addShiftData()">新增</button>
                                                     </td>
                                                 </tr>
@@ -162,7 +162,7 @@
                                             <tfoot>
                                                 <tr>
                                                     <td colspan="8">
-                                                        <span>本週已排時數: {{ updateform.time / 60 }} 小時</span>
+                                                        <span>本週已排時數: {{ (parseFloat(updateform.time / 60)).toFixed(2) }} 小時</span>
                                                         <button class="btn btn-primary" @click="updateShiftData()">更新</button>
                                                     </td>
                                                 </tr>

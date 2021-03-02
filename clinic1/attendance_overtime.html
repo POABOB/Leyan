@@ -92,6 +92,7 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">日期</th>
+                                        <th scope="col">班別</th>
                                         <th scope="col">姓名</th>
                                         <th scope="col">上班時間</th>
                                         <th scope="col">下班時間</th>
@@ -103,6 +104,11 @@
                                     <tr v-for="(d, index) in data_o" >
                                         <th scope="row">{{index+1}}</th>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
+                                        <td>
+                                            <button :id="'p_o_'+index" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+                                                {{employeeShiftTime(d.datetime.slice(0,10), d.employee_id, 'p_o_'+index)}}
+                                            </button>
+                                        </td>
                                         <td>{{d.name}}</td>
                                         <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'on')}}</td>
                                         <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'of')}}</td>
@@ -136,6 +142,7 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">日期</th>
+                                        <th scope="col">班別</th>
                                         <th scope="col">姓名</th>
                                         <th scope="col">上班時間</th>
                                         <th scope="col">下班時間</th>
@@ -147,6 +154,11 @@
                                     <tr v-for="(d, index) in data_o2" >
                                         <th scope="row">{{index+1}}</th>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
+                                        <td>
+                                            <button :id="'p_o2_'+index" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+                                                {{employeeShiftTime(d.datetime.slice(0,10), d.employee_id, 'p_o2_'+index)}}
+                                            </button>
+                                        </td>
                                         <td>{{d.name}}</td>
                                         <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'on')}}</td>
                                         <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'of')}}</td>
@@ -173,6 +185,7 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">日期</th>
+                                        <th scope="col">班別</th>
                                         <th scope="col">姓名</th>
                                         <th scope="col">下班時間</th>
                                         <th scope="col">早退分鐘數</th>
@@ -183,6 +196,11 @@
                                     <tr v-for="(d, index) in data_e2" >
                                         <th scope="row">{{index+1}}</th>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
+                                        <td>
+                                            <button :id="'p_e2_'+index" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+                                                {{employeeShiftTime(d.datetime.slice(0,10), d.employee_id, 'p_e2_'+index)}}
+                                            </button>
+                                        </td>
                                         <td>{{d.name}}</td>
                                         <td>{{checkOnOROff(d.datetime.slice(10,16), d.type, 'of')}}</td>
                                         <td>{{d.over_time}}</td>
@@ -262,6 +280,7 @@
 
         });
 
+        var _popover = [];
         new Vue({
             el: "#app",
             data: {
@@ -269,6 +288,7 @@
                 data_o:[],
                 data_o2:[],
                 data_e2:[],
+                shiftTable: [],
                 month: '0000-00',
                 o2: {
                     datetime: "0000-00-00 00:00:00",
@@ -301,11 +321,6 @@
                 })
                 
             },
-            updated() {
-                getPagination('#table1',10);
-                getPagination('#table2',10);
-                getPagination('#table3',10);
-            },
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
@@ -321,6 +336,7 @@
                     })
                 },
                 getRecordOData() {
+                    _popover = [];
                     get('/api_v1.1/clinic/attendance/record_o?start='+this.month).then(res => {
                         if(res.code == 403) {
                             location.href = './index.html'
@@ -335,6 +351,20 @@
                             this.data_o2 = o2
                             // e2
                             this.data_e2 = this.data[1];
+                            this.shiftTable = this.data[2];
+                            this.$nextTick(() => {
+                                _popover.forEach(item => {
+                                    $(item.id).popover({
+                                        html: true,
+                                        content: item.content,
+                                        trigger: 'hover'
+                                    });
+                                    $(item.id).data('bs.popover').config.content = item.content;
+                                });
+                                getPagination('#table1',10);
+                                getPagination('#table2',10);
+                                getPagination('#table3',10);
+                            });
                         }
                     })
                 },
@@ -392,6 +422,34 @@
                         return time;
                     } else {
                         return;
+                    }
+                },
+                employeeShiftTime(date = '0000-00-00', employee_id = 0, id='p1', type = 'on_1st_o') {
+                    const newDate = new Date(date);
+                    const employee = this.shiftTable.find(
+                        d => parseInt(d.employee_id) === parseInt(employee_id) &&
+                        new Date(d.startDay) <= newDate && 
+                        new Date(d.endDay) >= newDate
+                    );
+                    if(employee) {
+                        const data = employee.data.find(d => d.date === date);
+                        if(data) {
+                            let content = ``;
+                            if('on_1st' in data.shift && 'off_1st' in data.shift) {
+                                content += `第一班: ${data.shift.on_1st} ~ ${data.shift.off_1st}<br>`
+                            }
+                            if('on_2nd' in data.shift && 'off_2nd' in data.shift) {
+                                content += `第二班: ${data.shift.on_2nd} ~ ${data.shift.off_2nd}<br>`
+                            }
+                            if ('on_3rd' in data.shift && 'off_3rd' in data.shift) {
+                                content += `第三班: ${data.shift.on_3rd} ~ ${data.shift.off_3rd}<br>`
+                            }
+                            _popover.push({
+                                id: `#${id}`,
+                                content: content,
+                            });
+                        }
+                        return data.shift.shift_name
                     }
                 }
             }

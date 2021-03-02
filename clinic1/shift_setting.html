@@ -314,9 +314,6 @@
                     }
                 })
             },
-            updated() {
-                getPagination('#table1',10);
-            },
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
@@ -337,6 +334,9 @@
                             location.href = './index.html'
                         } else {
                             this.data = res.data
+                            this.$nextTick(() => {
+                                getPagination('#table1',10);
+                            });
                         }
                     });
                 },
