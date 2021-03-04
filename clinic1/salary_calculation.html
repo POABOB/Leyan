@@ -115,7 +115,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(d, index) in data_2" v-show="alreadyLeave(d.employee_id)">
-                                        <th scope="row">{{index+1}}</th>
+                                        <td scope="row"><b>{{index+1}}</b></td>
                                         <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
                                         <td>{{d.calculation_data.fixed_salary}}</td>
                                         <td>{{(parseFloat(d.calculation_data.daily_wage)).toFixed(2)}}</td>
@@ -177,7 +177,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(d, index) in data_1"  v-show="alreadyLeave(d.employee_id)">
-                                        <th scope="row">{{index+1}}</th>
+                                        <td scope="row"><b>{{index+1}}</b></td>
                                         <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id)">{{d.name}}</button></td>
                                         <td>{{(parseFloat(d.calculation_data.hourly_wage)).toFixed(2)}}</td>
                                         <td>{{(parseFloat(d.statistic_data.total_time)).toFixed(2)}}</td>
@@ -451,174 +451,174 @@
                         <p></p>
                         <table class="table" id="editTable" style="table-layout: fixed;">
                             <tbody>
-                                <th colspan="10" style="background-color:#ffe9d6">員工資料</th>
+                                <td colspan="10" style="background-color:#ffe9d6"><b>員工資料</b></td>
                                 <tr>
-                                    <th scope="row">姓名</th>
+                                    <td scope="row"><b>姓名</b></td>
                                     <td>
                                         {{updateForm.name}}
                                     </td>
-                                    <th scope="row">到職日</th>
+                                    <td scope="row"><b>到職日</b></td>
                                     <td colspan="2">
                                         {{updateForm.work_at}}
                                     </td>
-                                    <th scope="row">離職日</th>
+                                    <td scope="row"><b>離職日</b></td>
                                     <td colspan="2">
                                         {{(updateForm.leave_at === '9999-12-31' ? '' : updateForm.leave_at)}}
                                     </td>
-                                    <th scope="row">職務別</th>
+                                    <td scope="row"><b>職務別</b></td>
                                     <td><span style="color: cornflowerblue;">{{(updateForm.level_of_position == 1) ? '兼職' : '正職'}}</span></td>
                                 </tr>
-                                <th colspan="8" style="background-color:#ffe9d6">加項薪資</th>
-                                <th style="background-color:#ffe9d6">加項合計</th>
+                                <td colspan="8" style="background-color:#ffe9d6"><b>加項薪資</b></td>
+                                <td style="background-color:#ffe9d6"><b>加項合計</b></td>
                                 <td style="background-color:#ffe9d6">{{updateForm.calculation_data.add_item}}</td>
                                 <tr align="right">
-                                    <th scope="row">固定薪</th>
+                                    <td scope="row"><b>固定薪</b></td>
                                     <td>
                                         {{updateForm.calculation_data.fixed_salary}}
                                     </td>
-                                    <th v-show="updateForm.level_of_position === '2'" scope="row">⊙底薪</th>
+                                    <td v-show="updateForm.level_of_position === '2'" scope="row"><b>⊙底薪</b></td>
                                     <td v-show="updateForm.level_of_position === '2'">
                                         <input disabled type="number" class="form-control" v-model="updateForm.calculation_data.basic_salary">
                                     </td>
-                                    <th v-show="updateForm.level_of_position === '2'" scope="row">日薪</th>
+                                    <td v-show="updateForm.level_of_position === '2'" scope="row"><b>日薪</b></td>
                                     <td  v-show="updateForm.level_of_position === '2'">
                                         {{updateForm.calculation_data.daily_wage.toFixed(2)}}
                                     </td>
-                                    <th scope="row">時薪</th>
+                                    <td scope="row"><b>時薪</b></td>
                                     <td>
                                         {{updateForm.calculation_data.hourly_wage.toFixed(2)}}
                                     </td>
-                                    <th v-show="updateForm.level_of_position === '1'" scope="row">薪津</th>
+                                    <td v-show="updateForm.level_of_position === '1'" scope="row"><b>薪津</b></td>
                                     <td v-show="updateForm.level_of_position === '1'">
                                         {{(this.updateForm.calculation_data.hourly_wage * this.updateForm.statistic_data.total_time).toFixed(0)}}
                                     </td>
                                 </tr>
                                 <tr align="right">
-                                    <th scope="row">❋餐費津貼</th>
+                                    <td scope="row"><b>❋餐費津貼</b></td>
                                     <td>
                                         <input @change="reComputeTotal('meal_fee', 'add', 0)" type="number" min="0" class="form-control" v-model="updateForm.calculation_data.meal_fee">
                                     </td>
                                 </tr>
                                 <!-- 獎金 -->
                                 <tr align="right" v-for="(d, index) in updateForm.salary_item_data">
-                                    <th scope="row" v-if="(index * 4)  < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4)  < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4].addORminus == 1"><b><span v-show="updateForm.salary_item_data[index * 4].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4].salary_name}}</b></td>
                                     <td v-if="(index * 4) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4].addORminus == 1"><input @change="reComputeTotal('salary_item_'+(index * 4), 'add', updateForm.salary_item_data[index * 4].paid_way, updateForm.salary_item_data[index * 4].is_fixed, updateForm.salary_item_data[index * 4].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4].value"></td>
-                                    <th scope="row" v-if="(index * 4 + 1) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 1].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4 + 1].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 1].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 1].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4 + 1) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 1].addORminus == 1"><b><span v-show="updateForm.salary_item_data[index * 4 + 1].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 1].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 1].salary_name}}</b></td>
                                     <td v-if="(index * 4 + 1) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 1].addORminus == 1"><input @change="reComputeTotal('salary_item_'+(index * 4 + 1), 'add', updateForm.salary_item_data[index * 4 + 1].paid_way, updateForm.salary_item_data[index * 4 + 1].is_fixed, updateForm.salary_item_data[index * 4 + 1].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 1].value"></td>
-                                    <th scope="row" v-if="(index * 4 + 2) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 2].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4 + 2].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 2].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 2].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4 + 2) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 2].addORminus == 1"><b><span v-show="updateForm.salary_item_data[index * 4 + 2].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 2].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 2].salary_name}}</b></td>
                                     <td v-if="(index * 4 + 2) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 2].addORminus == 1"><input @change="reComputeTotal('salary_item_'+(index * 4 + 2), 'add', updateForm.salary_item_data[index * 4 + 2].paid_way, updateForm.salary_item_data[index * 4 + 2].is_fixed, updateForm.salary_item_data[index * 4 + 2].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 2].value"></td>
-                                    <th scope="row" v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 1"><span v-show="updateForm.salary_item_data[index * 4 + 3].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 3].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 3].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 1"><b><span v-show="updateForm.salary_item_data[index * 4 + 3].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 3].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 3].salary_name}}</b></td>
                                     <td v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 1"><input @change="reComputeTotal('salary_item_' +(index * 4 + 3), 'add', updateForm.salary_item_data[index * 4 + 3].paid_way, updateForm.salary_item_data[index * 4 + 3].is_fixed, updateForm.salary_item_data[index * 4 + 3].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 3].value"></td>
                                 </tr>
                                 <tr align="right">
-                                    <th scope="row">超時分鐘</th>
+                                    <td scope="row"><b>超時分鐘</b></td>
                                     <td>
                                         {{updateForm.statistic_data.over_time}}
                                     </td>
-                                    <th scope="row">超時費</th>
+                                    <td scope="row"><b>超時費</b></td>
                                     <td>
                                         <input @change="reComputeTotal('over_time_fee', 'add')" type="number" class="form-control" v-model="updateForm.calculation_data.over_time_fee">
                                     </td>
-                                    <th scope="row">加診診數</th>
+                                    <td scope="row"><b>加診診數</b></td>
                                     <td>
                                         {{updateForm.statistic_data.bonus_period}}
                                     </td>
-                                    <th scope="row">加診費</th>
+                                    <td scope="row"><b>加診費</b></td>
                                     <td>
                                         <input @change="reComputeTotal('bonus_period_fee', 'add')" type="number" class="form-control" v-model="updateForm.calculation_data.bonus_period_fee">
                                     </td>
                                 </tr>
                                 <tr align="right">
-                                    <th scope="row">餐點補助次數</th>
+                                    <td scope="row"><b>餐點補助次數</b></td>
                                     <td>
                                         {{updateForm.statistic_data.meal_times}}
                                     </td>
-                                    <th scope="row">伙食津貼總計</th>
+                                    <td scope="row"><b>伙食津貼總計</b></td>
                                     <td>
                                         <input @change="reComputeTotal('meal_times_fee', 'add')" type="number" class="form-control" v-model="updateForm.calculation_data.meal_times_fee">
                                     </td>
                                 </tr>
-                                <th colspan="8" style="background-color:#ffe9d6">減項薪資</th>
-                                <th style="background-color:#ffe9d6">減項合計</th>
+                                <td colspan="8" style="background-color:#ffe9d6"><b>減項薪資</b></td>
+                                <td style="background-color:#ffe9d6"><b>減項合計</b></td>
                                 <td style="background-color:#ffe9d6">{{updateForm.calculation_data.minus_item}}</td>
                                 <tr align="right">
-                                    <th scope="row">請假分鐘(扣全薪)</th>
+                                    <td scope="row"><b>請假分鐘(扣全薪)</b></td>
                                     <td>
                                         {{updateForm.statistic_data.leave_all}}
                                     </td>
-                                    <th scope="row">請假扣薪</th>
+                                    <td scope="row"><b>請假扣薪</b></td>
                                     <td>
                                         <input @change="reComputeTotal('leave_all_fee', 'minus')" type="number" class="form-control" v-model="updateForm.calculation_data.leave_all_fee">
                                     </td>
-                                    <th scope="row">請假分鐘(扣半薪)</th>
+                                    <td scope="row"><b>請假分鐘(扣半薪)</b></td>
                                     <td>
                                         {{updateForm.statistic_data.leave_half}}
                                     </td>
-                                    <th scope="row">請假扣薪</th>
+                                    <td scope="row"><b>請假扣薪</b></td>
                                     <td>
                                         <input @change="reComputeTotal('leave_half_fee', 'minus')" type="number" class="form-control" v-model="updateForm.calculation_data.leave_half_fee">
                                     </td>
                                 </tr>
                                 <tr align="right">
-                                    <th scope="row">遲到分鐘</th>
+                                    <td scope="row"><b>遲到分鐘</b></td>
                                     <td>
                                         {{updateForm.statistic_data.late}}
                                     </td>
-                                    <th scope="row">遲到扣薪</th>
+                                    <td scope="row"><b>遲到扣薪</b></td>
                                     <td>
                                         <input @change="reComputeTotal('late_fee', 'minus')" type="number" class="form-control" v-model="updateForm.calculation_data.late_fee">
                                     </td>
-                                    <th scope="row">早退分鐘</th>
+                                    <td scope="row"><b>早退分鐘</b></td>
                                     <td>
                                         {{updateForm.statistic_data.early}}
                                     </td>
-                                    <th scope="row">早退扣薪</th>
+                                    <td scope="row"><b>早退扣薪</b></td>
                                     <td>
                                         <input @change="reComputeTotal('early_fee', 'minus')" type="number" class="form-control" v-model="updateForm.calculation_data.early_fee">
                                     </td>
                                 </tr>
                                 <tr align="right">
-                                    <th scope="row">勞保費</th>
+                                    <td scope="row"><b>勞保費</b></td>
                                     <td>
                                         <input @change="reComputeTotal('labor_fee', 'minus')" type="number" class="form-control" v-model="updateForm.calculation_data.labor_fee">
                                     </td>
-                                    <th scope="row">健保費</th>
+                                    <td scope="row"><b>健保費</b></td>
                                     <td>
                                         <input @change="reComputeTotal('health_fee', 'minus')" type="number" class="form-control" v-model="updateForm.calculation_data.health_fee">
                                     </td>
-                                    <th scope="row">眷屬人數</th>
+                                    <td scope="row"><b>眷屬人數</b></td>
                                     <td>
                                         {{updateForm.calculation_data.health_nums}}
                                     </td>
-                                    <th scope="row">健保合計</th>
+                                    <td scope="row"><b>健保合計</b></td>
                                     <td>
                                         {{updateForm.calculation_data.health_total_fee}}
                                     </td>
                                 </tr>
                                 <!-- 獎金 -->
                                 <tr align="right" v-for="(d, index) in updateForm.salary_item_data">
-                                    <th scope="row" v-if="(index * 4)  < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4)  < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4].addORminus == 0"><b><span v-show="updateForm.salary_item_data[index * 4].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4].salary_name}}</b></td>
                                     <td v-if="(index * 4) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4].addORminus == 0"><input @change="reComputeTotal('salary_item_'+(index * 4), 'minus', updateForm.salary_item_data[index * 4].paid_way, updateForm.salary_item_data[index * 4].is_fixed, updateForm.salary_item_data[index * 4].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4].value"></td>
-                                    <th scope="row" v-if="(index * 4 + 1) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 1].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4 + 1].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 1].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 1].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4 + 1) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 1].addORminus == 0"><b><span v-show="updateForm.salary_item_data[index * 4 + 1].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 1].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 1].salary_name}}</b></td>
                                     <td v-if="(index * 4 + 1) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 1].addORminus == 0"><input @change="reComputeTotal('salary_item_'+(index * 4 + 1), 'minus', updateForm.salary_item_data[index * 4 + 1].paid_way, updateForm.salary_item_data[index * 4 + 1].is_fixed, updateForm.salary_item_data[index * 4 + 1].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 1].value"></td>
-                                    <th scope="row" v-if="(index * 4 + 2) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 2].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4 + 2].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 2].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 2].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4 + 2) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 2].addORminus == 0"><b><span v-show="updateForm.salary_item_data[index * 4 + 2].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 2].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 2].salary_name}}</b></td>
                                     <td v-if="(index * 4 + 2) < (updateForm.salary_item_data.length)  && updateForm.salary_item_data[index * 4 + 2].addORminus == 0"><input @change="reComputeTotal('salary_item_'+(index * 4 + 2), 'minus', updateForm.salary_item_data[index * 4 + 2].paid_way, updateForm.salary_item_data[index * 4 + 2].is_fixed, updateForm.salary_item_data[index * 4 + 2].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 2].value"></td>
-                                    <th scope="row" v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 0"><span v-show="updateForm.salary_item_data[index * 4 + 3].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 3].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 3].salary_name}}</th>
+                                    <td scope="row" v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 0"><b><span v-show="updateForm.salary_item_data[index * 4 + 3].paid_way == 1">❋</span><span v-show="updateForm.salary_item_data[index * 4 + 3].is_daily_salary == 1">⊙</span>{{updateForm.salary_item_data[index * 4 + 3].salary_name}}</b></td>
                                     <td v-if="(index * 4 + 3) < (updateForm.salary_item_data.length) && updateForm.salary_item_data[index * 4 + 3].addORminus == 0"><input @change="reComputeTotal('salary_item_' +(index * 4 + 3), 'minus', updateForm.salary_item_data[index * 4 + 3].paid_way, updateForm.salary_item_data[index * 4 + 3].is_fixed, updateForm.salary_item_data[index * 4 + 3].is_daily_salary)" class="form-control" type="number" min="0" v-model="updateForm.salary_item_data[index * 4 + 3].value"></td>
                                 </tr>
-                                <th colspan="8" style="background-color:#ffe9d6">薪資合計</th>
-                                <th style="background-color:#ffe9d6">實領</th>
+                                <td colspan="8" style="background-color:#ffe9d6"><b>薪資合計</b></td>
+                                <td style="background-color:#ffe9d6"><b>實領</b></td>
                                 <td style="background-color:#ffe9d6">{{updateForm.calculation_data.total_salary}}</td>
                                 <tr>
-                                    <th scope="row" colspan="8"></th>
-                                    <th scope="row">轉帳</th>
+                                    <td scope="row" colspan="8"></td>
+                                    <td scope="row"><b>轉帳</b></td>
                                     <td >
                                         {{updateForm.calculation_data.ATM}}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row" colspan="8"></th>
-                                    <th scope="row">現金</th>
+                                    <td scope="row" colspan="8"></td>
+                                    <td scope="row"><b>現金</b></td>
                                     <td >
                                         {{updateForm.calculation_data.cash}}
                                     </td>
@@ -759,10 +759,6 @@
 
                 
             },
-            updated() {
-                getPagination('#table1',10);
-                getPagination('#table2',10);
-            },
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
@@ -825,6 +821,10 @@
                                     });
                                 });
                             }
+                            this.$nextTick(() => {
+                                getPagination('#table1',10);
+                                getPagination('#table2',10);
+                            });
                         }
                     })
                 },

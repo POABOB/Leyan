@@ -102,7 +102,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(d, index) in data_o" >
-                                        <th scope="row">{{index+1}}</th>
+                                        <td scope="row"><b>{{index+1}}</b></td>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
                                         <td>
                                             <button :id="'p_o_'+index" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
@@ -152,7 +152,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(d, index) in data_o2" >
-                                        <th scope="row">{{index+1}}</th>
+                                        <td scope="row"><b>{{index+1}}</b></td>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
                                         <td>
                                             <button :id="'p_o2_'+index" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
@@ -194,7 +194,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(d, index) in data_e2" >
-                                        <th scope="row">{{index+1}}</th>
+                                        <td scope="row"><b>{{index+1}}</b></td>
                                         <td>{{d.datetime.slice(8,10)}}({{getDay(d.datetime)}})</td>
                                         <td>
                                             <button :id="'p_e2_'+index" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">

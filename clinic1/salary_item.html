@@ -81,7 +81,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(d, index) in data">
-                                <th scope="row">{{index+1}}</th>
+                                <td scope="row"><b>{{index+1}}</b></td>
                                 <td><p v-if="d.status == 1">啟用</p><p v-if="d.status == 2">停用</p></td>
                                 <td>{{d.salary_name}}</td>
                                 <td><p v-if="d.is_fixed == 1">是</p><p v-if="d.is_fixed == 0">否</p></td>
@@ -266,14 +266,14 @@
                                 location.href = './index.html'
                             } else {
                                 this.data = res.data
+                                this.$nextTick(() => {
+                                    getPagination('#table1',10);
+                                });
                             }
                         })
                     }
                 })
                 
-            },
-            updated() {
-                getPagination('#table1',10);
             },
             methods: {
                 logout() {

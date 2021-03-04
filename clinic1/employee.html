@@ -88,7 +88,7 @@
                         </thead>
                         <tbody>
                                 <tr v-for="(d, index) in data">
-                                    <th scope="row">{{index + 1}}</th>
+                                    <td scope="row"><b>{{index + 1}}</b></td>
                                     <td><p>{{d.job_number}}</p></td>
                                     <td><p>{{d.name}}</p></td>
                                     <td><p>{{d.work_at}}</p></td>
@@ -351,7 +351,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(f, index) in family">
-                                    <th scope="row">{{ index+1 }}</th>
+                                    <td scope="row"><b>{{ index+1 }}</b></td>
                                     <td>{{ f.name }}</td>
                                     <td>{{ f.relationship }}</td>
                                     <td>{{ f.birthday }}</td>
@@ -582,13 +582,13 @@
                                 this.data = res.data.sort((a,b) => a.email-b.email)
                                 this.getPositionData()
                                 this.getAttendanceData()
+                                this.$nextTick(() => {
+                                    getPagination('#table1',10);
+                                });
                             }
                         })
                     }
                 })
-            },
-            updated() {
-                getPagination('#table1',10);
             },
             methods: {
                 logout() {

@@ -81,76 +81,130 @@
                         </div>
                     </div>
                     
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">姓名</th>
-                                <th scope="col">日期</th>
-                                <th scope="col">星期</th>
-                                <th scope="col">班別</th>
-                                <th scope="col">早上上班</th>
-                                <th scope="col">遲到</th>
-                                <th scope="col">早上下班</th>
-                                <th scope="col">早退</th>
-                                <th scope="col">下午上班</th>
-                                <th scope="col">遲到</th>
-                                <th scope="col">下午下班</th>
-                                <th scope="col">早退</th>
-                                <th scope="col">晚上上班</th>
-                                <th scope="col">遲到</th>
-                                <th scope="col">晚上下班</th>
-                                <th scope="col">早退</th>
-                                <th scope="col">出勤時數</th>
-                                <th scope="col">實際打卡時數</th>
-                                <th scope="col">超時(分)</th>
-                                <th scope="col">忘打卡</th>
-                                <th scope="col">診數</th>
-                                <th scope="col">餐費次數</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="(d, index) in data">
-                                <tr v-for="(d2, index2) in d.record_data" >
-                                        <th scope="row">{{getIndex()}}</th>
-                                        <td>{{d.name}}</td>
-                                        <td>{{d2.date.slice(-2)}}</td>
-                                        <td>{{d2.day}}</td>
-                                        <td v-if="d2.shift_name !== '無排班'">
-                                            <button :id="'p'+(_index)" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
-                                                {{d2.shift_name}}
-                                            </button>
-                                            <div style="display: none;">{{employeeShiftTime(d2.date, d.employee_id, 'p'+_index)}}</div>
-                                        </td>
-                                        <td v-else>
-                                            {{d2.shift_name}}
-                                        </td>
-                                        <td>{{datetimeFix(d2.data[0])}}</td>
-                                        <td>{{d2.on_1st_l}}</td>
-                                        <td>{{datetimeFix(d2.data[1])}}</td>
-                                        <td>{{d2.off_1st_l}}</td>
-                                        <td>{{datetimeFix(d2.data[2])}}</td>
-                                        <td>{{d2.on_2nd_l}}</td>
-                                        <td>{{datetimeFix(d2.data[3])}}</td>
-                                        <td>{{d2.off_2nd_l}}</td>
-                                        <td>{{datetimeFix(d2.data[4])}}</td>
-                                        <td>{{d2.on_3rd_l}}</td>
-                                        <td>{{datetimeFix(d2.data[5])}}</td>
-                                        <td>{{d2.off_3rd_l}}</td>
-                                        <td>{{d2.total_time}}</td>
-                                        <td>{{d2.true_time ? parseInt(d2.true_time / 60) +':'+((d2.true_time % 60) < 10 ? '0'+(d2.true_time % 60) : (d2.true_time % 60)) : '0:0'}}</td>
-                                        <td>{{d2.over_time}}</td>
-                                        <td>{{d2.no_record_times}}</td>
-                                        <td>{{d2.period}}</td>
-                                        <td>{{d2.meal_times}}</td>
-                                </div>
-                            </template>
-                            <tr v-if="data == null || data.length < 1">
-                                <td colspan="30" style="text-align: center;">無薪出勤資料</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
+                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="pills-tab1" data-toggle="pill" href="#pills1" role="tab" aria-controls="pills1" aria-selected="true">打卡明細</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="pills-tab2" data-toggle="pill" href="#pills2" role="tab" aria-controls="pills2" aria-selected="false">簽到明細</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills1" role="tabpanel" aria-labelledby="pills1">
+                            <table id="table1" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">姓名</th>
+                                        <th scope="col">日期</th>
+                                        <th scope="col">星期</th>
+                                        <th scope="col">班別</th>
+                                        <th scope="col">早上上班</th>
+                                        <th scope="col">遲到</th>
+                                        <th scope="col">早上下班</th>
+                                        <th scope="col">早退</th>
+                                        <th scope="col">下午上班</th>
+                                        <th scope="col">遲到</th>
+                                        <th scope="col">下午下班</th>
+                                        <th scope="col">早退</th>
+                                        <th scope="col">晚上上班</th>
+                                        <th scope="col">遲到</th>
+                                        <th scope="col">晚上下班</th>
+                                        <th scope="col">早退</th>
+                                        <th scope="col">出勤時數</th>
+                                        <th scope="col">實際打卡時數</th>
+                                        <th scope="col">超時(分)</th>
+                                        <th scope="col">忘打卡</th>
+                                        <th scope="col">診數</th>
+                                        <th scope="col">餐費次數</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="(d, index) in data">
+                                        <tr v-for="(d2, index2) in d.record_data" >
+                                                <td scope="row"><b>{{getIndex()}}</b></td>
+                                                <td>{{d.name}}</td>
+                                                <td>{{d2.date.slice(-2)}}</td>
+                                                <td>{{d2.day}}</td>
+                                                <td v-if="d2.shift_name !== '無排班'">
+                                                    <button :id="'p'+(_index)" type="button" class="btn btn-outline-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+                                                        {{d2.shift_name}}
+                                                    </button>
+                                                    <div style="display: none;">{{employeeShiftTime(d2.date, d.employee_id, 'p'+_index)}}</div>
+                                                </td>
+                                                <td v-else>
+                                                    {{d2.shift_name}}
+                                                </td>
+                                                <td>{{datetimeFix(d2.data[0])}}</td>
+                                                <td>{{d2.on_1st_l}}</td>
+                                                <td>{{datetimeFix(d2.data[1])}}</td>
+                                                <td>{{d2.off_1st_l}}</td>
+                                                <td>{{datetimeFix(d2.data[2])}}</td>
+                                                <td>{{d2.on_2nd_l}}</td>
+                                                <td>{{datetimeFix(d2.data[3])}}</td>
+                                                <td>{{d2.off_2nd_l}}</td>
+                                                <td>{{datetimeFix(d2.data[4])}}</td>
+                                                <td>{{d2.on_3rd_l}}</td>
+                                                <td>{{datetimeFix(d2.data[5])}}</td>
+                                                <td>{{d2.off_3rd_l}}</td>
+                                                <td>{{d2.total_time}}</td>
+                                                <td>{{d2.true_time ? parseInt(d2.true_time / 60) +':'+((d2.true_time % 60) < 10 ? '0'+(d2.true_time % 60) : (d2.true_time % 60)) : '0:0'}}</td>
+                                                <td>{{d2.over_time}}</td>
+                                                <td>{{d2.no_record_times}}</td>
+                                                <td>{{d2.period}}</td>
+                                                <td>{{d2.meal_times}}</td>
+                                        </div>
+                                    </template>
+                                    <tr v-if="data == null || data.length < 1">
+                                        <td colspan="30" style="text-align: center;">無薪出勤資料</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination table1" >
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade show" id="pills2" role="tabpanel" aria-labelledby="pills2">
+                            <table id="table2" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">姓名</th>
+                                        <th scope="col">日期</th>
+                                        <th scope="col">星期</th>
+                                        <th scope="col">上班</th>
+                                        <th scope="col">下班</th>
+                                        <th scope="col">出勤時數</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="(d, index) in data">
+                                        <tr v-for="(d2, index2) in d.check_data" >
+                                                <td scope="row"><b>{{getIndex2()}}</b></td>
+                                                <td>{{d.name}}</td>
+                                                <td>{{d2.date.slice(-2)}}</td>
+                                                <td>{{d2.day}}</td>
+                                                <td>{{datetimeFix(d2.data[0])}}</td>
+                                                <td>{{datetimeFix(d2.data[1])}}</td>
+                                                <td>{{d2.total_time}}</td>
+                                        </div>
+                                    </template>
+                                    <tr v-if="data == null || data.length < 1">
+                                        <td colspan="30" style="text-align: center;">無薪出勤資料</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination table2" >
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 
 
                     
@@ -198,6 +252,7 @@
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/vue.js"></script>
+    <script src="../assets/js/pagination.js"></script>
     <script src="../assets/js/moment.js"></script>
     <script src="../assets/js//jspdf.debug.js"></script>
     <script src='../assets/js/jspdf.plugin.autotable.js'></script>
@@ -220,6 +275,7 @@
                 // popover:[],
                 month: '0000-00',
                 _index: 0,
+                __index: 0,
                 filter: {
                     startDate: '0000-00-00',
                     endDate: '0000-00-00',
@@ -250,6 +306,11 @@
                 })
                 
             },
+            updated() {
+                this._index = 0;
+                this.__index = 0;
+                console.log(_popover);
+            },
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
@@ -271,6 +332,14 @@
                         this._index++
                     }
                     return this._index
+                },
+                getIndex2(){
+                    if (!this.__index){
+                        this.__index=1
+                    }else{
+                        this.__index++
+                    }
+                    return this.__index
                 },
                 getAttendanceRecordData() {
                     this._index = 0;
@@ -302,6 +371,8 @@
                                     });
                                     $(item.id).data('bs.popover').config.content = item.content;
                                 });
+                                getPagination('#table1',10);
+                                getPagination('#table2',10);
                             });
                         }
                     })
@@ -311,6 +382,9 @@
                         //call api
                         this.getAttendanceRecordData()
                     } else if(this.origin_data[0].date == this.month) {
+                        _popover = [];
+                        this._index = 0;
+                        this.__index = 0;
                         //判斷月份跟data的月份是否相同，相同不用call api
                         //filter 日期 員工id(0為全部)
                         let data = JSON.parse(JSON.stringify(this.origin_data))
@@ -325,6 +399,18 @@
                             item.record_data = item.record_data.filter(d => new Date(d.date) >= new Date(this.filter.startDate) && new Date(d.date) <= new Date(this.filter.endDate))
                         })
                         this.data = tmp
+                        this.$nextTick(() => {
+                            _popover.forEach(item => {
+                                $(item.id).popover({
+                                    html: true,
+                                    content: item.content,
+                                    trigger: 'hover'
+                                });
+                                $(item.id).data('bs.popover').config.content = item.content;
+                            });
+                            getPagination('#table1',10);
+                            getPagination('#table2',10);
+                        });
                     } else {
                         //call api
                         this.getAttendanceRecordData()
@@ -345,6 +431,7 @@
                 printPDF() {
                     //整理資料
                     let data = []
+                    let data2 = []
                     let nums = 0
                     this.data.forEach(item => {
                         item.record_data.forEach(item2 => {
@@ -363,10 +450,19 @@
                         if(item.record_data.length !== 0) {
                             data.push(['', '', '', '', '', '', '', '', '', '',])
                         }
+                        item.check_data.forEach(item2 => {
+                            data2.push([
+                                nums, item.name, item2.date.slice(-2), item2.day,
+                                item2.data[0].length > 11 ? item2.data[0].slice(11,16) : item2.data[0].slice(0,5), 
+                                item2.data[1].length > 11 ? item2.data[1].slice(11,16) : item2.data[1].slice(0,5)
+                            ])
+                        })
+                        if(item.check_data.length !== 0) {
+                            data2.push(['', '', '', '', '', '', '', '', '', '',])
+                        }
                     })
 
                     //列印
-                    console.log(data);
                     const doc = new jsPDF()
                     doc.setFont('TaipeiSans');
                     const options = {
@@ -377,13 +473,13 @@
                     };
 
                     if(this.filter.employee_id == 0) {
-                        doc.text(15, 15, `${this.month}出勤明細(全員)`)
+                        doc.text(15, 15, `${this.month}打卡明細(全員)`)
                         doc.setProperties({
                             title: this.month+"出勤明細(全員)"
                         });
                     } else {
                         const d = this.data.find(d => d.employee_id == this.filter.employee_id)
-                        doc.text(15, 15, `${this.month}出勤明細(${d.name})`)
+                        doc.text(15, 15, `${this.month}打卡明細(${d.name})`)
                         doc.setProperties({
                             title: this.month+"出勤明細("+d.name+")"
                         });
@@ -400,6 +496,29 @@
                         },
                         head: [['#','姓名','日期','星期','班別', '1st\n上班','1st\n下班','2nd\n上班','2nd\n下班','3rd\n上班','3rd\n下班']],
                         body: data,
+                        options
+                    })
+                    
+                    // window.open(doc.output('bloburl'), '_blank');
+                    
+                    if(this.filter.employee_id == 0) {
+                        doc.text(15, doc.lastAutoTable.finalY + 10, `${this.month}簽到明細(全員)`)
+                    } else {
+                        const d = this.data.find(d => d.employee_id == this.filter.employee_id)
+                        doc.text(15, doc.lastAutoTable.finalY + 10, `${this.month}簽到明細(${d.name})`)
+                    }
+
+                    doc.autoTable({
+                        theme: 'striped',
+                        startY: doc.lastAutoTable.finalY + 14,
+                        styles: {
+                            halign: 'center',
+                            cellPadding: 2.5,
+                            fontStyle:"normal",
+                            font: "TaipeiSans"
+                        },
+                        head: [['#','姓名','日期','星期', '1st\n上班','1st\n下班']],
+                        body: data2,
                         options
                     })
                     window.open(doc.output('bloburl'), '_blank');

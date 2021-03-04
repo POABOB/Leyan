@@ -103,7 +103,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(d, index) in data" >
-                                <th scope="row">{{index+1}}</th>
+                                <td scope="row"><b>{{index+1}}</b></td>
                                 <td><button data-toggle="modal" data-target="#editEmployee" class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.salary_calculation_id, d.employee_id)">{{d.name}}</button></td>
                                 <td>{{d.statistic_data.work_days}}</td>
                                 <td>{{d.statistic_data.total_time}}</td>
@@ -176,63 +176,63 @@
                         <table class="table" id="editTable">
                             <tbody>
                                 <tr>
-                                    <th scope="row">姓名</th>
+                                    <td scope="row"><b>姓名</b></td>
                                     <td colspan="5">
                                         {{this.updateForm.name}}
                                     </td>
                                 </tr>
                                 <tr>    
-                                    <th scope="row">總工時</th>
+                                    <td scope="row"><b>總工時</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.total_time}} 小時</span>
                                     </td>
-                                    <th scope="row">實際打卡時數</th>
+                                    <td scope="row"><b>實際打卡時數</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.true_time ? updateForm.statistic_data.true_time : 0}} 小時</span>
                                     </td>
-                                    <th scope="row">總診數</th>
+                                    <td scope="row"><b>總診數</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.period}} 診</span>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">請假(扣全薪)</th>
+                                    <td scope="row"><b>請假(扣全薪)</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.leave_all}} 分鐘</span>
                                     </td>
-                                    <th scope="row">請假(扣半薪)</th>
+                                    <td scope="row"><b>請假(扣半薪)</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.leave_half}} 分鐘</span>
                                     </td>
-                                    <th scope="row">請假(不扣薪)</th>
+                                    <td scope="row"><b>請假(不扣薪)</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.leave_none}} 分鐘</span>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">超時</th>
+                                    <td scope="row"><b>超時</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.over_time}} 分鐘</span>
                                     </td>
-                                    <th scope="row">早退</th>
+                                    <td scope="row"><b>早退</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.early}} 分鐘</span>
                                     </td>
-                                    <th scope="row">遲到</th>
+                                    <td scope="row"><b>遲到</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.late}} 分鐘</span>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">忘刷卡</th>
+                                    <td scope="row"><b>忘刷卡</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.no_record_times}} 次</span>
                                     </td>
-                                    <th scope="row">加診診數</th>
+                                    <td scope="row"><b>加診診數</b></td>
                                     <td>
                                         <span>{{updateForm.statistic_data.bonus_period}} 診</span>
                                     </td>            
-                                    <th scope="row">補助餐次數</th>
+                                    <td scope="row"><b>補助餐次數</b></td>
                                     <td  colspan="3">
                                         <span>{{updateForm.statistic_data.meal_times}} 次</span>
                                     </td>                    
@@ -484,9 +484,6 @@
                     }
                 })                
             },
-            updated() {
-                getPagination('#table1',10);
-            },
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
@@ -529,6 +526,9 @@
                                 this.manual_data = (this.data2.filter(d => parseInt(d.employee_id) === parseInt(this.manualForm.employee_id))).sort((a, b) => new Date(a.date) - new Date(b.date))
                             }
                             this.getClosedDate()
+                            this.$nextTick(() => {
+                                getPagination('#table1',10);
+                            });
                         }
                     })
                 },

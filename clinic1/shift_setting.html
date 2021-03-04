@@ -90,7 +90,7 @@
                         </thead>
                         <tbody>
                                 <tr v-for="(d, index) in data">
-                                    <th scope="row">{{index + 1}}</th>
+                                    <td scope="row"><b>{{index + 1}}</b></td>
                                     <td>{{d.shift_name}}</td>
                                     <td>{{d.on_1st}}</td>
                                     <td>{{d.off_1st}}</td>
@@ -116,8 +116,8 @@
                                 </tr>
                         </tbody>
                     </table>
-                    <div>
-                        <nav>
+                    <div class="d-flex justify-content-center">
+                        <nav aria-label="Page navigation example">
                             <ul class="pagination table1" >
                             </ul>
                         </nav>

@@ -86,8 +86,8 @@
                         </thead>
                         <tbody>
                                 <tr v-for="(d, index) in data">
-                                    <th scope="row">{{index + 1}}</th>
-                                    <td><p>{{d.title}}</p></td>
+                                    <td scope="row"><b>{{index + 1}}</b></td>
+                                    <td><p style=" max-width:200px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{d.title}}</p></td>
                                     <td><p>{{d.start_at}}</p></td>
                                     <td><p>{{d.end_at}}</p></td>
                                     <td><button  class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisAnnounceRead"  @click="showThisAnnounceRead(d.id)">{{readNums(d.employee_read)}}</button></td>
@@ -310,6 +310,9 @@
                         if (res.code === 200) {
                             this.data = res.data[0];
                             this.employee = res.data[1];
+                            this.$nextTick(() => {
+                                getPagination('#table1',10);
+                            });
                         }
                         else {
                             alert(res.message)

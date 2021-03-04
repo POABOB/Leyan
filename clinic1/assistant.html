@@ -81,7 +81,7 @@
                         </thead>
                         <tbody>
                                 <tr v-for="(d, index) in data">
-                                    <th scope="row">{{index + 1}}</th>
+                                    <td scope="row"><b>{{index + 1}}</b></td>
                                     <td><p>{{d.account_number}}</p></td>
                                     <td><p>{{d.name ? d.name : '無'}}</p></td>
                                     <td><p v-show="d.right == 4">診所老闆</p><p v-show="d.right == 3">管理員</p><p v-show="d.right == 2">助理</p></td>                         
@@ -273,9 +273,6 @@
                 })
                 
             },
-            updated() {
-                getPagination('#table1',10);
-            },
             methods: {
                 logout() {
                     get('/api_v1.1/logout').then(res => {
@@ -296,6 +293,9 @@
                             location.href = './index.html'
                         } else {
                             this.data = res.data
+                            this.$nextTick(() => {
+                                getPagination('#table1',10);
+                            });
                         }
                     });
                 },

@@ -87,7 +87,7 @@
                         </thead>
                         <tbody>
                                 <tr v-for="(d, index) in data">
-                                    <th scope="row">{{index + 1}}</th>
+                                    <td scope="row"><b>{{index + 1}}</b></td>
                                     <td><p>{{d.job_number}}</p></td>
                                     <td><p>{{d.name}}</p></td>
                                     <td><p>{{d.work_at}}</p></td>
@@ -95,7 +95,7 @@
                                     <td><p>{{d.position}}</p></td>
                                     <td><p v-if="d.level_of_position == 2">正職</p><p v-if="d.level_of_position == 1">兼職</p><p v-if="d.level_of_position == 0">試用</p></td>                         
                                     <td><p>{{d.birthday}}</p></td>
-                                    <td><p v-if="d.gender == 1">男</p><p v-else>女</p></td>
+                                    <td><p v-if="d.gender == 0">男</p><p v-else>女</p></td>
                                     <td><p>{{d.telephone}}</p></td>
                                     <td><p>{{d.cellphone}}</p></td>
                                     <td>
@@ -162,14 +162,14 @@
                                 location.href = './index.html'
                             } else {
                                 this.data = res.data
+                                this.$nextTick(() => {
+                                    getPagination('#table1',10);
+                                });
                             }
                         })
                     }
                 })
                 
-            },
-            updated() {
-                getPagination('#table1',10);
             },
             methods: {
                 logout() {
