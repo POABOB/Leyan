@@ -433,6 +433,7 @@
                     let data = []
                     let data2 = []
                     let nums = 0
+                    let check_nums = 0
                     this.data.forEach(item => {
                         item.record_data.forEach(item2 => {
                             nums += 1
@@ -451,8 +452,9 @@
                             data.push(['', '', '', '', '', '', '', '', '', '',])
                         }
                         item.check_data.forEach(item2 => {
+                            check_nums += 1
                             data2.push([
-                                nums, item.name, item2.date.slice(-2), item2.day,
+                                check_nums, item.name, item2.date.slice(-2), item2.day,
                                 item2.data[0].length > 11 ? item2.data[0].slice(11,16) : item2.data[0].slice(0,5), 
                                 item2.data[1].length > 11 ? item2.data[1].slice(11,16) : item2.data[1].slice(0,5)
                             ])
