@@ -219,7 +219,10 @@
                                 <label for="account_number">將</label>
                                 <select name="week" id="" class="form-control"  v-model="weeksForm.startWeek">
                                     <option value="0">請選擇</option>
-                                    <option v-for="(d,index) in weeks" v-show="filterCopy(index)" :style="{visibility: filterCopy(index) ? 'visible' : 'hidden'}" :value="d.startDay">{{d.startDay}}~{{d.endDay}}</option>
+                                    <template v-for="(d,index) in weeks">
+                                        <option v-if="filterCopy(index)" :value="d.startDay">{{d.startDay}}~{{d.endDay}}</option>
+                                    </template>
+                                    
                                 </select>
                             </div>
                             <div class="col-12">
