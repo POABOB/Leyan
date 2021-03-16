@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexin Old to New</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+	<div id="app">
+        <form  ref="postForm" id="postForm">
+            <label>診所ID</label>
+            <input required min="1" maxlength="11"  type="number" id="clinic_id" v-model="clinic_id"><br>
+            <label>診所代號</label>
+            <input required minlength="5" maxlength="5" type="text" id="clinic_id" v-model="clinic_code" value="L0000"><br>
+            <label>員工 CSV</label>
+            <input required type="file" id="csv_employee" @change="readCSV('employee')"><br>
+            <label>薪項 CSV</label>
+            <input required type="file" id="csv_salary_item" @change="readCSV('salary_item')"><br>
+            <label>基本薪資 CSV</label>
+            <input required type="file" id="csv_basic_salary" @change="readCSV('basic_salary')"><br>
+            <!-- <button @click="filterEmployeeCSV()">filter1</button>
+            <button @click="filterSICSV()">filter2</button>
+            <button @click="filterBSCSV()">filter3</button> -->
+            <button type="button" @click="addClinicData()">送出</button>
+        </form>
+	</div>
+	<script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+	<script src="../assets/js/vue.js"></script>
+	<script>
+        get('/api_v1.1/login/check').then(res => {
+            if (res.code !== 200) {
+                location.href = './index.html'
+            }
+        })
+		new Vue({
+			el: "#app",
+			data() {
+				return {
+                    clinic_id: 0,
+                    clinic_code: '',
+					employee: [],
+					salary_item: [],
+                    basic_salary: [],
+                    postForm: {
+                        clinic_id: 0,
+                        clinic_code: '',
+                        employee: [],
+                        salary_item:[],
+                        basic_salary:[],
+                        salary_fixed_item:[],
+                        salary_item_name:[],
+                    }
+				}
+			},
+			methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.code === 200) {
+                            window.localStorage.removeItem('token')
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+				readCSV(id) {
+                    let fileInput = document.getElementById(`csv_${id}`);
+                    var that = this;
+                    if(id === 'employee') {
+                        this.parseCSV(fileInput.files[0], ',',  (result) => {
+                           this.employee = result;
+                        });
+                    } else if(id === 'salary_item') {
+                        this.parseCSV(fileInput.files[0], ',',  (result) => {
+                           this.salary_item = result;
+                        });
+                    } else {
+                        this.parseCSV(fileInput.files[0], ',',  (result) => {
+                           this.basic_salary = result;
+                        });
+                    }
+                },
+                parseCSV(file, delimiter, callback) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        //把每行拆成一個array
+                        var lines = this.result.split('\n');
+
+                        //用,區分每個元素
+                        var result = lines.map(function(line) {
+                            return line.split(delimiter);
+                        });
+                        
+                        //非同步的關係 不能使用return 而要callback返回結果
+                        callback(result);
+                    }
+                    // Read the file content as a single string
+                    reader.readAsText(file);
+                },
+				addClinicData() {
+                    if(this.$refs.postForm.checkValidity()) {
+                        this.filterEmployeeCSV();
+                        this.filterSICSV();
+                        this.filterBSCSV();
+                        this.postForm.clinic_id = this.clinic_id;
+                        this.postForm.clinic_code = this.clinic_code;
+                        if(confirm('是否要提交?')) {
+                            post('/api_v1.1/admin/clinic/oldToNew', this.postForm).then(res => {
+                                if (res.code == 200) {
+                                    alert(res.message);
+                                } else {
+                                    alert(res.message);
+                                }
+                            })
+                        }
+                    } else {
+                        this.$refs.postForm.reportValidity();
+                    }
+				},
+                paddingLeft(str,lenght){
+                    if(str.length >= lenght) {
+                        return str;
+                    } else {
+                        return this.paddingLeft("0" +str,lenght);
+                    }
+                },
+                filterEmployeeCSV() {
+                    if(this.employee[0].length < 43) {
+                        alert('請確認員工資料是否正確!')
+                    } else {
+                        //要獲取的資料array
+                        const th = ['empno', 'empname', 'nickname', 'empbirth', 'sex', 'blood', 'empid', 'addr1', 'tel1', 'addr2', 'tel2', 
+                        'mobile' ,'email', 'emcontact', 'emmobile', 'emrel','FirstDate','LastDate',
+                        'jobtitle', 'jobkind','asqty','empsn']
+                        //對照要插入的資料array
+                        const th2 = [`job_number`,`name`,`nickname`,`birthday`,`gender`,`blood_type`,`id_card_number`,`resistence_address`,`resistence_phone`,`mailing_address`,`mailing_phone`,
+                        `cellphone`,`email`,`emergency_contact`,`emergency_phone`,`emergency_relationship`,`work_at`,`leave_at`,
+                        `position`,`level_of_position`,`assistant_number`,`status`,`clinic_id`]
+                        
+                        //獲取要取用資料的index
+                        let index = [];
+                        th.forEach(item => {
+                            index.push(this.employee[0].indexOf(item));
+                        })
+
+                        //獲取要插入的資料
+                        let data = []
+                        let element = []
+                        this.employee.forEach((item, i) => {
+                            if(i > 0) {
+                                element = []
+                                index.forEach(i => {
+                                    element.push(item[i])
+                                })
+                                data.push(element)
+                            }
+                        })
+
+                        data.forEach((item, index) => {
+                            //判斷有沒有離職&新增clinic_id
+                            if(data[index][17] !== "" && data[index][17].length === 10) {
+                                data[index].push("0")
+                            } else {
+                                data[index].push("2")
+                            }
+                            // console.log(data[index][21])
+
+                            //email正則&密碼確認有無 無則使用A123456789
+                            data[index][12] = `${this.clinic_code}_${this.paddingLeft(index+1, 3)}@leyan.com.tw`;
+                            data[index][6] = (data[index][6] !== "") ? data[index][6] : 'A123456789';
+                        })
+
+                        this.postForm.employee = data;
+                    }
+                },
+                filterSICSV() {
+                    if(this.salary_item[0].length < 14) {
+                        alert('請確認薪項資料是否正確!')
+                    } else {
+                        //要獲取的資料array
+                        const th = ['cname','isfixed','itemkind','ispaycash','isWage','status'];
+                        
+                        //對照要插入的資料array
+                        const th2 = ['salary_name','is_fixed','addORminus','paid_way','is_daily_salary','status','clinic_id'];
+                        //獲取要取用資料的index
+                        let index = [];
+                        th.forEach(item => {
+                            index.push(this.salary_item[0].indexOf(item));
+                        })
+
+                        //獲取要插入的資料
+                        let data = []
+                        let element = []
+                        this.salary_item.forEach((item, i) => {
+                            if(i > 0) {
+                                element = []
+                                index.forEach(i => {
+                                    element.push(item[i]);
+                                });
+
+                                //判斷方式更改
+                                if(parseInt(element[2]) === 2) {
+                                    element[2] = 0;
+                                }
+
+                                //只插入已經啟用的薪項
+                                if(parseInt(element[5]) > 0) {
+                                    data.push(element);
+                                    if(parseInt(element[1]) === 1) {
+                                        this.postForm.salary_item_name.push(item[2]);
+                                    }
+                                }
+                            }
+                        })
+                        this.postForm.salary_item_name.push('empsn');
+                        this.postForm.salary_item = data;
+                        this.filterSFICSV();
+                    }
+                },
+                filterBSCSV() {
+                    if(this.basic_salary[0].length < 42) {
+                        alert('請確認基本薪資資料是否正確!')
+                    } else {
+                        //要獲取的資料array
+                        const th = ['base','insure','lbSubsidy','labor','hlSubsidy','health','FMcnt','acpay','empsn']
+                        //對照要插入的資料array
+                        const th2 = ['basic_salary','insurance_salary','labor_relief','labor_insurance',
+                        'health_relief','health_insurance','health_insurance_with_family','family_number',
+                        'bonus_per_period','employee_id','name','meal_fee','clinic_id'];
+
+                        //獲取要取用資料的index
+                        let index = [];
+                        th.forEach(item => {
+                            index.push(this.basic_salary[0].indexOf(item));
+                        })
+
+                        //獲取要插入的資料
+                        let data = []
+                        let element = []
+                        this.basic_salary.forEach((item, i) => {
+                            if(i > 0) {
+                                element = []
+                                index.forEach(i => {
+                                    element.push(item[i])
+                                })
+                                data.push(element)
+                            }
+                        })
+
+                        this.postForm.basic_salary = data;
+                    }
+                },
+                filterSFICSV() {
+                    if(this.basic_salary[0].length < 42) {
+                        alert('請確認基本薪資資料是否正確!')
+                    } else {
+                        //要獲取的資料array
+                        let th = this.postForm.salary_item_name;
+                        //獲取要取用資料的index
+                        let index = [];
+                        th.forEach(item => {
+                            index.push(this.basic_salary[0].indexOf(item));
+                        })
+                        console.log(index);
+
+                        //獲取要插入的資料
+                        let data = [];
+                        let element = [];
+                        this.basic_salary.forEach((item, i) => {
+                            if(i > 0) {
+                                element = []
+                                index.forEach(i => {
+                                    element.push(item[i])
+                                })
+                                data.push(element)
+                            }
+                        })
+
+                        this.postForm.salary_fixed_item = data;
+                    }
+                }
+			}
+		})
+
+	</script>
+</body>
+</html>

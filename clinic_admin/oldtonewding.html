@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexin Old to New Ding</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+	<div id="app">
+        <form  ref="postForm" id="postForm">
+            <label>診所ID</label>
+            <input required min="1" maxlength="11"  type="number" id="clinic_id" v-model="clinic_id"><br>
+            <label>診所代號</label>
+            <input required minlength="5" maxlength="5" type="text" id="clinic_id" v-model="clinic_code" value="L0000"><br>
+            <label>員工 CSV</label>
+            <input required type="file" id="csv_employee" @change="readCSV('employee')"><br>
+            <button type="button" @click="addClinicData()">送出</button>
+        </form>
+	</div>
+	<script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+	<script src="../assets/js/vue.js"></script>
+	<script>
+        get('/api_v1.1/login/check').then(res => {
+            if (res.code !== 200) {
+                location.href = './index.html'
+            }
+        })
+		new Vue({
+			el: "#app",
+			data() {
+				return {
+                    clinic_id: 0,
+                    clinic_code: '',
+					employee: [],
+                    postForm: {
+                        clinic_id: 0,
+                        clinic_code: '',
+                        clinic_code: '',
+                        employee: [],
+                    }
+				}
+			},
+			methods: {
+                logout() {
+                    get('/api_v1.1/logout').then(res => {
+                        if (res.code === 200) {
+                            window.localStorage.removeItem('token')
+                            alert('success')
+                            location.href = './index.html'
+                            return
+                        }
+                        else {
+                            alert(res.message)
+                        }
+                    })
+                },
+				readCSV(id) {
+                    let fileInput = document.getElementById(`csv_${id}`);
+                    var that = this;
+                    if(id === 'employee') {
+                        this.parseCSV(fileInput.files[0], ',',  (result) => {
+                           this.employee = result;
+                        });
+                    }
+                },
+                parseCSV(file, delimiter, callback) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        //把每行拆成一個array
+                        var lines = this.result.split('\n');
+
+                        //用,區分每個元素
+                        var result = lines.map(function(line) {
+                            return line.split(delimiter);
+                        });
+                        
+                        //非同步的關係 不能使用return 而要callback返回結果
+                        callback(result);
+                    }
+                    // Read the file content as a single string
+                    reader.readAsText(file);
+                },
+				addClinicData() {
+                    if(this.$refs.postForm.checkValidity()) {
+                        this.filterEmployeeCSV();
+                        this.postForm.clinic_id = this.clinic_id;
+                        this.postForm.clinic_code = this.clinic_code;
+                        if(confirm('是否要提交?')) {
+                            post('/api_v1.1/admin/clinic/oldToNewDing', this.postForm).then(res => {
+                                if (res.code == 200) {
+                                    alert(res.message);
+                                } else {
+                                    alert(res.message);
+                                }
+                            })
+                        }
+                    } else {
+                        this.$refs.postForm.reportValidity();
+                    }
+				},
+                paddingLeft(str,lenght){
+                    if(str.length >= lenght) {
+                        return str;
+                    } else {
+                        return this.paddingLeft("0" +str,lenght);
+                    }
+                },
+                filterEmployeeCSV() {
+                    //要獲取的資料array
+                    let data = [];
+                    this.employee.forEach((item,index) => {
+                        if(index > 0) {
+                            if(item[0] !== "") {
+                                data.push(item[0]);
+                            }
+                        }
+                    })
+                    this.postForm.employee = data;
+                }
+			}
+		})
+
+	</script>
+</body>
+</html>
