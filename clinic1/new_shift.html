@@ -631,7 +631,7 @@
                     } else {
                         const position = this.position.find(data => data.position_id == position_id)
                         this.updateform.data[index].position = JSON.parse(JSON.stringify(position))
-                        console.log(position)
+                        // console.log(position)
                     }
                 },
                 employeeShift() {
@@ -654,8 +654,18 @@
                     } else {
                         _not_in = JSON.parse(JSON.stringify(this.employee))
                     }
-                    
-                    this.employee_not_in_shift = _not_in
+
+                    // 避免已離職員工還存在在表單中
+                    let _new_not_in = [];
+                    _not_in.forEach(item => {
+                        const employee = this.employee.find(d => parseInt(d.employee_id) === parseInt(item.employee_id))
+                        // 如果離職日小於startDay則不顯示
+                        if((Date.parse(employee.leave_at)).valueOf() >= (Date.parse(this.month.startDay)).valueOf()) {
+                            _new_not_in.push(item);
+                        }
+                    });
+
+                    this.employee_not_in_shift = _new_not_in;
                     this.employee_in_shift = _in
                 },
                 selectEditData() {
@@ -791,14 +801,14 @@
                                 item['nickname'] = data.nickname
                             }
                         })
-                        console.log(this.shift_table)
+                        // console.log(this.shift_table)
                         // 傳入Shift.js
                         this.s = new Shift(this.shift_table)
                         this.changeLiHeight()
                     }
                 },
                 Switch(type) {
-                    console.log(type)
+                    // console.log(type)
                     if(type === 1) {
                         document.getElementById('weekForm').style.display = "none"
                         document.getElementById('monthForm').style.display = "block"
