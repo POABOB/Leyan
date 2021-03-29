@@ -579,7 +579,17 @@
                                 location.href = './index.html'
                             } else {
                                 // this.data = res.data
-                                this.data = res.data.sort((a,b) => a.email-b.email)
+                                // this.data = res.data.sort((a,b) => a.email-b.email)
+                                this.data = ArraySort(res.data, (a,b) => {
+                                    if (b.email.toUpperCase() > a.email.toUpperCase()) {
+                                        return -1;
+                                    }
+                                    if (b.email.toUpperCase() < a.email.toUpperCase()) {
+                                        return 1;
+                                    }
+                                    // names must be equal
+                                    return 0;
+                                })
                                 this.getPositionData()
                                 this.getAttendanceData()
                                 this.$nextTick(() => {

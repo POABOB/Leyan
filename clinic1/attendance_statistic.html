@@ -523,7 +523,9 @@
                             }
 
                             if(this.manualForm.employee_id !== 0) {
-                                this.manual_data = (this.data2.filter(d => parseInt(d.employee_id) === parseInt(this.manualForm.employee_id))).sort((a, b) => new Date(a.date) - new Date(b.date))
+                                // this.manual_data = (this.data2.filter(d => parseInt(d.employee_id) === parseInt(this.manualForm.employee_id))).sort((a, b) => new Date(a.date) - new Date(b.date))
+                                this.manual_data = ArraySort((this.data2.filter(d => parseInt(d.employee_id) === parseInt(this.manualForm.employee_id))),
+                                                                (a, b) => new Date(a.date) - new Date(b.date))
                             }
                             this.getClosedDate()
                             this.$nextTick(() => {
@@ -556,7 +558,9 @@
                     this.updateForm.statistic_data = data.statistic_data
 
                     //manual
-                    this.manual_data = (this.data2.filter(d => parseInt(d.employee_id) === parseInt(employee_id))).sort((a, b) => new Date(a.date) - new Date(b.date))
+                    // this.manual_data = (this.data2.filter(d => parseInt(d.employee_id) === parseInt(employee_id))).sort((a, b) => new Date(a.date) - new Date(b.date))
+                    this.manual_data = ArraySort((this.data2.filter(d => parseInt(d.employee_id) === parseInt(employee_id))),
+                                                    (a, b) => new Date(a.date) - new Date(b.date))
                     this.manualForm.employee_id = employee_id
                 },
                 updateThisEmployeeData() {
