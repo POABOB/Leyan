@@ -201,57 +201,76 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <div class="row justify-content-center" style="display: none;">
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-primary active" @click="Switch(0)">
-                                        <input type="radio" name="copyType" id="copyType1" autocomplete="off" v-model="copyType" value="0">   整週複製   
-                                    </label>
-                                    <label class="btn btn-primary" @click="Switch(1)">
-                                        <input type="radio" name="copyType" id="copyType2" autocomplete="off"  v-model="copyType" value="1">   整月複製   
-                                    </label>
+                        <div class="col-md-12 text-center">
+                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="display: inline-flex;">
+                                <li class="nav-item" @click="Switch(0)">
+                                    <a class="nav-link active" id="pills-1-tab" data-toggle="pill" href="#pills-1" role="tab" aria-controls="pills-1" aria-selected="true">整體班表複製</a>
+                                </li>
+                                <li class="nav-item" @click="Switch(1)">
+                                    <a class="nav-link" id="pills-2-tab" data-toggle="pill" href="#pills-2" role="tab" aria-controls="pills-2" aria-selected="false">個別班表複製</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-content" id="pills-tabContent">
+                            <div class="tab-pane fade show active" id="pills-1" role="tabpanel" aria-labelledby="pills-1-tab">
+                                <div class="form-group row" id="weekForm">
+                                    <div class="col-12">
+                                        <div class="alert alert-warning" role="alert">
+                                            <strong>Tips:</strong>此功能主要是將某一週已經排完班的班表整體複製到其他週，由於<strong>首週</strong>與<strong>末週</strong>有天數不滿7天的限制所以不開放複製去其他週
+                                        </div>
+                                        <label for="account_number">將</label>
+                                        <select name="week" id="" class="form-control"  v-model="weeksForm.startWeek">
+                                            <option value="0">請選擇</option>
+                                            <template v-for="(d,index) in weeks">
+                                                <option v-if="filterCopy(index)" :value="d.startDay">{{d.startDay}}~{{d.endDay}}</option>
+                                            </template>
+                                            
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="account_number">複製到</label>
+                                        <select name="week" id="" class="form-control" v-model="weeksForm.endWeek">
+                                            <option value="0">請選擇</option>
+                                            <option :value="d.startDay" v-for="(d,index) in weeks" v-show="checkMulti(index)">{{d.startDay}}~{{d.endDay}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-2" role="tabpanel" aria-labelledby="pills-2-tab">
+                                <div class="form-group row" id="selfForm">
+                                    <div class="col-12">
+                                        <div class="alert alert-warning" role="alert">
+                                            <strong>Tips:</strong>此功能主要是將某一週一位已經排好班員工的班表複製到該週其他員工上，被複製的員工<strong>必須在員工資料設定崗位才可以被選擇</strong>
+                                        </div>
+                                        <label for="week">週別</label>
+                                        <select v-model="selfForm.startDay" @change="employeeSelfShift()" name="week" class="form-control">
+                                            <option value="0">請選擇</option>
+                                            <option :value="d.startDay" v-for="(d,index) in weeks" v-show="checkMulti(index)">{{d.startDay}}~{{d.endDay}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="employee">已排班員工</label>
+                                        <select v-model="selfForm.employee_id" name="employee" class="form-control">
+                                            <option value="0">請選擇</option>
+                                            <option :value="e.employee_id" v-for="e in employee_in_shift_self">{{e.name}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="employee">目標員工</label>
+                                        <div v-for="e in selfForm.employees" class="form-check" v-show="parseInt(e.employee_id) !== parseInt(selfForm.employee_id)">
+                                            <input v-model="e.checked" value="e.employee_id" type="checkbox">
+                                            <label for="checkbox">{{e.name}}</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group row" id="weekForm">
-                            <div class="col-12">
-                                <label for="account_number">將</label>
-                                <select name="week" id="" class="form-control"  v-model="weeksForm.startWeek">
-                                    <option value="0">請選擇</option>
-                                    <template v-for="(d,index) in weeks">
-                                        <option v-if="filterCopy(index)" :value="d.startDay">{{d.startDay}}~{{d.endDay}}</option>
-                                    </template>
-                                    
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label for="account_number">複製到</label>
-                                <select name="week" id="" class="form-control" v-model="weeksForm.endWeek">
-                                    <option value="0">請選擇</option>
-                                    <option :value="d.startDay" v-for="(d,index) in weeks" v-show="checkMulti(index)">{{d.startDay}}~{{d.endDay}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- <div class="form-group row" id="monthForm" style="display: none;">
-                            <div class="col-12">
-                                <label for="account_number">將</label>
-                                <select name="month" id="" class="form-control">
-                                    <option value="0">請選擇</option>
-                                    <option value="0">2</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label for="account_number">複製到</label>
-                                <select name="month" id="" class="form-control">
-                                    <option value="0">請選擇</option>
-                                </select>
-                            </div>
-                        </div> -->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @click="copyShiftData()">送出</button>
+                        <button type="button" class="btn btn-primary" @click="copyAllShiftData()" v-show="copyType===0">送出</button>
+                        <button type="button" class="btn btn-primary" @click="copySelfShiftData()" v-show="copyType===1">送出</button>
                     </div>
                 </div>
             </div>
@@ -330,6 +349,12 @@
                     startWeek: "0",
                     endWeek: "0",
                 },
+                selfForm:{
+                    startDay: 0,
+                    employee_id: 0,
+                    employees:[]
+                },
+                employee_in_shift_self: [],
                 closed_date:[],
                 user: {
                     user_id: 0,
@@ -686,7 +711,7 @@
                         //搜尋該員工，獲取positio_id
                         const e = this.employee.find(d => d.employee_id == this.form.employee_id)
                         this.form.nickname = e.nickname
-                        if(e.position_id !== 0) {
+                        if(parseInt(e.position_id) !== 0) {
                             //獲取該職位名稱
                             const p = this.position.find(d => d.position_id == e.position_id)
                             this.form.data.forEach(item => {
@@ -808,64 +833,53 @@
                     }
                 },
                 Switch(type) {
-                    // console.log(type)
-                    if(type === 1) {
-                        document.getElementById('weekForm').style.display = "none"
-                        document.getElementById('monthForm').style.display = "block"
-                        this.copyType = type
-                    } else {
-                        document.getElementById('monthForm').style.display = "none"
-                        document.getElementById('weekForm').style.display = "block"
+                    if(this.copyType !== type) {
                         this.copyType = type
                     }
                 },
                 copySelect() {
-                    if(this.copyType == 0) {
-                        //整週，獲取本月全部的週數
-                        const w = new Week(new Date(this.month.month).setDate(1))
-                        let current = w.getCurrentWeek();
-                        let week = 1
-                        this.weeks.push({
-                            startDay: new Date(this.month.month).Format("yyyy-MM-01"),
-                            endDay: new Date(current[6].Date).Format("yyyy-MM-dd"),
-                            week: week
-                        })
-                        while(true) {
-                            if(week >= 4) {
-                                current = w.nextWeek();
-                                if(new Date(current[0].Date).Format("yyyy-MM") == this.month.month) {
-                                    if(week < 6) {
-                                        week = week+1
-                                    }
-                                    if(new Date(current[6].Date).Format("yyyy-MM") !== this.month.month) {
-                                        this.weeks.push({
-                                            startDay: new Date(current[0].Date).Format("yyyy-MM-dd"),
-                                            endDay: new Date(this.month.month.slice(0, 4), this.month.month.slice(-2), 0).Format("yyyy-MM-dd"),
-                                            week: week
-                                        })
-                                    } else {
-                                        this.weeks.push({
-                                            startDay: new Date(current[0].Date).Format("yyyy-MM-dd"),
-                                            endDay: new Date(current[6].Date).Format("yyyy-MM-dd"),
-                                            week: week
-                                        })
-                                    }
-
-                                } else {
-                                    break;
+                    //整週，獲取本月全部的週數
+                    const w = new Week(new Date(this.month.month).setDate(1))
+                    let current = w.getCurrentWeek();
+                    let week = 1
+                    this.weeks.push({
+                        startDay: new Date(this.month.month).Format("yyyy-MM-01"),
+                        endDay: new Date(current[6].Date).Format("yyyy-MM-dd"),
+                        week: week
+                    })
+                    while(true) {
+                        if(week >= 4) {
+                            current = w.nextWeek();
+                            if(new Date(current[0].Date).Format("yyyy-MM") == this.month.month) {
+                                if(week < 6) {
+                                    week = week+1
                                 }
+                                if(new Date(current[6].Date).Format("yyyy-MM") !== this.month.month) {
+                                    this.weeks.push({
+                                        startDay: new Date(current[0].Date).Format("yyyy-MM-dd"),
+                                        endDay: new Date(this.month.month.slice(0, 4), this.month.month.slice(-2), 0).Format("yyyy-MM-dd"),
+                                        week: week
+                                    })
+                                } else {
+                                    this.weeks.push({
+                                        startDay: new Date(current[0].Date).Format("yyyy-MM-dd"),
+                                        endDay: new Date(current[6].Date).Format("yyyy-MM-dd"),
+                                        week: week
+                                    })
+                                }
+
                             } else {
-                                current = w.nextWeek();
-                                week += 1
-                                this.weeks.push({
-                                    startDay: new Date(current[0].Date).Format("yyyy-MM-dd"),
-                                    endDay: new Date(current[6].Date).Format("yyyy-MM-dd"),
-                                    week: week
-                                })
+                                break;
                             }
+                        } else {
+                            current = w.nextWeek();
+                            week += 1
+                            this.weeks.push({
+                                startDay: new Date(current[0].Date).Format("yyyy-MM-dd"),
+                                endDay: new Date(current[6].Date).Format("yyyy-MM-dd"),
+                                week: week
+                            })
                         }
-                    } else {
-                        //整月
                     }
                 },
                 filterCopy(index) {
@@ -884,34 +898,64 @@
                     }
                     return true
                 },
-                copyShiftData() {
-                    if(this.copyType == 0) {
-                        //整週
-                        if(this.weeksForm.startWeek == "0" || this.weeksForm.endWeek == "0" 
-                        || this.weeksForm.startWeek.slice(0,7) !== this.month.month || this.weeksForm.endWeek.slice(0,7) !== this.month.month) {
-                            alert("請選擇日期!")
-                        } else {
-                            post('/api_v1.1/clinic/new/shift/copy/weeks', this.weeksForm).then(res => {
-                                if (res.code === 200) {
-                                    alert(res.message)
-                                    $('#copyModal').modal('hide')
-                                    this.weeksForm = {
-                                        startWeek: "0",
-                                        endWeek: "0",
-                                    }
-                                    this.getShiftTableData(this.month.month, this.month.week)
-                                    this.calendar = new Calendar({
-                                        element: document.querySelector('.calendar'),
-                                        output: document.querySelector('.date'),
-                                    },this.month.month);
-                                    this.$nextTick();
-                                    return
+                copyAllShiftData() {
+                    //整體整週
+                    if(this.weeksForm.startWeek == "0" || this.weeksForm.endWeek == "0" 
+                    || this.weeksForm.startWeek.slice(0,7) !== this.month.month || this.weeksForm.endWeek.slice(0,7) !== this.month.month) {
+                        alert("請選擇日期!")
+                    } else {
+                        post('/api_v1.1/clinic/new/shift/copy/weeks', this.weeksForm).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                $('#copyModal').modal('hide')
+                                this.weeksForm = {
+                                    startWeek: "0",
+                                    endWeek: "0",
                                 }
-                                else {
-                                    alert(res.message)
-                                }
-                            })
-                        }   
+                                this.getShiftTableData(this.month.month, this.month.week)
+                                this.calendar = new Calendar({
+                                    element: document.querySelector('.calendar'),
+                                    output: document.querySelector('.date'),
+                                },this.month.month);
+                                this.$nextTick();
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                            }
+                        })
+                    }
+                },
+                copySelfShiftData() {
+                    //資料篩選
+                    let postForm = JSON.parse(JSON.stringify(this.selfForm));
+                    postForm.employees = postForm.employees.filter(d => d.checked === true);
+                    //表單驗證
+                    if(parseInt(postForm.startDay) === 0) {
+                        alert("請選擇週別!");
+                    } else if(parseInt(postForm.employee_id) === 0) {
+                        alert("請選擇員工!");
+                    } else if(postForm.employees.length === 0) {
+                        alert("請勾選要複製的員工!");
+                    } else {
+                        //提交資料
+                        post('/api_v1.1/clinic/new/shift/copy/self', postForm).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                $('#copyModal').modal('hide')
+                                this.selfForm = {startDay: 0,employee_id: 0,employees:[]};
+                                this.getShiftTableData(this.month.month, this.month.week)
+                                this.calendar = new Calendar({
+                                    element: document.querySelector('.calendar'),
+                                    output: document.querySelector('.date'),
+                                },this.month.month);
+                                this.$nextTick();
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                            }
+                        })
                     }
                 },
                 changeLiHeight() {
@@ -933,6 +977,46 @@
                             }
                         }
                     }
+                },
+                employeeSelfShift(reset = false) {
+                    //清空selfForm
+                    this.selfForm.employee_id = 0;
+                    this.selfForm.employees = [];
+                    if(reset) {
+                        this.selfForm.startDay = 0;
+                    }
+                    //該週已排班員工
+                    const startDay = this.selfForm.startDay;
+                    if(parseInt(this.selfForm.startDay) === 0) {
+                        this.employee_in_shift_self = []
+                    } else {
+                        let _in = []
+                        if(this.shift_table !== null) {
+                            const data = this.shift_table.filter(data => data.startDay === startDay)
+
+                            this.employee.forEach(item => {
+                                if(data.find(d => d.employee_id == item.employee_id)) {
+                                    _in.push({employee_id: item.employee_id,name: item.name})
+                                }
+                            })
+                        }
+
+                        // 避免已離職員工還存在在表單中
+                        this.employee.forEach(item => {
+                            if((Date.parse(item.leave_at)).valueOf() >= (Date.parse(startDay)).valueOf()
+                                && parseInt(item.position_id) !== 0) {
+
+                                this.selfForm.employees.push({
+                                    employee_id: item.employee_id,
+                                    name: item.name,
+                                    nickname: item.nickname,
+                                    position_id: item.position_id,
+                                    checked: false
+                                });
+                            }
+                        });
+                        this.employee_in_shift_self = _in;
+                    }
                 }
             },
             watch: {
@@ -948,6 +1032,7 @@
                         },this.month.month);
                         this.weeks = []
                         this.copySelect()
+                        this.employeeSelfShift(true)
                         //顯示排班
                         // this.shiftOnCalendar()
                         // this.getClosedDateData()
