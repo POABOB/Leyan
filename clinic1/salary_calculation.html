@@ -482,11 +482,11 @@
                                     </td>
                                     <td v-show="updateForm.level_of_position === '2'" scope="row"><b>日薪</b></td>
                                     <td  v-show="updateForm.level_of_position === '2'">
-                                        {{updateForm.calculation_data.daily_wage.toFixed(2)}}
+                                        {{parseFloat(updateForm.calculation_data.daily_wage).toFixed(2)}}
                                     </td>
                                     <td scope="row"><b>時薪</b></td>
                                     <td>
-                                        {{updateForm.calculation_data.hourly_wage.toFixed(2)}}
+                                        {{parseFloat(updateForm.calculation_data.hourly_wage).toFixed(2)}}
                                     </td>
                                     <td v-show="updateForm.level_of_position === '1'" scope="row"><b>薪津</b></td>
                                     <td v-show="updateForm.level_of_position === '1'">
