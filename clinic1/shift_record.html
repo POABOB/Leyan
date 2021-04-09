@@ -10,6 +10,12 @@
     <link rel="stylesheet" href="../assets/css/google.font.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+<style>
+    p.font-black {
+        color: black;
+        font-weight: 400;
+    }
+</style>
 <body>
     <div class="loading-wrapper">
         <svg class="loading"><rect></rect></svg>
@@ -85,7 +91,7 @@
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
                         <div class="tab-pane fade show active" id="pills1" role="tabpanel" aria-labelledby="pills1">
-                            <table class="table table-striped">
+                            <table class="table table-striped table-bordered">
                                 <thead>
                                     <tr v-if="date.length===0"><th style="text-align: center;">日期範圍內無打卡資料</th></tr>
                                     <tr v-else>
@@ -99,14 +105,14 @@
                                             <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployee"  @click="showThisEmployeeData(d.employee_id)">{{d.name}}</button>
                                         </td>
                                         <td v-for="(d2,index2) in d.record">
-                                            <p v-for="(d3,index3) in d2.data">{{d3.datetime.slice(11,16)}}</p>
+                                            <p v-for="(d3,index3) in d2.data" class="font-black">{{d3.datetime.slice(11,16)}}</p>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class="tab-pane fade show" id="pills2" role="tabpanel" aria-labelledby="pills2">
-                            <table class="table table-striped">
+                            <table class="table table-striped  table-striped">
                                 <thead>
                                     <tr v-if="check_date.length===0"><th style="text-align: center;">日期範圍內無簽到資料</th></tr>
                                     <tr v-else>
@@ -120,7 +126,7 @@
                                             <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#showThisEmployeeCheck"  @click="showThisEmployeeCheckData(d.employee_id)">{{d.name}}</button>
                                         </td>
                                         <td v-for="(d2,index2) in d.record">
-                                            <p v-for="(d3,index3) in d2.data">{{d3.datetime.slice(11,16)}}</p>
+                                            <p v-for="(d3,index3) in d2.data" class="font-black">{{d3.datetime.slice(11,16)}}</p>
                                         </td>
                                     </tr>
                                 </tbody>
