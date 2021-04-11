@@ -901,8 +901,15 @@
                                     this.updateForm.calculation_data.daily_wage = parseFloat(((this.updateForm.calculation_data.daily_wage * 30 - difference) /30).toFixed(2))
                                     this.updateForm.calculation_data.hourly_wage = parseFloat((this.updateForm.calculation_data.daily_wage / 8).toFixed(2))
                                 }
-                                //加班
-                                this.updateForm.calculation_data.over_time_fee = parseFloat((((this.updateForm.statistic_data.over_time / 60) * this.updateForm.calculation_data.hourly_wage * 1.34)).toFixed(0))
+                                //加班時數 * 上面算的時薪 * 1.34
+                                if(this.updateForm.statistic_data.over_time2 !== undefined && this.updateForm.statistic_data.over_time2 > 0) {
+                                    this.updateForm.calculation_data.over_time_fee = (this.updateForm.statistic_data.over_time - this.updateForm.statistic_data.over_time2) / 60 * this.updateForm.calculation_data.hourly_wage * 1.34;
+                                    this.updateForm.calculation_data.over_time_fee += this.updateForm.statistic_data.over_time2 / 60 * this.updateForm.calculation_data.hourly_wage * 1.67;
+                                    this.updateForm.calculation_data.over_time_fee = (parseFloat(this.updateForm.calculation_data.over_time_fee)).toFixed(0)
+                                } else {
+                                    this.updateForm.calculation_data.over_time_fee = parseFloat((((this.updateForm.statistic_data.over_time / 60) * this.updateForm.calculation_data.hourly_wage * 1.34)).toFixed(0))
+                                }
+                                
                                 //請假
                                 this.updateForm.calculation_data.leave_all_fee = parseFloat((((this.updateForm.statistic_data.leave_all / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
                                 this.updateForm.calculation_data.leave_half_fee = parseFloat((((this.updateForm.statistic_data.leave_half / 60) * this.updateForm.calculation_data.hourly_wage / 2)).toFixed(0))
@@ -976,7 +983,13 @@
                                     this.updateForm.calculation_data.hourly_wage = parseFloat(((this.updateForm.calculation_data.hourly_wage * 240 - difference) / 240).toFixed(2))
                                 }
                                 //加班
-                                this.updateForm.calculation_data.over_time_fee = parseFloat((((this.updateForm.statistic_data.over_time / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
+                                if(this.updateForm.statistic_data.over_time2 !== undefined && this.updateForm.statistic_data.over_time2 > 0) {
+                                    this.updateForm.calculation_data.over_time_fee = (this.updateForm.statistic_data.over_time - this.updateForm.statistic_data.over_time2) / 60 * this.updateForm.calculation_data.hourly_wage * 1.34;
+                                    this.updateForm.calculation_data.over_time_fee += this.updateForm.statistic_data.over_time2 / 60 * this.updateForm.calculation_data.hourly_wage * 1.67;
+                                    this.updateForm.calculation_data.over_time_fee = (parseFloat(this.updateForm.calculation_data.over_time_fee)).toFixed(0)
+                                } else {
+                                    this.updateForm.calculation_data.over_time_fee = parseFloat((((this.updateForm.statistic_data.over_time / 60) * this.updateForm.calculation_data.hourly_wage * 1.34)).toFixed(0))
+                                }
                                 //請假
                                 this.updateForm.calculation_data.leave_all_fee = parseFloat((((this.updateForm.statistic_data.leave_all / 60) * this.updateForm.calculation_data.hourly_wage)).toFixed(0))
                                 this.updateForm.calculation_data.leave_half_fee = parseFloat((((this.updateForm.statistic_data.leave_half / 60) * this.updateForm.calculation_data.hourly_wage / 2)).toFixed(0))
