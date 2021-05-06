@@ -14,6 +14,15 @@ function get(url) {
         contentType: "application/json",
     })
 }
+
+function post_formdata(url, data = {}) {
+    return $.ajax({
+        type: 'post',
+        url,
+        data: data,
+        contentType: "multipart/form-data",
+    })
+    }
 // const __sort = (arr, comparefn) => {
 //     let array = Object(arr);
 //     let length = array.length >>> 0;

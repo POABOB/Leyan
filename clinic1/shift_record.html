@@ -7,14 +7,17 @@
     <title>打卡明細</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/loading.css">
-    <link rel="stylesheet" href="../assets/css/google.font.css">
+    <!-- <link rel="stylesheet" href="../assets/css/google.font.css"> -->
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <style>
     p.font-black {
         color: black;
         font-weight: 400;
+        line-height: 1rem;
+        margin-bottom: 0;
     }
+    .modal { overflow: auto !important; }
 </style>
 <body>
     <div class="loading-wrapper">
@@ -74,13 +77,16 @@
                     
                     <div class="col-12 col-lg-6">
                         <div class="input-group mb-3">
-                            <input type="date" class="form-control" id="startDate">
-                            <input type="date" class="form-control" id="endDate">
+                            <input type="date" class="form-control" id="startDate" v-model="filter.startDate">
+                            <input type="date" class="form-control" id="endDate" v-model="filter.endDate">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" @click="getShiftRecord()" >確認</button>
                             </div>
+                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#shiftRecord">編輯紀錄</button>
                         </div>
                     </div>
+                    <img style="display: none;" id="imgs" alt="">
+                    <!-- <img src="../assets/img/transparent.jpg" class="watermark" > -->
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="pills-tab1" data-toggle="pill" href="#pills1" role="tab" aria-controls="pills1" aria-selected="true">打卡紀錄</a>
@@ -232,6 +238,228 @@
         </div>
 
 
+        <div class="modal fade" id="shiftRecord" tabindex="-1" role="dialog" aria-labelledby="shiftRecordLabel" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="shiftRecordLabel">編輯紀錄</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="datetime">日期</label>
+                                <select @change="filterShift()" v-model="form.date" class="form-control">
+                                    <option value="0">請選擇日期</option>
+                                    <option v-for="d in datetime" :value="d">{{ d }}</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="type">員工</label>
+                                <select @change="filterShift()" v-model="form.employee_id" class="form-control">
+                                    <option value="0">請選擇員工</option>
+                                    <option v-for="d in employee_filter" :value="d.employee_id">{{ d.name }}</option>
+                                </select>
+                            </div>
+                            <div class="col-12" v-show="tableShow">
+                                <p class="text-center mt-3 font-black">
+                                    {{ shift.name }}{{ shift.first ? ' - ' + shift.first : '' }}{{ shift.second ? ' - ' + shift.second : '' }}{{ shift.third ? ' - ' + shift.third : '' }}
+                                </p>
+                                <hr>
+                                <h4>打卡紀錄</h4>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">打卡時間</th>
+                                            <th class="text-center">打卡類型</th>
+                                            <th class="text-center">考勤狀態</th>
+                                            <th class="text-center">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(d, i) in recordTable"  :style="{ background: showByShift(i) ? '' : '#eee' }" >
+                                            <td class="text-center">{{ (d.record_id !== undefined) ? d.datetime : '無' }}</td>
+                                            <td class="text-center">{{ shiftType(d.type) }}</td>
+                                            <td class="text-center">{{ ((String(d.type)).length < 8) ? '' : showAttendanceStatus(d.type, d.over_time) }}</td>
+                                            <td  class="text-center">
+                                                <div v-if="d.datetime.length > 10">
+                                                    <button @click="editShift(i, d.record_id)" class="btn btn-primary"  data-toggle="modal" data-target="#editRecord">編輯</button>
+                                                    <button @click="deleteShift(d.record_id)" class="btn btn-primary">刪除</button>
+                                                </div>
+                                                <div v-else>
+                                                    <div v-show="showByShift(i)">
+                                                        <button @click="formType(i)" class="btn btn-primary"  data-toggle="modal" data-target="#addRecord">新增</button>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <h4>簽到紀錄</h4>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">簽到時間</th>
+                                            <th class="text-center">簽到類型</th>
+                                            <th class="text-center">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(d, i) in checkTable">
+                                            <td class="text-center">{{ (d.check_id !== undefined) ? d.datetime : '無' }}</td>
+                                            <td class="text-center">{{ shiftType(d.type) }}</td>
+                                            <td  class="text-center">
+                                                <div v-if="d.datetime.length > 10">
+                                                    <button @click="editCShift(i, d.check_id)" class="btn btn-primary"  data-toggle="modal" data-target="#editCheck">編輯</button>
+                                                    <button @click="deleteCShift(d.check_id)"  class="btn btn-primary">刪除</button>
+                                                </div>
+                                                <div v-else>
+                                                    <button @click="formType(i)" class="btn btn-primary"  data-toggle="modal" data-target="#addCheck">新增</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="addRecord" tabindex="-1" role="dialog" aria-labelledby="addRecordLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addRecordLabel">新增打卡紀錄</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="time">打卡時間</label>
+                            <input v-model="addForm.datetime" type="time" class="form-control">
+                        </div>
+                        <div class="form-check-inline">
+                            <input @change="over_timeReset()" v-model="addForm.type" name="radioAR" value="0" class="form-check-input" type="radio" checked>
+                            <label class="form-check-label" for="radios1">正常打卡</label>
+                        </div>
+                        <div class="form-check-inline">
+                            <input @change="over_timeReset()" v-model="addForm.type" name="radioAR" value="o2" class="form-check-input" type="radio">
+                            <label v-if="form.type.slice(0, 3) === 'on'" class="form-check-label" for="radio3">早到</label>
+                            <label v-else class="form-check-label" for="radio3">加班</label>
+                        </div>
+                        <div class="form-check-inline" v-if="form.type.slice(0, 3) === 'off'">
+                            <input @change="over_timeReset()" v-model="addForm.type" name="radioAR"value="e2" class="form-check-input" type="radio">
+                            <label class="form-check-label" for="radios2">早退</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="over_time">分鐘數</label>
+                            <input :disabled="over_timeAInput" v-model="addForm.over_time" type="number" min="0" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                        <button @click="addShift()" type="button" class="btn btn-primary">新增</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="editRecord" tabindex="-1" role="dialog" aria-labelledby="editRecordLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editRecordLabel">編輯打卡紀錄</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="time">打卡時間</label>
+                            <input v-model="updateForm.datetime" type="time" class="form-control">
+                        </div>
+                        <div class="form-check-inline">
+                            <input @change="over_timeReset()" v-model="updateForm.type" name="radioUR" value="0" class="form-check-input" type="radio" checked>
+                            <label class="form-check-label" for="radios1">正常打卡</label>
+                        </div>
+                        <div class="form-check-inline">
+                            <input @change="over_timeReset()" v-model="updateForm.type" name="radioUR" value="o2" class="form-check-input" type="radio">
+                            <label v-if="form.type.slice(0, 3) === 'on'" class="form-check-label" for="radio3">早到</label>
+                            <label v-else class="form-check-label" for="radio3">加班</label>
+                        </div>
+                        <div class="form-check-inline" v-if="form.type.slice(0, 3) === 'off'">
+                            <input @change="over_timeReset()" v-model="updateForm.type" name="radioUR"value="e2" class="form-check-input" type="radio">
+                            <label class="form-check-label" for="radios2">早退</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="over_time">分鐘數</label>
+                            <input  :disabled="over_timeUInput" v-model="updateForm.over_time" type="number" min="0" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                        <button @click="updateShift()" type="button" class="btn btn-primary">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="addCheck" tabindex="-1" role="dialog" aria-labelledby="addCheckLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCheckLabel">新增簽到紀錄</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="time">打卡時間</label>
+                            <input v-model="addCForm.datetime" type="time" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                        <button @click="addCShift()" type="button" class="btn btn-primary">新增</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="editCheck" tabindex="-1" role="dialog" aria-labelledby="editCheckLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCheckLabel">編輯簽到紀錄</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="time">打卡時間</label>
+                            <input v-model="updateCForm.datetime" type="time" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                        <button @click="updateCShift()" type="button" class="btn btn-primary">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
     </div>
 
@@ -244,6 +472,7 @@
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/vue.js"></script>
     <script src="../assets/js/moment.js"></script>
+    <script src="../assets/js/watermark.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -256,6 +485,11 @@
         new Vue({
             el: "#app",
             data: {
+                filter: {
+                    month: '0000-00',
+                    startDate: '0000-00-00',
+                    endDate: '0000-00-00',
+                },
                 data: [],
                 check_data: [],
                 date:[],
@@ -276,6 +510,47 @@
                 employeeData: [],
                 employeeCheckData: [],
                 times:0,
+                datetime:[],
+                employee_filter:[],
+                shiftTable: [],
+                recordTable:[],
+                checkTable:[],
+                shift: {
+                    name: '',
+                    first: '',
+                    second: '',
+                    third: '',
+                },
+                tableShow: false,
+                form: {
+                    date: 0,
+                    employee_id: 0,
+                    type: '',
+                },
+                over_timeAInput: true,
+                over_timeUInput: true,
+                addForm: {
+                    datetime: '',
+                    employee_id: 0,
+                    type: '0',
+                    over_time: 0
+                },
+                updateForm: {
+                    datetime: '',
+                    type: '0',
+                    over_time: 0,
+                    record_id: 0
+                },
+                addCForm: {
+                    datetime: '',
+                    employee_id: 0,
+                    type: ''
+                },
+                updateCForm: {
+                    datetime: '',
+                    type: '',
+                    check_id: 0
+                },
                 user: {
                     user_id: 0,
                     account_number: '',
@@ -283,50 +558,27 @@
                     clinic_id: 0,
                     clinic_name:''
                 },
+                chineseNumber: {
+                    0: '零',
+                    1: '一',
+                    2: '二',
+                    3: '三',
+                },
             },
             created() {
+                //日期調整
+                this.filter.month = new Date().Format('yyyy-MM')
+                this.filter.startDate = new Date(this.filter.month).Format('yyyy-MM-01')
+                this.filter.endDate = new Date(this.filter.month.slice(0,4), this.filter.month.slice(-2), 0).Format('yyyy-MM-dd')
                 get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
                     if(res.code == 403) {
                         window.localStorage.removeItem('token')
                         location.href = './index.html'
                     } else {
                         this.user = res.data
-                        get('/api_v1.1/clinic/shift/record').then(res => {
-                            if(res.code == 403) {
-                                location.href = './index.html'
-                            } else {
-                                let tmp = res.data[0]
-                                // this.data = tmp.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
-                                this.data = ArraySort(tmp, (a, b) => new Date(a.datetime) - new Date(b.datetime))
-                                this.date = []
-                                res.data[1].forEach(item => {
-                                    this.date.push({date: item[0], day: this.checkDay(item[0]), data: []})
-                                })
-                                //外層是object，轉成array
-                                this.employee = Object.values(res.data[2])
-                                //check
-                                tmp = res.data[3]
-                                // this.check_data = tmp.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
-                                this.check_data = ArraySort(tmp, (a, b) => new Date(a.datetime) - new Date(b.datetime))
-                                this.check_date = []
-                                res.data[4].forEach(item => {
-                                    this.check_date.push({date: item[0], day: this.checkDay(item[0]), data: []})
-                                })
-                                //外層是object，轉成array
-                                this.check_employee = Object.values(res.data[5])
-                                this.showAllRecord()
-                            }
-                        })
+                        this.getShiftRecord()
                     }
                 })
-                
-            },
-            mounted() {
-                let month = new Date().Format('yyyy-MM')
-                //月初
-                $('#startDate').val(new Date(month).Format('yyyy-MM-01'))
-                //月底
-                $('#endDate').val(new Date(month.slice(0,4), month.slice(-2), 0).Format('yyyy-MM-dd'))
             },
             methods: {
                 logout() {
@@ -343,7 +595,7 @@
                     })
                 },
                 getShiftRecord() {
-                    get('/api_v1.1/clinic/shift/record?start='+$('#startDate').val()+'&end='+$('#endDate').val()).then(res => {
+                    get('/api_v1.1/clinic/shift/record?start='+this.filter.startDate+'&end='+this.filter.endDate).then(res => {
                         let tmp = res.data[0]
                         // this.data = tmp.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
                         this.data = ArraySort(tmp, (a, b) => new Date(a.datetime) - new Date(b.datetime))
@@ -364,6 +616,18 @@
                         //外層是object，轉成array
                         this.check_employee = Object.values(res.data[5])
                         this.showAllRecord()
+                        
+                        //foreach startDate~endDate塞入陣列
+                        let tmpDate = JSON.parse(JSON.stringify(this.filter.startDate))
+                        let tmpDatetime = []
+                        while((Date.parse(tmpDate)).valueOf() <= (Date.parse(this.filter.endDate)).valueOf()) {
+                            tmpDatetime.push(tmpDate)
+                            tmpDate = new Date(new Date(tmpDate).setDate(new Date(tmpDate).getDate()+1)).Format('yyyy-MM-dd')
+                        }
+                        this.datetime = tmpDatetime
+                        this.shiftTable = res.data[6]
+                        this.employee_filter = res.data[7]
+                        this.filterShift()
                         this.$nextTick()
                     })
                 },
@@ -447,6 +711,393 @@
                 checkDay(date) {
                     //判斷星期幾
                     return this.day_list[new Date(date).getDay()]
+                },
+                filterShift() {
+                    //如果都被選擇，顯示資訊
+                    if(parseInt(this.form.date) !== 0 && parseInt(this.form.employee_id) !== 0) {
+                        //選出該員工當天排班及其時段
+                        //獲取範圍內的shift
+                        let shift = this.shiftTable.find(d => parseInt(d.employee_id) === parseInt(this.form.employee_id) &&
+                                                    ((Date.parse(d.startDay)).valueOf() <= (Date.parse(this.form.date)).valueOf()
+                                                    && (Date.parse(d.endDay)).valueOf() >= (Date.parse(this.form.date)).valueOf()))
+                        let trueShift = {}                     
+                        //準確獲取該日排班
+                        if(shift !== undefined) {
+                            trueShift = shift.data.find(d => d.date === this.form.date)
+                            if(trueShift !== undefined) {
+                                if(trueShift.shift.shift_name === '休假') {
+                                    this.shift.name = '無排班'
+                                } else {
+                                    this.shift.name = trueShift.shift.shift_name
+                                }
+                                
+                                if(trueShift.shift.on_1st !== undefined && trueShift.shift.off_1st !== undefined) {
+                                    this.shift.first  = `第一班: ${trueShift.shift.on_1st} ~ ${trueShift.shift.off_1st}`
+                                } else {
+                                    this.shift.first = ''
+                                }
+
+                                if(trueShift.shift.on_2nd !== undefined && trueShift.shift.off_2nd !== undefined) {
+                                    this.shift.second  = `第二班: ${trueShift.shift.on_2nd} ~ ${trueShift.shift.off_2nd}`
+                                } else {
+                                    this.shift.second = ''
+                                }
+
+                                if(trueShift.shift.on_3rd !== undefined && trueShift.shift.off_3rd !== undefined) {
+                                    this.shift.third  = `第三班: ${trueShift.shift.on_3rd} ~ ${trueShift.shift.off_3rd}`
+                                } else {
+                                    this.shift.third = ''
+                                }
+                            }
+                        } else {
+                            this.shift.name = '無排班'
+                            this.shift.first = ''
+                            this.shift.second = ''
+                            this.shift.third = ''
+                        }
+                        
+                        this.recordTable = [];
+                        this.checkTable = [];
+
+                        //獲取打卡紀錄&簽到紀錄
+                        const record = this.data.filter(d => 
+                                                    d.datetime.substr(0, 10) === this.form.date &&
+                                                    parseInt(d.employee_id) === parseInt(this.form.employee_id))
+                        let i, r_index, c_index;
+                        for(i = 0; i < 6; i++) {
+                            r_index = (i / 2) + 1;
+                            if(i % 2 === 0) {
+                                const single = record.find(d => parseInt(d.type.substr(3, 1)) === parseInt(r_index))
+                                //on
+                                if(single !== undefined) {
+                                    this.recordTable.push({
+                                        type: single.type,
+                                        datetime: single.datetime,
+                                        employee_id: single.employee_id,
+                                        over_time: single.over_time,
+                                        record_id: single.record_id
+                                    })
+                                } else {
+                                    this.recordTable.push({
+                                        type: r_index,
+                                        datetime: '',
+                                        over_time: 0,
+                                        employee_id: this.form.employee_id
+                                    })
+                                }
+                            } else {
+                                const single = record.find(d => parseInt(d.type.substr(4, 1)) === parseInt(r_index))
+                                //off
+                                if(single !== undefined) {
+                                    this.recordTable.push({
+                                        type: single.type,
+                                        datetime: single.datetime,
+                                        employee_id: single.employee_id,
+                                        over_time: single.over_time,
+                                        record_id: single.record_id
+                                    })
+                                } else {
+                                    this.recordTable.push({
+                                        type: r_index,
+                                        datetime: '',
+                                        over_time: 0,
+                                        employee_id: this.form.employee_id
+                                    })
+                                }
+                            }
+                        }
+
+                        const check = this.check_data.filter(d => 
+                                                    d.datetime.substr(0, 10) === this.form.date &&
+                                                    parseInt(d.employee_id) === parseInt(this.form.employee_id))
+                        for(i = 0; i < 2; i++) {
+                            c_index = (i / 2) + 1
+                            if(i % 2 === 0) {
+                                const single = check.find(d => parseInt(d.type.substr(3, 1)) === parseInt(c_index))
+                                //on
+                                if(single !== undefined) {
+                                    this.checkTable.push({
+                                        type: single.type,
+                                        datetime: single.datetime,
+                                        employee_id: single.employee_id,
+                                        check_id: single.check_id
+                                    })
+                                } else {
+                                    this.checkTable.push({
+                                        type: c_index,
+                                        datetime: '',
+                                        employee_id: this.form.employee_id
+                                    })
+                                }
+                            } else {
+                                const single = check.find(d => parseInt(d.type.substr(4, 1)) === parseInt(c_index))
+                                //off
+                                if(single !== undefined) {
+                                    this.checkTable.push({
+                                        type: single.type,
+                                        datetime: single.datetime,
+                                        employee_id: single.employee_id,
+                                        check_id: single.check_id
+                                    })
+                                } else {
+                                    this.checkTable.push({
+                                        type: c_index,
+                                        datetime: '',
+                                        employee_id: this.form.employee_id
+                                    })
+                                }
+                            }
+                        }
+                        this.tableShow = true
+                    } else {
+                        this.tableShow = false
+                    }
+                },
+                shiftType(type = 1) {
+                    if((String(type)).substr(0, 2) === 'on') {
+                        return `第${this.chineseNumber[parseInt(type.substr(3, 1))]}班 上班`
+                    } else if((String(type)).substr(0, 3) === 'off') {
+                        return `第${this.chineseNumber[parseInt(type.substr(4, 1))]}班 下班`
+                    } else {
+                        if(type % 1 === 0) {
+                            return `第${this.chineseNumber[parseInt(type)]}班 上班`
+                        } else {
+                            return `第${this.chineseNumber[parseInt(type)]}班 下班`
+                        }
+                    }
+                },
+                showByShift(i) {
+                    if(this.shift.name === '無排班') {
+                        return true
+                    } else {
+                        const index = parseInt(parseInt(i) / 2 + 1);
+                        if(index === 1) {
+                            return (this.shift.first.length > 0) ? true : false
+                        } else if(index === 2) {
+                            return (this.shift.second.length > 0) ? true : false
+                        } else {
+                            return (this.shift.third.length > 0) ? true : false
+                        }
+                    }
+                },
+                showAttendanceStatus(type, over_time) {
+                    if(type.slice(0, 3) === 'off') {
+                        //判斷早退 還是加班
+                        if(type.slice(8,10) === 'o2' || type.slice(8,10) === 'o') {
+                            return `加班 ${over_time} 分鐘`
+                        } else {
+                            return `早退 ${over_time} 分鐘`
+                        }
+                    } else {
+                        return `早到 ${over_time} 分鐘`
+                    }
+                },
+                formType(i) {
+                    const index = parseInt(parseInt(i) / 2 + 1);
+                    if(index === 1) {
+                        if(i % 2 === 0) {
+                            this.form.type = "on_1st"
+                        } else {
+                            this.form.type = "off_1st"
+                        }
+                    } else if(index === 2) {
+                        if(i % 2 === 0) {
+                            this.form.type = "on_2nd"
+                        } else {
+                            this.form.type = "off_2nd"
+                        }
+                    } else {
+                        if(i % 2 === 0) {
+                            this.form.type = "on_3rd"
+                        } else {
+                            this.form.type = "off_3rd"
+                        }
+                    }
+                },
+                addShift() {
+                    let add = {
+                        employee_id: this.form.employee_id,
+                        datetime: `${this.form.date} ${this.addForm.datetime}:00`,
+                        over_time: this.addForm.over_time,
+                        type: this.form.type + ((this.addForm.type != "0") ? `_${this.addForm.type}` : '')
+                    }
+                    post('/api_v1.1/clinic/shift/record/add', add).then(res => {
+                        alert(res.message)
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            //重新獲取打卡/簽到資料
+                            this.getShiftRecord()
+                            this.filterShift()
+                            $('#addRecord').modal('hide')
+                            this.$nextTick()
+                        }
+                    })
+                },
+                editShift(i, record_id) {
+                    const shift = this.recordTable.find(d => parseInt(d.record_id) === parseInt(record_id))
+                    let type
+                    if(shift.type.slice(-2) === "o2" || shift.type.slice(-2) === "e2") {
+                        type = shift.type.slice(-2)
+                    } else {
+                        type = "0"
+                    }
+                    this.updateForm.datetime = shift.datetime.slice(11, 16)
+                    this.updateForm.type = type
+                    this.updateForm.over_time = shift.over_time
+                    this.updateForm.record_id = record_id
+                    this.formType(i)
+                    this.over_timeReset()
+                },
+                updateShift() {
+                    let update = {
+                        employee_id: this.form.employee_id,
+                        datetime: `${this.form.date} ${this.updateForm.datetime}:00`,
+                        over_time: this.updateForm.over_time,
+                        type: this.form.type + ((this.updateForm.type != 0) ? `_${this.updateForm.type}` : ''),
+                        record_id: this.updateForm.record_id
+                    }
+                    post('/api_v1.1/clinic/shift/record/update', update).then(res => {
+                        alert(res.message)
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            //重新獲取打卡/簽到資料
+                            this.getShiftRecord()
+                            this.filterShift()
+                            $('#editRecord').modal('hide')
+                            this.$nextTick()
+                        }
+                    })
+                },
+                deleteShift(record_id) {
+                    let form = {
+                        record_id: record_id,
+                        employee_id: this.form.employee_id
+                    }
+                    if(confirm('刪除後則無法復原，確定要刪除該筆紀錄?')) {
+                        post('/api_v1.1/clinic/shift/record/delete', form).then(res => {
+                            alert(res.message)
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else if(res.code == 200) {
+                                //重新獲取打卡/簽到資料
+                                this.getShiftRecord()
+                                this.filterShift()
+                                this.$nextTick()
+                            }
+                        })
+                    }
+                },
+                addCShift() {
+                    let add = {
+                        employee_id: this.form.employee_id,
+                        datetime: `${this.form.date} ${this.addCForm.datetime}:00`,
+                        type: this.form.type
+                    }
+                    post('/api_v1.1/clinic/shift/check/add', add).then(res => {
+                        alert(res.message)
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            //重新獲取打卡/簽到資料
+                            this.getShiftRecord()
+                            this.filterShift()
+                            $('#addCheck').modal('hide')
+                            this.$nextTick()
+                        }
+                    })
+                },
+                editCShift(i, check_id) {
+                    this.formType(i)
+                    const shift = this.checkTable.find(d => parseInt(d.check_id) === parseInt(check_id))
+                    this.updateCForm.datetime = shift.datetime.slice(11, 16)
+                    this.updateCForm.check_id = check_id
+                },
+                updateCShift() {
+                    let update = {
+                        employee_id: this.form.employee_id,
+                        datetime: `${this.form.date} ${this.updateCForm.datetime}:00`,
+                        type: this.form.type,
+                        check_id: this.updateCForm.check_id
+                    }
+                    post('/api_v1.1/clinic/shift/check/update', update).then(res => {
+                        alert(res.message)
+                        if(res.code == 403) {
+                            location.href = './index.html'
+                        } else if(res.code == 200) {
+                            //重新獲取打卡/簽到資料
+                            this.getShiftRecord()
+                            this.filterShift()
+                            $('#editCheck').modal('hide')
+                            this.$nextTick()
+                        }
+                    })
+                },
+                deleteCShift(check_id) {
+                    let form = {
+                        check_id: check_id,
+                        employee_id: this.form.employee_id
+                    }
+                    if(confirm('刪除後則無法復原，確定要刪除該筆紀錄?')) {
+                        post('/api_v1.1/clinic/shift/check/delete', form).then(res => {
+                            alert(res.message)
+                            if(res.code == 403) {
+                                location.href = './index.html'
+                            } else if(res.code == 200) {
+                                //重新獲取打卡/簽到資料
+                                this.getShiftRecord()
+                                this.filterShift()
+                                this.$nextTick()
+                            }
+                        })
+                    }
+                },
+                over_timeReset() {
+                    if(this.addForm.type == "0") {
+                        this.addForm.over_time = 0
+                        this.over_timeAInput = true
+                    } else {
+                        this.over_timeAInput = false
+                    }
+                    if(this.updateForm.type == "0") {
+                        this.updateForm.over_time = 0
+                        this.over_timeUInput = true
+                    } else {
+                        this.over_timeUInput = false
+                    }
+                }
+            },
+            watch: {
+                "filter.startDate": {
+                    handler: function() {
+                        //選取其他月分的話，要同步 start&end
+                        if(this.filter.startDate.slice(0,7) !== this.filter.month) {
+                            this.filter.month = this.filter.startDate.slice(0,7)
+                            this.filter.endDate = new Date(this.filter.month.slice(0,4), this.filter.month.slice(-2), 0).Format('yyyy-MM-dd')
+                        }
+                        this.form = {date: 0, employee_id: 0, type: ''}
+                        this.tableShow = false
+                    }
+                },
+                "filter.endDate": {
+                    handler: function() {
+                        //選取其他月分的話，要同步 start&end
+                        if(this.filter.endDate.slice(0,7) !== this.filter.month) {
+                            this.filter.month = this.filter.endDate.slice(0,7)
+                            this.filter.startDate = new Date(this.filter.month).Format('yyyy-MM-01')
+                        }
+                        this.form = {date: 0, employee_id: 0, type: ''}
+                        this.tableShow = false
+                    }
+                },
+                "form.type" : {
+                    handler: function() {
+                        this.addForm = {type: '0', over_time: 0, datetime: ''}
+                        this.addCForm = {over_time: 0, datetime: ''}
+                        // this.updateForm = {type: '0', over_time: 0, datetime: ''}
+                        // this.updateCForm = {type: '0', over_time: 0, datetime: ''}
+                    }
                 }
             }
         })
