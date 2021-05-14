@@ -993,12 +993,15 @@
                         for(let i = 0; i < 7; i++) {
                             const childCount = $(`ol.days > li:nth(${7*j + i}) > .shift_content`).children().length
                             if(childCount > max ) {
-                                //調整高度
-                                //每多一筆+25px
-                                $(`ol.days > li:nth(${7*j + i})`).height(`${200 + (childCount - 5) * 28}px`)
+                                // //調整高度
+                                // //每多一筆+25px
+                                // $(`ol.days > li:nth(${7*j + i})`).height(`${200 + (childCount - 5) * 28}px`)
                                 //該週最大筆
                                 max = childCount
                             }
+                        }
+                        for(let i = 0; i < 7; i++) {
+                            $(`ol.days > li:nth(${7*j + i})`).height(`${200 + (max - 5) * 28}px`)
                         }
                     }
                 },
