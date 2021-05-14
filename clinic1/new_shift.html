@@ -1058,7 +1058,7 @@
                 printPDF() {
                     const printHTML = document.getElementById('page').innerHTML;
                     var win = window.frames['hidden-table'];
-                    win.document.title = `${this.month.month} 排班表`
+                    document.title = `${this.month.month} ${this.user.clinic_name}排班表`
                     // var win = window.open();
                     win.document.body.innerHTML = printHTML;
                     const ol = document.body.querySelector('div.calendar').firstChild
@@ -1066,6 +1066,7 @@
                     document.getElementById('hidden-table').contentWindow.document.querySelector('thead').appendChild(node)
                     win.document.close();
                     win.print();
+                    document.title = `排班表`
                 }
             },
             watch: {
