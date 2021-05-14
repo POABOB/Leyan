@@ -25,7 +25,6 @@
                         `
                     )
                     if(_class === " morning night") {
-                        console.log(1)
                         $(`.days > .currentMonth:eq(${day}) > .shift_content`).append(
                             `
                                 <div class="employee${_class}">

@@ -124,6 +124,23 @@
       })
     }
     _generateDays() {
+    //   let { startOfWeek } = this.options
+    //   let date2 = new Date2(this.currentDate)
+    //   let monthBeginning = date2.monthBeginning
+    //   let monthEnding = date2.monthEnding
+
+    //   let days = this._generateCurrentMonth()
+    //   days = this._generatePreviousMonth().concat(days)
+    //   days = days.concat(this._generateNextMonth())
+    //   console.log(days);
+    //   dom.create(`<ol class=days></ol>`, days)
+    //   return dom.create(`<ol class=days></ol>`, days)
+    }
+    _generateCalendar() {
+      let { element } = this.options
+      dom.removeChildren(element)
+      dom.append(element, this._generateWeekdays())
+
       let { startOfWeek } = this.options
       let date2 = new Date2(this.currentDate)
       let monthBeginning = date2.monthBeginning
@@ -132,13 +149,11 @@
       let days = this._generateCurrentMonth()
       days = this._generatePreviousMonth().concat(days)
       days = days.concat(this._generateNextMonth())
-      return dom.create(`<ol class=days></ol>`, days)
-    }
-    _generateCalendar() {
-      let { element } = this.options
-      dom.removeChildren(element)
-      dom.append(element, this._generateWeekdays())
-      dom.append(element, this._generateDays())
+
+      for (let index = 0; index < days.length / 7; index++) {
+        dom.append(element, dom.create(`<ol class=days></ol>`, days.slice(index * 7, (index + 1) * 7)))
+      }
+
       this.options.output.textContent = this.options.strings.output(this.currentDate)
       return this
     }

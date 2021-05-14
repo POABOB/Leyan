@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/loading.css">
     <link rel="stylesheet" href="../assets/css/google.font.css">
-<link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/lib/cal.css">
 </head>
 <body>
@@ -84,6 +84,7 @@
                         <button class="btn btn-primary" aria-expanded="false" data-toggle="collapse" data-target="#addShift">新增排班</button>
                         <button class="btn btn-primary" aria-expanded="false" data-toggle="collapse" data-target="#editShift">編輯排班</button>
                         <button class="btn btn-primary" data-toggle="modal" data-target="#copyModal">複製排班</button>
+                        <button class="btn btn-primary" @click="printPDF">列印排班</button>
                         
                     </p>
                     <div id="coll">
@@ -176,15 +177,24 @@
                     </div>
 
                      <!-- calendar -->
-                    <div class="page">
-                        <nav>
-                          <h1 class="date"></h1>
-                          <div class="controls">
-                            <button class="btn btn-outline-secondary" id="previousMonth" @click="previousMonth">&lt;</button>
-                            <button class="btn btn-outline-secondary" id="nextMonth" @click="nextMonth">&gt;</button>
-                          </div>
-                        </nav>
-                        <div class="calendar"></div>
+                    <div  id="page">
+                        <div class="page">
+                            <nav>
+                              <h1 class="date"></h1>
+                              <div class="controls">
+                                <button class="btn btn-outline-secondary" id="previousMonth" @click="previousMonth">&lt;</button>
+                                <button class="btn btn-outline-secondary" id="nextMonth" @click="nextMonth">&gt;</button>
+                              </div>
+                            </nav>
+                            <table>
+                                <thead>
+                                    <tr><td><div class="space">&nbsp;</div></td></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><div class="calendar"></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -276,6 +286,8 @@
             </div>
         </div>
         <!-- Modal END -->
+
+        <iframe id="hidden-table" name="hidden-table"></iframe>
 
     </div>
 
@@ -380,7 +392,19 @@
                         // this.getClosedDateData()
                     }
                 })
-
+            },
+            mounted() {
+                //iframe 建立boostrap css
+                let link = document.createElement("link") 
+                link.href = "../assets/css/bootstrap.min.css"; 
+                link.rel = "stylesheet"; 
+                link.type = "text/css";
+                window.frames['hidden-table'].document.head.appendChild(link);
+                
+                const style = "@page { size:  auto; margin: 10px 5px; }body {margin: 0 5px;font-family: Arial;font-size: 10px;}.page{min-height:100vh;display:flex;flex-direction:column}.page>nav:first-child{text-align:right;display:flex;justify-content:space-between;align-items:center;padding:1em}.calendar{flex-grow:1;display:flex;flex-direction:column;min-width:1200px}.calendar>ol{list-style:none;margin:0;padding:0}.calendar>ol.weekdays{display:flex;text-align:center;border-top:1px solid #c7c7cc}.calendar>ol.weekdays>li{width:14.2857%;padding:.5em 1em;border-right:1px solid #c7c7cc}.calendar>ol.weekdays>li:nth-child(1){border-left:1px solid #c7c7cc}.calendar>ol.days{display:flex;flex-wrap:wrap;flex-grow:1}.calendar>ol.days>li{width:14.2857%;border-right:1px solid #c7c7cc;border-top:1px solid #c7c7cc;min-height:200px;position:relative}.calendar>ol.days>li:nth-child(7n+1){border-left:1px solid #c7c7cc}.calendar>ol.days>li:nth-last-child(1),.calendar>ol.days>li:nth-last-child(2),.calendar>ol.days>li:nth-last-child(3),.calendar>ol.days>li:nth-last-child(4),.calendar>ol.days>li:nth-last-child(5),.calendar>ol.days>li:nth-last-child(6),.calendar>ol.days>li:nth-last-child(7){border-bottom:1px solid #c7c7cc}.calendar>ol.days>li>.dayLabel{position:absolute;left:.6em;top:.6em;white-space:nowrap;text-align:right}.calendar .today .day{background:red;width:1.6em;display:inline-block;text-align:center;height:1.6em;line-height:1.6em;border-radius:50%;color:#fff}.calendar>ol.days>li>.dayLabel>.day,.calendar>ol.days>li>.dayLabel>.unit{font-weight:700}.calendar .days .nextMonth,.calendar .days .previousMonth{color:#c3c3c3}.calendar .days .nextMonth>.shift_content,.calendar .days .previousMonth>.shift_content{background-color:transparent}.calendar>ol.days>li>.shift{position:absolute;top:.6em;left:3em;width:70%;text-align:center}.calendar>ol.days>li>.shift_n{position:absolute;top:2.4em;left:.6em;width:30%;height:75%}.calendar>ol.days>li>.shift_content{position:absolute;top:2.4em;left:3em;width:70%;height:75%;padding:0 .5em}.calendar>ol.days>li>.shift>.shift_type{width:25%;padding:0 3%;margin:0 6%;text-align:center}.calendar>ol.days>li>.shift_content>.employee{background-color:#eee !important;overflow:hidden;white-space:nowrap;text-overflow:clip;margin:0 0 .3em 0;text-align:center}.calendar>ol.days>li>.shift_n>.shift_name{margin:0 0 .3em 0}.calendar>ol.days>li>.shift_content>.employee.morning.night>.m>span,.calendar>ol.days>li>.shift_content>.employee.morning.night>.n>span,.calendar>ol.days>li>.shift_content>.employee>span,.calendar>ol.days>li>.shift_n>.shift_name>span{font-size:.85em}.calendar>ol.days>li>.shift_content>.employee.morning{width:33.34%}.calendar>ol.days>li>.shift_content>.employee.afternoon{width:33.34%;margin-left:33.34%}.calendar>ol.days>li>.shift_content>.employee.night{margin-left:66.66%;width:33.34%}.calendar>ol.days>li>.shift_content>.employee.morning.afternoon{margin-left:0;width:66.67%}.calendar>ol.days>li>.shift_content>.employee.afternoon.night{width:66.67%;margin-left:33.34%}.calendar>ol.days>li>.shift_content>.employee.morning.night{background-color:transparent;margin-left:0;width:100%}.calendar>ol.days>li>.shift_content>.employee.morning.night>.m{background-color:#eee !important;overflow:hidden;white-space:nowrap;margin-left:0;width:33.4%;display:inline-block}.calendar>ol.days>li>.shift_content>.employee.morning.night>.n{background-color:#eee !important;overflow:hidden;white-space:nowrap;margin-left:30%;width:33.4%;display:inline-block}.calendar>ol.days>li>.shift_content>.employee.morning.afternoon.night{background-color:#eee !important;margin-left:0;width:100%}nav>h1.date{text-align:center;}nav>.controls{display:none;}.calendar,ol.days{display:block;page-break-inside:avoid !important;}body{-webkit-print-color-adjust:exact;}nav{position:fixed;top:5;right:50%;transform: translateX(50%);height:70px;}.space{height:70px;}ol{list-style:none; margin:0; padding:0; }ol.weekdays{display: flex; text-align: center; border-top: 1px solid #C7C7CC;}ol.weekdays >li{width: 14.2857%; padding: .5em 1em; border-right: 1px solid #C7C7CC;}ol.weekdays >li:nth-child(1){border-left: 1px solid #C7C7CC;} .calendar > ol.weekdays{display:none;}"
+                let link2 = document.createElement("style")
+                link2.appendChild(document.createTextNode(style));
+                window.frames['hidden-table'].document.head.appendChild(link2);
             },
             methods: {
                 logout() {
@@ -971,7 +995,7 @@
                             if(childCount > max ) {
                                 //調整高度
                                 //每多一筆+25px
-                                $(`ol.days > li:nth(${7*j + i})`).height(`${200 + (childCount - 5) * 28}px`)
+                                $(`ol.days > li:nth(${7*j + i})`).height(`${200 + (childCount - 5) * 26}px`)
                                 //該週最大筆
                                 max = childCount
                             }
@@ -1017,6 +1041,18 @@
                         });
                         this.employee_in_shift_self = _in;
                     }
+                },
+                printPDF() {
+                    const printHTML = document.getElementById('page').innerHTML;
+                    var win = window.frames['hidden-table'];
+                    win.document.title = `${this.month.month} 排班表`
+                    // var win = window.open();
+                    win.document.body.innerHTML = printHTML;
+                    const ol = document.body.querySelector('div.calendar').firstChild
+                    const node = ol.cloneNode(true)
+                    document.getElementById('hidden-table').contentWindow.document.querySelector('thead').appendChild(node)
+                    win.document.close();
+                    win.print();
                 }
             },
             watch: {
