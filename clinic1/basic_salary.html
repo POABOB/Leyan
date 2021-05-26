@@ -397,6 +397,9 @@
                 labor_cal() {
                     this.updateForm.labor_insurance = 
                         this.laborRound(this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2);
+                    if(this.updateForm.labor_insurance > 1054) {
+                        this.updateForm.labor_insurance = 1054;
+                    }
                 },
                 health_cal() {
                     if(this.updateForm.insurance_salary > this.insurance.health_lowest || this.updateForm.insurance_salary == 0) {
@@ -518,7 +521,11 @@
                 //勞保30天
                 larbor() {
                     //個人
-                    return this.laborRound(this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2 * (1 - this.updateForm.labor_relief));
+                    if(this.updateForm.insurance_salary > 45800) {
+                        return this.laborRound(45800 * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2 * (1 - this.updateForm.labor_relief));
+                    } else {
+                        return this.laborRound(this.updateForm.insurance_salary * 30 / 30 * (this.insurance.larbor_normal_rate + this.insurance.larbor_rate) * 0.2 * (1 - this.updateForm.labor_relief));
+                    }
                     // //公司
                     // this.insurance_salary * 30 / 30 * ((larbor_normal_rate + larbor_rate) * 0.7 + larbor_damage_rate)
                 },
