@@ -1544,7 +1544,7 @@
                         csvFile += processRow(rows[i]);
                     }
 
-                    var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+                    var blob = new Blob(["\ufeff" + csvFile], { type: 'text/csv;charset=utf-8;' });
                     if (navigator.msSaveBlob) { // IE 10+
                         navigator.msSaveBlob(blob, filename);
                     } else {
