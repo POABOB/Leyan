@@ -328,6 +328,9 @@
                                 <td class="cashT" colspan="2">現金</td>
                                 <td class="cash"></td>
                             </tr>
+                            <tr>
+                                <td style="text-align: left;" colspan="3">備註: <span class="note"></span></td>
+                            </tr>
                             
                         </table>
                     </div>
@@ -623,8 +626,12 @@
                                         {{updateForm.calculation_data.cash}}
                                     </td>
                                 </tr>
-                                <tr>
-                                    <th colspan="10" style="text-align: right;">
+                                <tr align="right">
+                                    <td scope="row"><b>備註</b></td>
+                                    <td colspan="7">
+                                        <textarea class="form-control" v-model="updateForm.note" cols="30" rows="1"></textarea>
+                                    </td>
+                                    <th colspan="2" style="text-align: right;">
                                         <button class="btn btn-primary" @click="updateSelfSalaryCalculation()">重新整理</button>
                                         <button type="button" class="btn btn-primary" @click="updateThisEmployeeData()">更新</button>
                                     </th>
@@ -714,7 +721,8 @@
                         total_salary: 0,
                         ATM: 0,
                         cash: 0
-                    }
+                    },
+                    note: ''
                 },
                 detail: {
                     total_days: 0,
@@ -858,6 +866,7 @@
                     this.updateForm.work_at = work.work_at
                     this.updateForm.leave_at = work.leave_at
                     this.updateForm.level_of_position = data.level_of_position
+                    this.updateForm.note = data.note
 
                     this.setValue()
                 },
@@ -870,6 +879,7 @@
                         form.salary_calculation_id = this.updateForm.salary_calculation_id
                         form.calculation_data = this.updateForm.calculation_data
                         form.salary_item_data = this.updateForm.salary_item_data
+                        form.note = this.updateForm.note
                         post(`/api_v1.1/clinic/salary/calculation/update/id`, form).then(res => {
                             if(res.code == 403) {
                                 location.href = './index.html'
@@ -1277,6 +1287,7 @@
                                     document.querySelector('.cash').style.display = 'table-cell';
                                     document.querySelector('.cashT').style.display = 'table-cell';
                                     document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
+                                    document.querySelector('.note').textContent = item.note;
                                     //蒐集html
                                     printHTML += document.getElementById('salary-table').innerHTML;
                                     this.cleanTable();
@@ -1362,6 +1373,7 @@
                                     document.querySelector('.cash').style.display = 'none';
                                     document.querySelector('.cashT').style.display = 'none';
                                     document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
+                                    document.querySelector('.note').textContent = item.note;
                                     //蒐集html
                                     printHTML += document.getElementById('salary-table').innerHTML;
                                     this.cleanTable();
@@ -1386,7 +1398,7 @@
                         this.salary_item.forEach(item => {
                             FT.push(item);   
                         })
-                        FT = FT.concat(['勞保費', '健保費', '請假', '遲到', '早退', '應領金額', '扣項金額', '實領薪津', '轉帳', '現金']);
+                        FT = FT.concat(['勞保費', '健保費', '請假', '遲到', '早退', '應領金額', '扣項金額', '實領薪津', '轉帳', '現金','備註']);
                         data.push(['正職'],FT);
 
                         this.data.forEach(item => {
@@ -1423,6 +1435,7 @@
                                     tmp_data.push(item.calculation_data.total_salary);
                                     tmp_data.push(item.calculation_data.ATM);
                                     tmp_data.push(item.calculation_data.cash);
+                                    tmp_data.push(item.note);
 
                                     //diff
                                     let add_diff = this.addItemFix(item);
@@ -1477,6 +1490,7 @@
                                     tmp_data.push(item.calculation_data.total_salary);
                                     tmp_data.push(item.calculation_data.ATM);
                                     tmp_data.push(item.calculation_data.cash);
+                                    tmp_data.push(item.note);
                                     //diff
                                     let add_diff = this.addItemFix(item);
                                     if(add_diff !== 0) {
