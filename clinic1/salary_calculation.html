@@ -640,8 +640,8 @@
                                             <div></div>
                                             <textarea class="form-control" v-model="updateForm.note" cols="30" rows="3"></textarea>
                                          </div> -->
-                                         <pre>
-                                            <div class="textarea" style=" white-space: pre; "  contenteditable="true" @input="changeText">{{updateForm.note}}</div>
+                                         <pre style="margin-top: -20px;">
+                                            <div class="textarea" style=" white-space: pre; "  contenteditable="true">{{updateForm.note}}</div>
                                         </pre>
                                         
                                     </td>
@@ -896,7 +896,7 @@
                         form.salary_calculation_id = this.updateForm.salary_calculation_id
                         form.calculation_data = this.updateForm.calculation_data
                         form.salary_item_data = this.updateForm.salary_item_data
-                        form.note = this.updateForm.note
+                        form.note = document.querySelector('.textarea').innerText
                         post(`/api_v1.1/clinic/salary/calculation/update/id`, form).then(res => {
                             if(res.code == 403) {
                                 location.href = './index.html'
@@ -1305,7 +1305,7 @@
                                     document.querySelector('.cash').style.display = 'table-cell';
                                     document.querySelector('.cashT').style.display = 'table-cell';
                                     document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
-                                    document.querySelector('.note').innerHTML = `<pre style="white-space: pre-wrap;">${item.note}</pre>`
+                                    document.querySelector('.note').innerHTML = `<pre style="white-space: pre-wrap;margin:0;">${item.note}</pre>`
                                     //蒐集html
                                     printHTML += document.getElementById('salary-table').innerHTML;
                                     this.cleanTable();
@@ -1391,7 +1391,7 @@
                                     document.querySelector('.cash').style.display = 'none';
                                     document.querySelector('.cashT').style.display = 'none';
                                     document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
-                                    document.querySelector('.note').innerHTML = `<pre style="white-space: pre-wrap;">${item.note}</pre>`
+                                    document.querySelector('.note').innerHTML = `<pre style="white-space: pre-wrap;margin:0;">${item.note}</pre>`
                                     //蒐集html
                                     printHTML += document.getElementById('salary-table').innerHTML;
                                     this.cleanTable();
