@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="../assets/css/google.font.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+    <style>
+        .textarea {
+            text-align: left;
+            min-height: 80px;
+            border: solid 2px black;
+        }
+    </style>
 <body>
     <div class="loading-wrapper">
         <svg class="loading"><rect></rect></svg>
@@ -629,7 +636,14 @@
                                 <tr align="right">
                                     <td scope="row"><b>備註</b></td>
                                     <td colspan="7">
-                                        <textarea class="form-control" v-model="updateForm.note" cols="30" rows="1"></textarea>
+                                        <!-- <div class="container">
+                                            <div></div>
+                                            <textarea class="form-control" v-model="updateForm.note" cols="30" rows="3"></textarea>
+                                         </div> -->
+                                         <pre>
+                                            <div class="textarea" style=" white-space: pre; "  contenteditable="true" @input="changeText">{{updateForm.note}}</div>
+                                        </pre>
+                                        
                                     </td>
                                     <th colspan="2" style="text-align: right;">
                                         <button class="btn btn-primary" @click="updateSelfSalaryCalculation()">重新整理</button>
@@ -722,7 +736,7 @@
                         ATM: 0,
                         cash: 0
                     },
-                    note: ''
+                    note: ' '
                 },
                 detail: {
                     total_days: 0,
@@ -866,9 +880,12 @@
                     this.updateForm.work_at = work.work_at
                     this.updateForm.leave_at = work.leave_at
                     this.updateForm.level_of_position = data.level_of_position
-                    this.updateForm.note = data.note
+                    this.updateForm.note = data.note ? data.note : ' '
 
                     this.setValue()
+                },
+                changeText(event) {
+                    this.updateForm.note = event.target.innerText;
                 },
                 updateThisEmployeeData() {
                     const employee = this.lockedForm.find(d => parseInt(d.employee_id) === parseInt(this.updateForm.employee_id))
@@ -887,6 +904,7 @@
                                 alert('更新成功!')
                                 this.getSalaryCalculationData();
                                 $('#editEmployee').modal('hide')
+                                this.updateForm.note = ' '
                                 this.$nextTick()
                             } else if(res.code == 201) {
                                 alert('請將該員工解除鎖定!')
@@ -1287,7 +1305,7 @@
                                     document.querySelector('.cash').style.display = 'table-cell';
                                     document.querySelector('.cashT').style.display = 'table-cell';
                                     document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
-                                    document.querySelector('.note').textContent = item.note;
+                                    document.querySelector('.note').innerHTML = `<pre style="white-space: pre-wrap;">${item.note}</pre>`
                                     //蒐集html
                                     printHTML += document.getElementById('salary-table').innerHTML;
                                     this.cleanTable();
@@ -1373,7 +1391,7 @@
                                     document.querySelector('.cash').style.display = 'none';
                                     document.querySelector('.cashT').style.display = 'none';
                                     document.querySelector('.ATM').textContent = this.three(item.calculation_data.ATM);
-                                    document.querySelector('.note').textContent = item.note;
+                                    document.querySelector('.note').innerHTML = `<pre style="white-space: pre-wrap;">${item.note}</pre>`
                                     //蒐集html
                                     printHTML += document.getElementById('salary-table').innerHTML;
                                     this.cleanTable();
@@ -1382,7 +1400,7 @@
                         }
                         //打印
                         if(printHTML !== '') {
-                            const style = "<style>@page { size:  auto; margin: 0 5px; }body {margin: 0 5px;font-family: Arial;font-size: 10px;}table {display:inline-block;border-collapse: collapse;max-width: 300px; margin-top:5px;margin-left:0;margin-right:2px;}table th {background-color: #fff;color: #333;font-weight: bold;}table th, table td {padding: 1px 5px;border: 1px solid #000;text-align: center;height:16px;}.keep {word-break: keep-all;}.break {word-break: break-all;}</style>"
+                            const style = "<style>@page { size:  auto; margin: 0 5px; }body {margin: 0 5px;font-family: Arial;font-size: 10px;}table {display:inline-block;border-collapse: collapse;max-width: 300px; margin-top:5px;margin-left:0;margin-right:2px;}table th {background-color: #fff;color: #333;font-weight: bold;}table th, table td {word-break: break-all;padding: 1px 5px;border: 1px solid #000;text-align: center;height:16px;}.keep {word-break: keep-all;}.break {word-break: break-all;}</style>"
                             var win = window.frames['hidden-table'];
                             win.document.write(`<!DOCTYPE html><html><head><title>薪資條</title>${style}</head><body>${printHTML}</body></html>`);
                             win.document.close();
