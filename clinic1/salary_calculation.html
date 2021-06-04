@@ -14,7 +14,13 @@
         .textarea {
             text-align: left;
             min-height: 80px;
-            border: solid 2px black;
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -pre-wrap;
+            white-space: -o-pre-wrap;
+            word-wrap: break-word;
+            padding: .3rem;
+            border: 2px solid;
         }
     </style>
 <body>
@@ -640,8 +646,7 @@
                                             <div></div>
                                             <textarea class="form-control" v-model="updateForm.note" cols="30" rows="3"></textarea>
                                          </div> -->
-                                         <pre style="margin-top: -20px;">
-                                            <div class="textarea" style=" white-space: pre; "  contenteditable="true"></div>
+                                         <pre class="textarea"  contenteditable="true">
                                         </pre>
                                         
                                     </td>
