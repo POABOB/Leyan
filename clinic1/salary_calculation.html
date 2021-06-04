@@ -641,7 +641,7 @@
                                             <textarea class="form-control" v-model="updateForm.note" cols="30" rows="3"></textarea>
                                          </div> -->
                                          <pre style="margin-top: -20px;">
-                                            <div class="textarea" style=" white-space: pre; "  contenteditable="true">{{updateForm.note}}</div>
+                                            <div class="textarea" style=" white-space: pre; "  contenteditable="true"></div>
                                         </pre>
                                         
                                     </td>
@@ -881,11 +881,9 @@
                     this.updateForm.leave_at = work.leave_at
                     this.updateForm.level_of_position = data.level_of_position
                     this.updateForm.note = data.note ? data.note : ''
+                    document.querySelector('.textarea').innerText = this.updateForm.note
 
                     this.setValue()
-                },
-                changeText(event) {
-                    this.updateForm.note = event.target.innerText;
                 },
                 updateThisEmployeeData() {
                     const employee = this.lockedForm.find(d => parseInt(d.employee_id) === parseInt(this.updateForm.employee_id))
@@ -905,6 +903,7 @@
                                 this.getSalaryCalculationData();
                                 $('#editEmployee').modal('hide')
                                 this.updateForm.note = ''
+                                document.querySelector('.textarea').innerText = this.updateForm.note
                                 this.$nextTick()
                             } else if(res.code == 201) {
                                 alert('請將該員工解除鎖定!')
