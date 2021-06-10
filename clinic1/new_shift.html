@@ -12,6 +12,54 @@
     <link rel="stylesheet" href="../assets/lib/cal.css">
     <style>
         .space{height: 0;}
+        .modal.right .modal-dialog {
+            position: fixed;
+            margin: auto;
+            width: 320px;
+            height: 100%;
+            -webkit-transform: translate3d(0%, 0, 0);
+                -ms-transform: translate3d(0%, 0, 0);
+                -o-transform: translate3d(0%, 0, 0);
+                    transform: translate3d(0%, 0, 0);
+        }
+
+        .modal.right .modal-content {
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .modal.right .modal-body {
+            padding: 15px 15px 80px;
+        }
+
+        .modal.right .modal-header .close {
+            padding: 1.5rem 1rem 0rem;
+            margin: -1rem -1rem -1rem auto;
+        }
+
+        /*Right*/
+        .modal.right.fade .modal-dialog {
+            right: 0;
+            -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+            -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+                -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+                    transition: opacity 0.3s linear, right 0.3s ease-out;
+        }
+        
+        .modal.right.fade.in .modal-dialog {
+            right: 0;
+        }
+
+        /* ----- MODAL STYLE ----- */
+        .modal-content {
+            border-radius: 0;
+            border: none;
+        }
+
+        .modal-header {
+            border-bottom-color: #EEEEEE;
+            background-color: #FAFAFA;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +136,7 @@
                         <button class="btn btn-primary" aria-expanded="false" data-toggle="collapse" data-target="#editShift">編輯排班</button>
                         <button class="btn btn-primary" data-toggle="modal" data-target="#copyModal">複製排班</button>
                         <button class="btn btn-primary" @click="printPDF">列印排班</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#statistic">統計</button>
                         
                     </p>
                     <div id="coll">
@@ -290,6 +339,91 @@
         </div>
         <!-- Modal END -->
 
+        <!-- Modal -->
+        <div class="modal right fade" id="statistic" tabindex="-1" role="dialog" aria-labelledby="statistic">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title" id="statistic">統計</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+
+                <div class="modal-body">
+                   <table class="table table-hover" style="width: 100%;">
+                       <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>總時數</th>
+                                <th>總診數</th>
+                            </tr>
+                       </thead>
+                       <tbody>
+                           <tr v-for="(d,index) in calculateTable" @click="getCalculateTable(d.employee_id)" style="cursor: pointer;">
+                               <td style="max-width: 70px;word-break: break-all;">{{ d.name }}</td>
+                               <td>{{ (parseFloat(d.time.total_time) / 60).toFixed(1)  }}</td>
+                               <td>{{ d.time.period }}</td>
+                           </tr>
+                       </tbody>
+                   </table>
+                </div>
+
+                </div><!-- modal-content -->
+            </div><!-- modal-dialog -->
+        </div><!-- modal -->
+
+        <!-- Modal -->
+        <div class="modal fade" id="statistic2" tabindex="-1" role="dialog" aria-labelledby="statistic2">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title" id="statistic2">排班表統計</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+
+                <div class="modal-body">
+                    <div style="text-align: center;">
+                        <p>
+                            <span>姓名: {{ calculateSelfTable.name }}  </span>
+                            <span>總時數: {{ (parseFloat(calculateSelfTable.time.total_time) / 60).toFixed(1) }}  </span>
+                            <span>總診數: {{ calculateSelfTable.time.period }}  </span>
+                        </p>
+                    </div>
+                   <table class="table table-hover" style="width: 100%;">
+                       <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>星期</th>
+                                <th>第一班</th>
+                                <th>第二班</th>
+                                <th>第三班</th>
+                                <th>崗位</th>
+                                <th>時數</th>
+                                <th>診數</th>
+                            </tr>
+                       </thead>
+                       <tbody>
+                           <tr v-for="(d,index) in calculateSelfTable.shift_table" @click="getCalculateTable(d.employee_id)" style="cursor: pointer;">
+                               <td>{{ d.date }}</td>
+                               <td>{{ d.day }}</td>
+                               <td>{{ d.shift.on_1st }} , {{ d.shift.off_1st }}</td>
+                               <td>{{ d.shift.on_2nd }} , {{ d.shift.off_2nd }}</td>
+                               <td>{{ d.shift.on_3rd }} , {{ d.shift.off_3rd }}</td>
+                               <td>{{ d.position.name }}</td>
+                               <td>{{ (parseFloat(d.shift.time) / 60).toFixed(1) }}</td>
+                               <td>{{ d.shift.period }}</td>
+                           </tr>
+                       </tbody>
+                   </table>
+                </div>
+
+                </div><!-- modal-content -->
+            </div><!-- modal-dialog -->
+        </div><!-- modal -->
+  
+
+
         <iframe id="hidden-table" name="hidden-table" style="display: none;"></iframe>
 
     </div>
@@ -332,6 +466,16 @@
                 employee: [],
                 shift: [],
                 position: [],
+                calculateTable: [],
+                calculateSelfTable: {
+                    employee_id: 0,
+                    name: "",
+                    time: {
+                        period: 0,
+                        total_time: 0
+                    },
+                    shift_table: []
+                },
                 month: {
                     month: "",
                     startDay: "",
@@ -415,6 +559,16 @@
                 let link3 = document.createElement("style")
                 link3.appendChild(document.createTextNode(style));
                 window.frames['hidden-table'].document.head.appendChild(link3);
+
+                $('.modal').on('show.bs.modal', function(event) {
+                var idx = $('.modal:visible').length;
+                    $(this).css('z-index', 1040 + (10 * idx));
+                });
+                $('.modal').on('shown.bs.modal', function(event) {
+                    var idx = ($('.modal:visible').length) -1; // raise backdrop after animation.
+                    $('.modal-backdrop').not('.stacked').css('z-index', 1039 + (10 * idx));
+                    $('.modal-backdrop').not('.stacked').addClass('stacked');
+                });
             },
             methods: {
                 logout() {
@@ -452,6 +606,7 @@
                             this.nextWeek();
                         }
                     }
+                    this.calculateTime()
                     this.shiftOnCalendar()
                 },
                 // async getEmployeeData(date = null) {
@@ -1067,6 +1222,57 @@
                     win.document.close();
                     win.print();
                     document.title = `排班表`
+                },
+                calculateTime() {
+                    let data = []
+                    this.employee.forEach(item => {
+                        //獲取該員工所有shift table
+                        const st = this.shift_table.filter(d => parseInt(d.employee_id) === parseInt(item.employee_id));
+                        let temp = [], tempTime = 0, tempPeriod = 0;
+                        st.forEach(item => {
+                            item.data.forEach(item2 => {
+                                if(parseInt(item2.shift.time) === 0) {
+                                    //計算時間 診數
+                                    tempTime += 0;
+                                    tempPeriod+= 0;
+                                } else {
+                                    //計算時間 診數
+                                    tempTime += parseInt(item2.shift.time);
+                                    tempPeriod+= parseInt(item2.shift.period);
+                                    //push shift table
+                                    temp.push(item2);
+                                }
+                            }); 
+                        });
+
+                        //由小排到大
+                        temp = ArraySort(temp, (a, b) => new Date(a.date) - new Date(b.date));
+
+                        //整理
+                        data.push({
+                            employee_id: item.employee_id,
+                            name: item.name,
+                            time: {
+                                period: tempPeriod,
+                                total_time: tempTime
+                            },
+                            shift_table: temp
+                        });
+                    });
+
+                    //由大排到小
+                    data = ArraySort(data, (a, b) => a.time.total_time < b.time.total_time);
+
+                    this.calculateTable = data;
+                },
+                getCalculateTable(employee_id) {
+                    //獲取該員工資料
+                    const st = this.calculateTable.find(d => parseInt(d.employee_id) === parseInt(employee_id));
+                    //modal
+                    this.calculateSelfTable = st;
+                    
+                    
+                    $('#statistic2').modal();
                 }
             },
             watch: {
