@@ -136,7 +136,7 @@
                         <button class="btn btn-primary" aria-expanded="false" data-toggle="collapse" data-target="#editShift">編輯排班</button>
                         <button class="btn btn-primary" data-toggle="modal" data-target="#copyModal">複製排班</button>
                         <button class="btn btn-primary" @click="printPDF">列印排班</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#statistic">統計</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#statistic" @click="sortTable()">統計</button>
                         
                     </p>
                     <div id="coll">
@@ -1264,6 +1264,9 @@
                     data = ArraySort(data, (a, b) => a.time.total_time < b.time.total_time);
 
                     this.calculateTable = data;
+                },
+                sortTable() {
+                    this.calculateTable = ArraySort(this.calculateTable, (a, b) => a.time.total_time < b.time.total_time);
                 },
                 getCalculateTable(employee_id) {
                     //獲取該員工資料
