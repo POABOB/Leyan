@@ -1015,9 +1015,8 @@
                                 item['nickname'] = data.nickname
                             }
                         })
-                        // console.log(this.shift_table)
                         // 傳入Shift.js
-                        this.s = new Shift(this.shift_table)
+                        this.s = new Shift(this.shift_table, this.employee)
                         this.changeLiHeight()
                     }
                 },

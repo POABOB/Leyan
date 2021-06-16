@@ -1,13 +1,16 @@
 {
     class Shift {
-      constructor(data) {
+      constructor(data, employee) {
         this.data = data
+        this.employee = employee
         this._generateShiftByClass()
       }
 
       //生成排班
       _generateShiftByClass() {
           this.data.forEach(item => {
+              //TODO 搜尋color
+              const e = this.employee.find(d => parseInt(d.employee_id)  === parseInt(item.employee_id))
               item.data.forEach(item2 => {
                 if(item2.shift.time !== 0) {
                     let _class = ""
@@ -25,13 +28,14 @@
                         `
                     )
                     if(_class === " morning night") {
+                        //TODO 新增color
                         $(`.days > .currentMonth:eq(${day}) > .shift_content`).append(
                             `
                                 <div class="employee${_class}">
-                                    <div class="m">
+                                    <div class="m" style="background-color: ${e.shift_table_color}">
                                         <span>${item.nickname}</span>
                                     </div>    
-                                    <div class="n">
+                                    <div class="n" style="background-color: ${e.shift_table_color}">
                                         <span>${item.nickname}</span>
                                     </div>
                                 </div>
@@ -40,7 +44,7 @@
                     } else {
                         $(`.days > .currentMonth:eq(${day}) > .shift_content`).append(
                             `
-                                <div class="employee${_class}">
+                                <div class="employee${_class}" style="background-color: ${e.shift_table_color}">
                                     <span>${item.nickname}</span>
                                 </div>    
                             `

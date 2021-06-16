@@ -233,6 +233,22 @@
                                     <input class="form-control resetByAdd" type="text" id="assistant_number" maxlength="2">
                                 </div>
                                 <div class="form-group col-12 col-sm-6 col-md-4">
+                                    <label for="shift_table_color">*排班表顏色</label>
+                                    <input class="form-control resetByAddColor" id="shift_table_color"  type="color"  value="#eeeeee" list="list" />
+                                    <datalist id="list">
+                                        <option>#eeeeee</option>
+                                        <option>#80ffdf</option>
+                                        <option>#00ffff</option>
+                                        <option>#e6b3ff</option>
+                                        <option>#ffb3d9</option>
+                                        <option>#ffd9b3</option>
+                                        <option>#ff9999</option>
+                                        <option>#ffd966</option>
+                                        <option>#c2c2d6</option>
+                                        <option>#ffb366</option>
+                                      </datalist>
+                                </div>
+                                <div class="form-group col-12 col-sm-6 col-md-4">
                                     <input class="form-control resetByAdd" type="hidden" id="employee_id">
                                 </div>
                             </div>
@@ -618,6 +634,7 @@
                     $('.btn-update').css('display', 'none')
                     $('.btn-add').css('display', 'block')
                     $('.resetByAdd').val('')
+                    $('.resetByAddColor').val('#eeeeee')
                     $('#status').val('2');
                     $('#gender').val('1');
                     $('#level_of_position').val('2');
@@ -645,7 +662,8 @@
                         'emergency_contact': $('#emergency_contact').val(),
                         'emergency_phone': $('#emergency_phone').val(),
                         'emergency_relationship': $('#emergency_relationship').val(),
-                        'assistant_number':$('#assistant_number').val()
+                        'assistant_number':$('#assistant_number').val(),
+                        'shift_table_color':$('#shift_table_color').val()
                     }
                     //正則
                     if(this.emailRegExp($('#email').val())) {
@@ -695,6 +713,7 @@
                     $('#emergency_phone').val(this.data[index].emergency_phone)
                     $('#emergency_relationship').val(this.data[index].emergency_relationship)
                     $('#assistant_number').val(this.data[index].assistant_number)
+                    $('#shift_table_color').val(this.data[index].shift_table_color)
                     $('#employee_id').val(this.data[index].employee_id)
                 },
                 updateEmployeeData() {
@@ -721,6 +740,7 @@
                         'emergency_phone': $('#emergency_phone').val(),
                         'emergency_relationship': $('#emergency_relationship').val(),
                         'assistant_number':$('#assistant_number').val(),
+                        'shift_table_color':$('#shift_table_color').val(),
                         'employee_id':$('#employee_id').val()
                     }
                     //正則
