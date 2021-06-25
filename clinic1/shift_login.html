@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>排班系統帳號</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/google.font.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="loading-wrapper">
+        <svg class="loading"><rect></rect></svg>
+    </div>
+    <div id='app'>
+        <h3>帳號: {{ shift.account }}</h3>
+        <h3>密碼: {{ shift.password }}</h3>
+    </div>
+
+    <script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/jquery-3.4.1.min.js" ></script>
+    <script src="../assets/js/q.js"></script>
+    <script src="../assets/js/vue.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data: {
+                shift: {
+                    account: '',
+                    password: ''
+                },
+                user: {
+                    user_id: 0,
+                    account_number: '',
+                    right: 0,
+                    clinic_id: 0,
+                    clinic_name:''
+                },
+            },
+            created() {
+                get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
+                    if(res.code == 403) {
+                        window.localStorage.removeItem('token')
+                        location.href = './index.html?redirect=shift_login.html'
+                    } else {
+                        this.user = res.data
+                        // this.getClinicData();
+                    }
+                })
+            },
+            methods: {
+                getClinicData() {
+                    get('/api_v1.1/data/shift').then(res => {
+                        if(res.code == 403) {
+                            location.href = './index.html?redirect=shift_login.html'
+                        } else {
+                            this.shift = res.data
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+</html>

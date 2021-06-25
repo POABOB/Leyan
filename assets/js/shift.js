@@ -8,8 +8,10 @@
 
       //生成排班
       _generateShiftByClass() {
+          //TODO 把所有data全部丟入一個array
+          //TODO 先sort date 再sort有pin欄位且pin = 1
           this.data.forEach(item => {
-              //TODO 搜尋color
+              //搜尋color
               const e = this.employee.find(d => parseInt(d.employee_id)  === parseInt(item.employee_id))
               item.data.forEach(item2 => {
                 if(item2.shift.time !== 0) {
@@ -28,7 +30,7 @@
                         `
                     )
                     if(_class === " morning night") {
-                        //TODO 新增color
+                        //新增color
                         $(`.days > .currentMonth:eq(${day}) > .shift_content`).append(
                             `
                                 <div class="employee${_class}">
