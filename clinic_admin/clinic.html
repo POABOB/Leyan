@@ -47,6 +47,15 @@
                                         <td><button class="btn btn-info" data-toggle="modal" data-target="#User" @click="editUserData(de.user_id, de.right, de.clinic_id)">編輯</button></td>
                                         <td><button class="btn btn-danger" @click="deleteUserData(de.clinic_id, de.user_id)">刪除</button></td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="form-group">
+                                                <label for="salt">打卡系統密碼</label>
+                                                <input v-model="shiftForm.salt" type="password" class="form-control"  required maxlength="10">
+                                            </div>
+                                        </td>
+                                        <td><button class="btn btn-info" @click="updateShiftSalt(d.clinic_id)">更新</button></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -158,6 +167,10 @@
                 userForm: {account_number:'',password:'',passconf:'',right:4,clinic_id:0,user_id:0},
                 clinicMode: 'add',
                 userMode: 'add',
+                shiftForm: {
+                    salt: '',
+                    clinic_id: 0
+                }
             },
             created() {
                 this.getClinicData();
@@ -325,6 +338,23 @@
                         this.updateUserData();
                     }
                 },
+                updateShiftSalt(clinic_id = 0) {
+                    if(parseInt(clinic_id) > 0 && this.shiftForm.salt.length === 7) {
+                        this.shiftForm.clinic_id = clinic_id;
+                        const data = this.shiftForm
+                        post('/api_v1.1/admin/clinic/shift/salt', data).then(res => {
+                            if (res.code == 200) {
+                                alert(res.message);
+                                this.shiftForm.clinic_id = 0
+                                this.shiftForm.salt = ''
+                            } else {
+                                alert(res.message)
+                            }
+                        })
+                    } else {
+                        alert('確認clinic_id是否有效或密碼是否為7碼!');
+                    }
+                }
             }
         })
     </script>

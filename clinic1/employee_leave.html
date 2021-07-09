@@ -100,7 +100,7 @@
                                     <td><p>{{d.cellphone}}</p></td>
                                     <td>
                                         <button class="btn btn-primary" @click="back(d.employee_id)">復職</button> 
-                                        <button class="btn btn-primary" @click="deleteEmployeeData(d.employee_id)">刪除</button> 
+                                        <button v-if="parseInt(user.right) >= 5" class="btn btn-primary" @click="deleteEmployeeData(d.employee_id)">刪除</button> 
                                     </td>
                                 </tr>
                                 <tr v-if="data == null || data.length < 1">
@@ -214,10 +214,15 @@
                                 alert(res.message)
                                 window.location.reload('./employee.html')
                                 return
-                            }
-                            else {
+                            } else if(res.data !== null) {
+                                let errorMsg = res.message+':'
+                                const data = res.data !== null ? res.data : []
+                                Object.values(data).forEach((item, key) => {
+                                    errorMsg += `\n${key+1}. ${item}`
+                                })
+                                alert(errorMsg)
+                            } else {
                                 alert(res.message)
-                                console.log(res.message)
                             }
                         })
                     }

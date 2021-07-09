@@ -443,7 +443,7 @@
                             <li class="list-group-item form-inline">
                                 <div class="form-group mx-sm-3 mb-2">
                                     <label for="meal_allowance">餐費補助: </label>
-                                    <input type="text" class="form-control ml-2" size="1" id="meal_allowance" v-model="S_PForm.salary_setting.meal_allowance">
+                                    <input type="number" class="form-control ml-2" size="1" id="meal_allowance" v-model="S_PForm.salary_setting.meal_allowance" min="0" required>
                                 </div>
                             </li>
                             <li class="list-group-item form-inline">
@@ -458,7 +458,7 @@
                             <li class="list-group-item form-inline"  v-show="salaryChange()">
                                 <div class="form-group mx-sm-3 mb-2">
                                     <label for="hourly_wage">時薪: </label>
-                                    <input type="text" class="form-control ml-2" size="1" id="hourly_wage" v-model="S_PForm.salary_setting.hourly_wage">
+                                    <input type="number" class="form-control ml-2" size="1" id="hourly_wage" v-model="S_PForm.salary_setting.hourly_wage"  min="0" required>
                                 </div>
                             </li>
                         </ul>
@@ -673,14 +673,15 @@
                                     alert(res.message)
                                     window.location.reload('./employee.html')
                                     return
-                                }
-                                else {
+                                } else if(res.data !== null) {
                                     let errorMsg = res.message+':'
                                     const data = res.data !== null ? res.data : []
                                     Object.values(data).forEach((item, key) => {
                                         errorMsg += `\n${key+1}. ${item}`
                                     })
                                     alert(errorMsg)
+                                } else {
+                                    alert(res.message)
                                 }
                             })
                         } else {
@@ -751,14 +752,15 @@
                                     alert(res.message)
                                     window.location.reload('./employee.html')
                                     return
-                                }
-                                else {
+                                } else if(res.data !== null) {
                                     let errorMsg = res.message+':'
                                     const data = res.data !== null ? res.data : []
                                     Object.values(data).forEach((item, key) => {
                                         errorMsg += `\n${key+1}. ${item}`
                                     })
                                     alert(errorMsg)
+                                } else {
+                                    alert(res.message)
                                 }
                             })
                         } else {
@@ -817,10 +819,15 @@
                             alert(res.message)
                             window.location.reload('./employee.html')
                             return
-                        }
-                        else {
+                        } else if(res.data !== null) {
+                            let errorMsg = res.message+':'
+                            const data = res.data !== null ? res.data : []
+                            Object.values(data).forEach((item, key) => {
+                                errorMsg += `\n${key+1}. ${item}`
+                            })
+                            alert(errorMsg)
+                        } else {
                             alert(res.message)
-                            console.log(res.message)
                         }
                     })
                 },
@@ -850,10 +857,15 @@
                             alert(res.message)
                             window.location.reload('./employee.html')
                             return
-                        }
-                        else {
+                        } else if(res.data !== null) {
+                            let errorMsg = res.message+':'
+                            const data = res.data !== null ? res.data : []
+                            Object.values(data).forEach((item, key) => {
+                                errorMsg += `\n${key+1}. ${item}`
+                            })
+                            alert(errorMsg)
+                        } else {
                             alert(res.message)
-                            console.log(res.message)
                         }
                     })
                 },
@@ -890,17 +902,23 @@
                 },
                 //Salary&Position
                 updateS_PData() {
-                    post('/api_v1.1/clinic/employee/S_P/update', this.S_PForm).then(res => {
-                        if (res.code === 200) {
-                            alert(res.message)
-                            window.location.reload('./employee.html')
-                            return
-                        }
-                        else {
-                            alert(res.message)
-                            console.log(res.message)
-                        }
-                    })
+                    if(this.S_PForm.salary_setting.hourly_wage == null || this.S_PForm.salary_setting.hourly_wage == "") {
+                        alert("請填寫時薪!")
+                    }else if(this.S_PForm.salary_setting.meal_allowance == null || this.S_PForm.salary_setting.meal_allowance == "") {
+                        alert("請填寫餐費補助!")
+                    } else {
+                        post('/api_v1.1/clinic/employee/S_P/update', this.S_PForm).then(res => {
+                            if (res.code === 200) {
+                                alert(res.message)
+                                window.location.reload('./employee.html')
+                                return
+                            }
+                            else {
+                                alert(res.message)
+                                console.log(res.message)
+                            }
+                        })
+                    }
                 },
                 getPositionData() {
                     get('/api_v1.1/clinic/position').then(res => {
