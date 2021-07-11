@@ -51,16 +51,10 @@
                 if (res.code === 200) {
                     alert('success')
                     window.localStorage.setItem('token', res.data.token)
-                    const urlSearchParams = new URLSearchParams(window.location.search);
-                    const params = Object.fromEntries(urlSearchParams);
-                    if(params.redirect !== undefined) {
-                        location.href = './' + params.redirect
+                    if(parseInt(res.data.right) === 1) {
+                        location.href = './employee/announce.html'
                     } else {
-                        if(parseInt(res.data.right) === 1) {
-                            location.href = './employee/announce.html'
-                        } else {
-                            location.href = './assistant.html'
-                        }
+                        location.href = './assistant.html'
                     }
                 } else {
                     alert(res.message)
