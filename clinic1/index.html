@@ -52,7 +52,7 @@
                     alert('success')
                     window.localStorage.setItem('token', res.data.token)
                     const urlSearchParams = new URLSearchParams(window.location.search);
-                    const params = Object.fromEntries(urlSearchParams.entries());
+                    const params = Object.fromEntries(urlSearchParams);
                     if(params.redirect !== undefined) {
                         location.href = './' + params.redirect
                     } else {

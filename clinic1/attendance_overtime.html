@@ -310,7 +310,7 @@
                 get('/api_v1.1/info?token='+window.localStorage.getItem('token')).then(res => {
                     if(res.code == 403) {
                         window.localStorage.removeItem('token')
-                        location.href = './index.html'
+                        location.href = './index.html?redirect=attendance_overtime.html'
                     } else {
                         this.user = res.data
                         //判斷這本月
